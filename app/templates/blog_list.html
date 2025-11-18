@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Blog - Tin tức</h1>
+    <hr>
+    {% for post in posts %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">{{ post.title }}</h2>
+            <p class="card-subtitle mb-2 text-muted">
+                Đăng bởi <strong>{{ post.author.username }}</strong> vào {{ post.timestamp.strftime('%d-%m-%Y') }}
+            </p>
+            
+            <p class="card-text">
+                {{ post.body | striptags | truncate(200) }}
+            </p>
+            
+            <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="btn btn-primary">Đọc tiếp &rarr;</a>
+        </div>
+    </div>
+    {% endfor %}
+{% endfor %} {% if pagination.pages > 1 %}
+    <nav aria-label="Phân trang Blog" class="mt-5">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
+                <a class="page-link" href="{{ url_for('main.blog_index', page=pagination.prev_num) }}">
+                    &laquo;
+                </a>
+            </li>
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.blog_index', page=page_num) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
+                <a class="page-link" href="{{ url_for('main.blog_index', page=pagination.next_num) }}">
+                    &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+    {% endif %}
+    </div> {% endblock %}

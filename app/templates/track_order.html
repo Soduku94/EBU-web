@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 60vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="my-4 text-center">{{ title }}</h2>
+            <p class="text-center">Vui lòng nhập Mã Đơn hàng (được gửi trong email) và Email của bạn để xem trạng thái đơn hàng.</p>
+            
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }} <div class="mb-3">
+                    {{ form.order_id.label(class="form-label") }}
+                    {{ form.order_id(class="form-control", placeholder="Ví dụ: 7") }}
+                    {% for error in form.order_id.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", placeholder="Email bạn đã dùng khi đặt hàng") }}
+                    {% for error in form.email.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

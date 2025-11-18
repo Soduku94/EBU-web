@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">{{ title }}</h2>
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <p class="mb-0"><strong>Từ:</strong> {{ message.name }}</p>
+                    <p class="mb-0"><strong>Email:</strong> {{ message.email }}</p>
+                    <p class="mb-0"><strong>Lúc:</strong> {{ message.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Nội dung tin nhắn:</h5>
+                    <pre class="card-text" 
+                         style="font-family: inherit; font-size: 1rem; white-space: pre-wrap;">{{ message.message }}</pre>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('admin.manage_messages') }}" class="btn btn-primary">
+                        &larr; Quay lại Hộp thư
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

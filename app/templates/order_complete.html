@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Đặt hàng thành công{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0;">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            
+            <h1 class="text-success">Đặt hàng thành công!</h1>
+            <p class="lead">Cảm ơn bạn đã mua hàng tại Home Fit Pro.</p>
+            <p>Mã đơn hàng của bạn là: <strong>#{{ order.id }}</strong></p>
+            
+            <p>Đơn hàng sẽ được giao tới <strong>{{ order.customer_name }}</strong> tại địa chỉ:</p>
+            <p><em>{{ order.shipping_address }}</em></p>
+            <p>Số điện thoại liên hệ: <strong>{{ order.customer_phone }}</strong></p>
+
+            <hr class="my-4">
+            
+            <h4>Chi tiết đơn hàng</h4>
+            <ul class="list-group mb-3">
+                {% for item in items %}
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">{{ item.product.name }}</h6>
+                        <small class="text-muted">Số lượng: {{ item.quantity }}</small>
+                    </div>
+                    <span class="text-muted">{{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND</span>
+                </li>
+                {% endfor %}
+                <li class="list-group-item d-flex justify-content-between bg-light">
+                    <span>Tổng cộng (VND)</span>
+                    <strong>{{ "%.0f"|format(order.total_price) }} VND</strong>
+                </li>
+            </ul>
+
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">Quay về Trang chủ</a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

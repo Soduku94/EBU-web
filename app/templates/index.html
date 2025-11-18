@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .hero-banner {
+        position: relative;
+        height: 70vh; /* Cao 70% chiều cao màn hình */
+        min-height: 400px;
+        background: url('https://plus.unsplash.com/premium_photo-1672757112038-f801e06d64d1?q=80&w=1974&auto=format&fit=crop') no-repeat center center;
+        background-size: cover;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .hero-banner::after {
+        /* Lớp phủ màu đen mờ để chữ nổi bật */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 600px;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="hero-banner">
+    <div class="hero-content">
+        <h1 class="display-4">Kiến tạo Sức khỏe. Ngay tại Nhà.</h1>
+        <p class="lead mb-4">Khám phá các dụng cụ tập luyện chuyên nghiệp giúp bạn đạt mục tiêu.</p>
+        <a href="#featured-products" class="btn btn-primary btn-lg">Khám phá Sản phẩm</a>
+    </div>
+</div>
+
+
+<div class="container mt-5" id="featured-products">
+    <div class="row text-center mb-4">
+        <div class="col">
+            <h2>Sản phẩm Mới nhất</h2>
+            <p class="lead">Những thiết bị vừa "cập bến" tại Home Fit Pro.</p>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4"> {% if products %}
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100">
+                <img src="{{ product.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
+                     class="card-img-top"
+                     alt="{{ product.name }}">
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">
+                        <strong>Giá: {{ "%.0f"|format(product.price) }} VND</strong>
+                    </p>
+                </div>
+
+                <div class="card-footer">
+                    <a href="{{ url_for('main.product_detail', product_id=product.id) }}"
+                       class="btn btn-primary btn-sm">Xem chi tiết</a>
+                    <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
+                          class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm">Thêm vào giỏ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <p class="text-center">Hiện chưa có sản phẩm nào.</p>
+        </div>
+        {% endif %}
+    </div>
+    <div class="row text-center border-bottom pb-4">
+        <div class="col-md-4">
+            <i class="bi bi-truck" style="font-size: 2.5rem; color: var(--bs-primary);"></i>
+            <h5 class="mt-2">Giao hàng Toàn quốc</h5>
+            <p class="text-muted">Giao hàng nhanh chóng và tin cậy đến tận cửa nhà bạn.</p>
+        </div>
+
+        <div class="col-md-4">
+            <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--bs-primary);"></i>
+            <h5 class="mt-2">Bảo hành Chính hãng</h5>
+            <p class="text-muted">Bảo hành 12 tháng cho tất cả các thiết bị máy tập.</p>
+        </div>
+
+        <div class="col-md-4">
+            <i class="bi bi-headset" style="font-size: 2.5rem; color: var(--bs-primary);"></i>
+            <h5 class="mt-2">Tư vấn 24/7</h5>
+            <p class="text-muted">Hỏi đáp mọi thắc mắc về fitness với trợ lý AI của chúng tôi.</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <div class="row text-center mb-4">
+        <div class="col">
+            <h2>Mua sắm theo Danh mục</h2>
+            <p class="lead">Tìm kiếm chính xác dụng cụ bạn cần.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% set featured_categories = categories[:4] %}
+
+        {% for cat in featured_categories %}
+        <div class="col-md-6">
+            <a href="{{ url_for('main.category_products', category_id=cat.id) }}"
+               class="card text-decoration-none text-dark shadow-sm h-100">
+                <img src="https://plus.unsplash.com/premium_photo-1664109614830-73c3b06e300d?q=80&w=870&auto=format&fit=crop"
+                     class="card-img"
+                     alt="{{ cat.name }}"
+                     style="height: 250px; object-fit: cover; filter: brightness(0.8);">
+
+                <div class="card-img-overlay d-flex align-items-center justify-content-center">
+                    <h3 class="card-title text-white"
+                        style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+                        {{ cat.name }}
+                    </h3>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<div class="container mt-5 py-5 bg-light rounded">
+    <div class="row text-center mb-4">
+        <div class="col">
+            <h2>Góc Tư vấn & Blog</h2>
+            <p class="lead">Cập nhật tin tức và kiến thức fitness mới nhất.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-7">
+            <h4>Bài viết Mới nhất</h4>
+            <hr>
+            {% if latest_posts %}
+            {% for post in latest_posts %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-subtitle mb-2 text-muted">
+                        bởi <strong>{{ post.author.username }}</strong> - {{ post.timestamp.strftime('%d-%m-%Y') }}
+                    </p>
+
+                    <p class="card-text">
+                        {{ post.body | striptags | truncate(150) }}
+                    </p>
+
+                    <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="btn btn-outline-primary btn-sm">Đọc
+                        tiếp &rarr;</a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>Chưa có bài viết blog nào.</p>
+            {% endif %}
+
+            <a href="{{ url_for('main.blog_index') }}" class="btn btn-primary mt-2">Xem tất cả bài viết</a>
+        </div>
+
+        <div class="col-md-5">
+            <h4>Bạn cần Hỗ trợ?</h4>
+            <hr>
+            <div class="card bg-white p-4 text-center shadow-sm h-100">
+                <i class="bi bi-question-circle-fill" style="font-size: 3rem; color: var(--bs-primary);"></i>
+
+                <h5 class="mt-3">Trang FAQs & Tư vấn</h5>
+                <p>Tìm câu trả lời ngay lập tức cho các câu hỏi thường gặp về sản phẩm, giao hàng, và bảo hành.</p>
+                <a href="{{ url_for('main.advice') }}" class="btn btn-primary mb-3">Xem FAQs</a>
+
+                <h5 class="mt-3">Trợ lý AI 24/7</h5>
+                <p>Có câu hỏi về fitness? Hãy hỏi AI Chatbot của chúng tôi (biểu tượng 💬 ở góc màn hình) bất cứ lúc
+                    nào!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <div class="row text-center mb-4">
+        <div class="col">
+            <h2>Khách hàng nói gì về chúng tôi</h2>
+            <p class="lead">Những đánh giá 5 sao thực tế từ khách hàng.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% if latest_reviews %}
+        {% for review in latest_reviews %}
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-2" style="font-size: 1.5rem;">
+                        ★★★★★
+                    </div>
+
+                    <blockquote class="blockquote">
+                        <p>"{{ review.comment | truncate(150) }}"</p>
+                    </blockquote>
+
+                    <footer class="blockquote-footer mt-2">
+                        <strong>{{ review.author.username }}</strong>
+                        <br>
+                        <small>đã đánh giá sản phẩm
+                            <a href="{{ url_for('main.product_detail', product_id=review.product.id) }}">
+                                {{ review.product.name }}
+                            </a>
+                        </small>
+                    </footer>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

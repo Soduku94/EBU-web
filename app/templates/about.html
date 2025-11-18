@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 60vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="my-4 text-center">{{ title }}</h1>
+            <p class="lead">
+                Chào mừng bạn đến với Home Fit Pro! Chúng tôi tin rằng một sức khỏe tốt là nền tảng của một cuộc sống hạnh phúc. 
+                Sứ mệnh của chúng tôi là mang đến những dụng cụ tập luyện chất lượng cao, tiện lợi và an toàn nhất, 
+                giúp bạn dễ dàng kiến tạo không gian rèn luyện sức khỏe ngay tại chính ngôi nhà của mình.
+            </p>
+            <p>
+                (Bạn có thể viết thêm về lịch sử hình thành, đội ngũ, và cam kết chất lượng của shop ở đây...)
+            </p>
+            
+            <img src="https://plus.unsplash.com/premium_photo-1664301132846-38f3a8b4f4c2?q=80&w=1770&auto.format&fit=crop" 
+                 class="img-fluid rounded my-4" 
+                 alt="Đội ngũ Home Fit Pro">
+        </div>
+    </div>
+</div>
+{% endblock %}

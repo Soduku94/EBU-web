@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.image_url or 'https://via.placeholder.com/600x400.png?text=Home+Fit+Pro' }}"
+                 class="img-fluid rounded"
+                 alt="{{ product.name }}">
+        </div>
+
+        <div class="col-md-6">
+            <h2>{{ product.name }}</h2>
+            <p class="text-muted">
+                Danh mục:
+                <a href="{{ url_for('main.category_products', category_id=product.category.id) }}">
+                    {{ product.category.name }}
+                </a>
+            </p>
+
+            <h3 class="text-success my-3">{{ "%.0f"|format(product.price) }} VND</h3>
+            <p class="lead">{{ product.description }}</p>
+            <hr>
+
+            {% if product.stock > 0 %}
+                <p>Tình trạng: <span class="badge bg-success">Còn hàng ({{ product.stock }})</span></p>
+
+                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                    <div class="input-group mb-3" style="max-width: 150px;">
+                        <button class="btn btn-outline-secondary" type="button" id="button-decrease">-</button>
+
+                        <input type="text"
+                               class="form-control text-center"
+                               value="1"
+                               min="1"
+                               max="{{ product.stock }}"
+                               name="quantity"
+                               aria-label="Số lượng"
+                               id="quantity-input"
+                               readonly>
+
+                        <button class="btn btn-outline-secondary" type="button" id="button-increase">+</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg btn-success">
+                        Thêm vào giỏ hàng
+                    </button>
+                </form>
+            {% else %}
+                <p>Tình trạng: <span class="badge bg-danger">Hết hàng</span></p>
+                <button type="button" class="btn btn-secondary btn-lg" disabled>Hết hàng</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="row">
+        <div class="col-md-7">
+            <h3>Đánh giá sản phẩm ({{ reviews|length }})</h3>
+            <hr>
+
+            {% if not reviews %}
+                <p>Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!</p>
+            {% else %}
+                {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="text-warning">
+                                {% for _ in range(review.rating) %}★{% endfor %}
+                                {% for _ in range(5 - review.rating) %}☆{% endfor %}
+                            </span>
+                        </h5>
+                        <p class="card-text">{{ review.comment }}</p>
+                        <footer class="blockquote-footer">
+                            Viết bởi <strong>{{ review.author.username }}</strong>
+                            vào {{ review.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                        </footer>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="col-md-5">
+            <h3>Viết đánh giá</h3>
+
+            {% if current_user.is_authenticated %}
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.rating.label(class="form-label") }}
+                        {% for subfield in form.rating %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input") }}
+                            {{ subfield.label(class="form-check-label") }}
+                        </div>
+                        {% endfor %}
+
+                        {% for error in form.rating.errors %}
+                            <span class="text-danger d-block">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.comment.label(class="form-label") }}
+                        {{ form.comment(class="form-control", rows=4) }}
+
+                        {% for error in form.comment.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary") }}
+                </form>
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    Bạn phải <a href="{{ url_for('auth.login', next=request.url) }}" class="alert-link">đăng nhập</a> để viết đánh giá.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related_products %}
+    <hr class="my-5">
+
+    <h3 class="mb-4">Sản phẩm cùng danh mục</h3>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for rel_prod in related_products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ rel_prod.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
+                     class="card-img-top"
+                     alt="{{ rel_prod.name }}"
+                     style="height: 200px; object-fit: cover;">
+
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">
+                        <a href="{{ url_for('main.product_detail', product_id=rel_prod.id) }}"
+                           class="text-decoration-none text-dark">
+                            {{ rel_prod.name }}
+                        </a>
+                    </h5>
+
+                    <p class="card-text text-success fw-bold">
+                        {{ "%.0f"|format(rel_prod.price) }} VND
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white border-top-0">
+                    <div class="d-grid">
+                        <a href="{{ url_for('main.product_detail', product_id=rel_prod.id) }}"
+                           class="btn btn-outline-primary btn-sm">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const decreaseBtn = document.getElementById('button-decrease');
+        const increaseBtn = document.getElementById('button-increase');
+        const quantityInput = document.getElementById('quantity-input');
+
+        if (decreaseBtn && increaseBtn && quantityInput) {
+            const maxStock = parseInt(quantityInput.max);
+            const min = parseInt(quantityInput.min);
+
+            decreaseBtn.addEventListener('click', function () {
+                let currentValue = parseInt(quantityInput.value);
+                if (currentValue > min) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', function () {
+                let currentValue = parseInt(quantityInput.value);
+                if (currentValue < maxStock) {
+                    quantityInput.value = currentValue + 1;
+                }
+            });
+        }
+    });
+</script>
+
+{{ super() }}
+{% endblock %}

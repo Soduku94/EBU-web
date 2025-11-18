@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Sản phẩm{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-5">
+            <h3>Thêm Sản phẩm mới</h3>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                </div>
+                
+                <div class.="mb-3">
+                    {{ form.category.label(class="form-label") }}
+                    {{ form.category(class="form-select") }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.price.label(class="form-label") }}
+                    {{ form.price(class="form-control") }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.stock.label(class="form-label") }}
+                    {{ form.stock(class="form-control") }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.image_url.label(class="form-label") }}
+                    {{ form.image_url(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows=3) }}
+                </div>
+
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        
+        <div class="col-md-7">
+            <h3>Danh sách Sản phẩm</h3>
+            {% if products %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Tên</th>
+                        <th scope="col">Danh mục</th>
+                        <th scope="col">Giá</th>
+                        <th scope="col">Kho</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category.name }}</td> 
+                        <td>{{ "%.0f"|format(product.price) }} VND</td>
+                        <td>{{ product.stock }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Chưa có sản phẩm nào.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

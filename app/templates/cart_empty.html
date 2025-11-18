@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Giỏ hàng rỗng{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 5rem 0;">
+    <h2>Giỏ hàng của bạn đang rỗng</h2>
+    <p class="lead">Hãy quay lại trang chủ để lựa chọn sản phẩm nhé.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">Về Trang chủ</a>
+</div>
+{% endblock %}

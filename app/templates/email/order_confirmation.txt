@@ -1,0 +1,21 @@
+Chào {{ order.customer_name }},
+
+Cảm ơn bạn đã mua hàng tại Home Fit Pro! Đơn hàng của bạn đã được xác nhận.
+
+Mã đơn hàng: #{{ order.id }}
+Trạng thái: {{ order.status }}
+Tổng tiền: {{ "%.0f"|format(order.total_price) }} VND
+
+Thông tin giao hàng:
+{{ order.customer_name }}
+{{ order.customer_phone }}
+{{ order.shipping_address }}
+
+Chi tiết sản phẩm:
+{% for item in order.items %}- {{ item.product.name }} (Số lượng: {{ item.quantity }}) - {{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND
+{% endfor %}
+
+Bạn có thể theo dõi trạng thái đơn hàng tại: {{ url_for('main.track_order', _external=True) }}
+
+Cảm ơn bạn!
+Đội ngũ Home Fit Pro

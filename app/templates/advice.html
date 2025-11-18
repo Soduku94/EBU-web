@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 70vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="my-4 text-center">{{ title }}</h1>
+            <p class="lead text-center mb-4">
+                Tìm câu trả lời cho các câu hỏi phổ biến nhất về sản phẩm và dịch vụ của chúng tôi.
+            </p>
+
+            <div class="accordion" id="faqAccordion">
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Làm thế nào để đặt hàng trên Home Fit Pro?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <strong>Rất đơn giản!</strong> Bạn chỉ cần duyệt qua các sản phẩm của chúng tôi, nhấn "Thêm vào giỏ", sau đó đi đến giỏ hàng và nhấn "Tiến hành Thanh toán". Bạn có thể đặt hàng như một khách vãng lai hoặc tạo tài khoản để theo dõi đơn hàng dễ dàng hơn.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Shop có hỗ trợ thanh toán khi nhận hàng (COD) không?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <strong>Có!</strong> Chúng tôi hoàn toàn hỗ trợ thanh toán COD trên toàn quốc. Bạn chỉ cần chọn "Thanh toán khi nhận hàng (COD)" ở bước thanh toán cuối cùng.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Chính sách bảo hành và đổi trả như thế nào?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            (Nội dung chi tiết về chính sách bảo hành và đổi trả sẽ ở đây. Bạn có thể soạn thảo và dán vào.)
+                        </div>
+                    </div>
+                </div>
+
+                </div> </div>
+    </div>
+</div>
+{% endblock %}

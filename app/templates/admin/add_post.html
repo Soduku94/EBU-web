@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ title }}</h2>
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control form-control-lg") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.body.label(class="form-label") }}
+            {{ form.body() }} 
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Thanh toán{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row g-5">
+   <div class="col-md-5 col-lg-4 order-md-last">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary">Đơn hàng của bạn</span>
+                <span class="badge bg-primary rounded-pill">{{ items|length }}</span>
+            </h4>
+
+            <ul class="list-group mb-3">
+
+                {% for item in items %}
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">{{ item.product.name }}</h6>
+                        <small class="text-muted">Số lượng: {{ item.quantity }}</small>
+                    </div>
+                    <span class="text-muted">{{ "%.0f"|format(item.subtotal) }} VND</span>
+                </li>
+                {% endfor %}
+
+                <li class="list-group-item d-flex justify-content-between bg-light">
+                    <span>Tổng cộng (VND)</span>
+                    <strong>{{ "%.0f"|format(total_price) }} VND</strong>
+                </li>
+            </ul>
+            </div>
+        <div class="col-md-7 col-lg-8">
+            <h4 class="mb-3">Thông tin nhận hàng</h4>
+
+            {% if not current_user.is_authenticated %}
+            <p>Đã có tài khoản? <a href="{{ url_for('auth.login', next=url_for('main.checkout')) }}">Đăng nhập</a> để
+                điền tự động.</p>
+            {% endif %}
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        {{ form.full_name.label(class="form-label") }}
+                        {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else "")) }}
+                        <div class="invalid-feedback">
+                            {% for error in form.full_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="you@example.com") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+                        <div class="invalid-feedback">
+                            {% for error in form.phone.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.shipping_address.label(class="form-label") }}
+                        {{ form.shipping_address(class="form-control" + (" is-invalid" if form.shipping_address.errors else ""), rows=3) }}
+                        <div class="invalid-feedback">
+                            {% for error in form.shipping_address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="mb-3">Phương thức thanh toán</h4>
+                <div class="my-3">
+                    {% for subfield in form.payment_method %}
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        {{ subfield.label(class="form-check-label") }}
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr class="my-4">
+
+                {{ form.submit(class="w-100 btn btn-primary btn-lg") }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

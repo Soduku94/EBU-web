@@ -1,0 +1,46 @@
+<p>Chào <strong>{{ order.customer_name }}</strong>,</p>
+
+<p>Cảm ơn bạn đã mua hàng tại Home Fit Pro! Đơn hàng của bạn đã được xác nhận.</p>
+
+<p>
+    <strong>Mã đơn hàng:</strong> #{{ order.id }}<br>
+    <strong>Trạng thái:</strong> {{ order.status }}<br>
+    <strong>Tổng tiền:</strong> {{ "%.0f"|format(order.total_price) }} VND<br>
+    <strong>Phương thức thanh toán:</strong> {{ order.payment_method }}
+</p>
+
+<h3>Thông tin giao hàng:</h3>
+<p>
+    {{ order.customer_name }}<br>
+    {{ order.customer_phone }}<br>
+    {{ order.shipping_address }}
+</p>
+
+<h3>Chi tiết sản phẩm:</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order.items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+<p>
+    Bạn có thể theo dõi trạng thái đơn hàng của mình bất kỳ lúc nào bằng cách truy cập trang
+    <a href="{{ url_for('main.track_order', _external=True) }}">Tra cứu Đơn hàng</a>.
+</p>
+
+<p>Cảm ơn bạn!</p>
+<p><strong>Đội ngũ Home Fit Pro</strong></p>

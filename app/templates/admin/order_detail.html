@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ title }}</h2>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">Các sản phẩm trong đơn</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="my-0">{{ item.product.name }}</h6>
+                                <small class="text-muted">Giá lúc mua: {{ "%.0f"|format(item.price_at_purchase) }}</small>
+                            </div>
+                            <span class="text-muted">Số lượng: {{ item.quantity }}</span>
+                            <strong>{{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND</strong>
+                        </li>
+                        {% endfor %}
+                        <li class="list-group-item d-flex justify-content-between bg-light">
+                            <span>Tổng cộng</span>
+                            <strong>{{ "%.0f"|format(order.total_price) }} VND</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">Thông tin Khách hàng</div>
+                <div class="card-body">
+                    <p><strong>Tên:</strong> {{ order.customer_name }}</p>
+                    <p><strong>Email:</strong> {{ order.customer_email }}</p>
+                    <p><strong>SĐT:</strong> {{ order.customer_phone }}</p>
+                    <hr>
+                    <p><strong>Địa chỉ giao hàng:</strong><br>
+                       {{ order.shipping_address }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Cập nhật Trạng thái</div>
+                <div class="card-body">
+                    <p>Trạng thái hiện tại: 
+                        <strong class="badge bg-warning">{{ order.status }}</strong>
+                    </p>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Đổi trạng thái:</label>
+                            <select class="form-select" id="status" name="status">
+                                {% for s in statuses %}
+                                <option value="{{ s }}" {{ 'selected' if s == order.status else '' }}>
+                                    {{ s }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

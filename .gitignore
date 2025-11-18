@@ -1,0 +1,17 @@
+# Môi trường ảo
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# File biến môi trường (Rất quan trọng!)
+.env
+
+# Các file cấu hình của IDE
+.idea/
+.vscode/
+
+# File database tạm (nếu dùng SQLite)
+*.db
+instance/

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ title }}</h2>
+
+    {% if messages %}
+    <div class="list-group">
+        {% for msg in messages %}
+            <a href="{{ url_for('admin.message_detail', message_id=msg.id) }}"
+               class="list-group-item list-group-item-action
+                      {{ 'active' if not msg.is_read else '' }}">
+
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 {{ 'fw-bold' if not msg.is_read else '' }}">
+                        {{ msg.subject }}
+                    </h5>
+                    <small>{{ msg.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
+                </div>
+
+                <p class="mb-1">
+                    Từ: <strong>{{ msg.name }}</strong> ({{ msg.email }})
+                </p>
+
+                <small>
+                    {{ 'Chưa đọc' if not msg.is_read else 'Đã đọc' }}
+                </small>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Phân trang Hộp thư" class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
+                <a class="page-link" href="{{ url_for('admin.manage_messages', page=pagination.prev_num) }}">
+                    &laquo;
+                </a>
+            </li>
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.manage_messages', page=page_num) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
+                <a class="page-link" href="{{ url_for('admin.manage_messages', page=pagination.next_num) }}">
+                    &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+        <p>Không có tin nhắn nào.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

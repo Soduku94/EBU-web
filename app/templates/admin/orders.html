@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ title }} ({{ orders|length }})</h2>
+
+    {% if orders %}
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Mã Đơn</th>
+                <th scope="col">Ngày đặt</th>
+                <th scope="col">Khách hàng</th>
+                <th scope="col">Tổng tiền</th>
+                <th scope="col">P.thức TT</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr class_="{{ 'table-secondary' if order.status == 'Cancelled' else '' }}">
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                <td>{{ order.customer_name }}<br>
+                    <small>{{ order.customer_email }}</small>
+                </td>
+                <td>{{ "%.0f"|format(order.total_price) }} VND</td>
+                <td>
+                    <span class="badge {{ 'bg-info' if order.payment_method == 'COD' else 'bg-primary' }}">
+                        {{ order.payment_method }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {{ 'bg-success' if order.status == 'Delivered' else 'bg-warning' }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                        Xem chi tiết
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Phân trang đơn hàng">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
+                <a class="page-link" href="{{ url_for('admin.manage_orders', page=pagination.prev_num) }}">
+                    &laquo;
+                </a>
+            </li>
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.manage_orders', page=page_num) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
+                <a class="page-link" href="{{ url_for('admin.manage_orders', page=pagination.next_num) }}">
+                    &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <p>Chưa có đơn hàng nào.</p>
+{% endif %}
+</div>
+{% endblock %}
