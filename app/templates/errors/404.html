@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Không tìm thấy trang (404){% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 5rem 0;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="display-1 text-muted fw-bold">404</h1>
+            <h2 class="mb-4">Oops! Trang này không tồn tại.</h2>
+            
+            <p class="lead mb-5">
+                Có vẻ như đường dẫn bạn truy cập bị sai hoặc trang này đã bị xóa.
+                Đừng lo, hãy quay lại tập luyện thôi!
+            </p>
+            
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-4 gap-3">
+                    Về Trang chủ
+                </a>
+                <a href="{{ url_for('main.contact') }}" class="btn btn-outline-secondary btn-lg px-4">
+                    Liên hệ Hỗ trợ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

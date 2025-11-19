@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, ValidationError, NumberRange
 from app.models import Category, Product
 from wtforms_sqlalchemy.fields import QuerySelectField
 from flask_ckeditor import CKEditorField
-
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 # === SỬA LỖI: Đặt hàm này ở đây, bên ngoài tất cả các lớp ===
 def category_query():
@@ -34,8 +34,9 @@ class ProductForm(FlaskForm):
     description = TextAreaField('Mô tả')
     price = FloatField('Giá', validators=[DataRequired(), NumberRange(min=0)])
     stock = IntegerField('Số lượng tồn kho', validators=[DataRequired(), NumberRange(min=0)])
-    image_url = StringField('Link hình ảnh (URL)')  # Sẽ cải tiến sau
-
+    image = FileField('Hình ảnh sản phẩm', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg'], 'Chỉ chấp nhận file ảnh!')
+    ])
     # Ô dropdown chọn danh mục
     category = QuerySelectField('Danh mục',
                                 query_factory=category_query,  # <-- Bây giờ nó sẽ tìm thấy hàm

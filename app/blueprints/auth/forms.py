@@ -29,3 +29,20 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Email này đã được sử dụng.')
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    """Form nhập email để yêu cầu reset."""
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Gửi yêu cầu đặt lại mật khẩu')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError('Không tìm thấy tài khoản với email này. Vui lòng đăng ký.')
+
+class ResetPasswordForm(FlaskForm):
+    """Form nhập mật khẩu mới."""
+    password = PasswordField('Mật khẩu mới', validators=[DataRequired()])
+    password2 = PasswordField('Nhập lại mật khẩu', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Đặt lại mật khẩu')

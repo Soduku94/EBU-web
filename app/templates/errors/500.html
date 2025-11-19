@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Lỗi Hệ thống (500){% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 5rem 0;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="display-1 text-danger fw-bold">500</h1>
+            <h2 class="mb-4">Đã xảy ra lỗi hệ thống!</h2>
+            
+            <p class="lead mb-5">
+                Xin lỗi bạn vì sự bất tiện này. Server của chúng tôi đang gặp chút vấn đề.
+                Admin đã được thông báo và sẽ khắc phục sớm nhất có thể.
+            </p>
+            
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                Về Trang chủ
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

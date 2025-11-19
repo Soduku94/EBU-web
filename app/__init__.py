@@ -1,6 +1,8 @@
-from flask import Flask,session
+from flask import Flask,session, render_template
+
 from config import config
 from .extensions import db, migrate, login_manager,ckeditor,mail
+
 
 
 
@@ -35,10 +37,27 @@ def create_app(config_name='default'):
 
     from .blueprints.admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')  # Đặt tiền tố /admin
-    # === KẾT THÚC CODE MỚI ===
+    # lỗi
+    register_error_handlers(app)
     @app.context_processor
     def inject_cart_count():
         cart = session.get('cart', {})
         count = sum(cart.values())  # Tính tổng số lượng các món hàng
         return dict(cart_count=count)
+
+
+
+
     return app
+
+
+def register_error_handlers(app):
+    @app.errorhandler(404)
+    def page_not_found(e):
+        # Trả về template 404 và mã lỗi 404
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        # Trả về template 500 và mã lỗi 500
+        return render_template('errors/500.html'), 500

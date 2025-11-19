@@ -7,9 +7,15 @@
 
     <div class="row">
         <div class="col-md-6">
-            <img src="{{ product.image_url or 'https://via.placeholder.com/600x400.png?text=Home+Fit+Pro' }}"
-                 class="img-fluid rounded"
-                 alt="{{ product.name }}">
+           {% if product.image_url %}
+    {% if product.image_url.startswith('http') %}
+        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+    {% else %}
+        <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+    {% endif %}
+{% else %}
+    <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+{% endif %}
         </div>
 
         <div class="col-md-6">
@@ -26,32 +32,39 @@
             <hr>
 
             {% if product.stock > 0 %}
-                <p>Tình trạng: <span class="badge bg-success">Còn hàng ({{ product.stock }})</span></p>
+            <p>Tình trạng: <span class="badge bg-success">Còn hàng ({{ product.stock }})</span></p>
 
-                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
-                    <div class="input-group mb-3" style="max-width: 150px;">
-                        <button class="btn btn-outline-secondary" type="button" id="button-decrease">-</button>
+            <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                <div class="input-group mb-3" style="max-width: 150px;">
+                    <button class="btn btn-outline-secondary" type="button" id="button-decrease">-</button>
 
-                        <input type="text"
-                               class="form-control text-center"
-                               value="1"
-                               min="1"
-                               max="{{ product.stock }}"
-                               name="quantity"
-                               aria-label="Số lượng"
-                               id="quantity-input"
-                               readonly>
+                    <input type="text"
+                           class="form-control text-center"
+                           value="1"
+                           min="1"
+                           max="{{ product.stock }}"
+                           name="quantity"
+                           aria-label="Số lượng"
+                           id="quantity-input"
+                           readonly>
 
-                        <button class="btn btn-outline-secondary" type="button" id="button-increase">+</button>
-                    </div>
+                    <button class="btn btn-outline-secondary" type="button" id="button-increase">+</button>
+                </div>
 
-                    <button type="submit" class="btn btn-lg btn-success">
-                        Thêm vào giỏ hàng
-                    </button>
-                </form>
+                <button type="submit"
+                        class="btn btn-lg btn-primary ms-2"
+                        formaction="{{ url_for('main.buy_now', product_id=product.id) }}">
+                    Mua Ngay
+                </button>
+                <button type="submit" class="btn btn-lg btn-success">
+                    Thêm vào giỏ hàng
+                </button>
+
+
+            </form>
             {% else %}
-                <p>Tình trạng: <span class="badge bg-danger">Hết hàng</span></p>
-                <button type="button" class="btn btn-secondary btn-lg" disabled>Hết hàng</button>
+            <p>Tình trạng: <span class="badge bg-danger">Hết hàng</span></p>
+            <button type="button" class="btn btn-secondary btn-lg" disabled>Hết hàng</button>
             {% endif %}
         </div>
     </div>
@@ -64,25 +77,25 @@
             <hr>
 
             {% if not reviews %}
-                <p>Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!</p>
+            <p>Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!</p>
             {% else %}
-                {% for review in reviews %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">
+            {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">
                             <span class="text-warning">
                                 {% for _ in range(review.rating) %}★{% endfor %}
                                 {% for _ in range(5 - review.rating) %}☆{% endfor %}
                             </span>
-                        </h5>
-                        <p class="card-text">{{ review.comment }}</p>
-                        <footer class="blockquote-footer">
-                            Viết bởi <strong>{{ review.author.username }}</strong>
-                            vào {{ review.timestamp.strftime('%d-%m-%Y %H:%M') }}
-                        </footer>
-                    </div>
+                    </h5>
+                    <p class="card-text">{{ review.comment }}</p>
+                    <footer class="blockquote-footer">
+                        Viết bởi <strong>{{ review.author.username }}</strong>
+                        vào {{ review.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                    </footer>
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
             {% endif %}
         </div>
 
@@ -90,38 +103,39 @@
             <h3>Viết đánh giá</h3>
 
             {% if current_user.is_authenticated %}
-                <form method="POST" novalidate>
-                    {{ form.hidden_tag() }}
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
 
-                    <div class="mb-3">
-                        {{ form.rating.label(class="form-label") }}
-                        {% for subfield in form.rating %}
-                        <div class="form-check">
-                            {{ subfield(class="form-check-input") }}
-                            {{ subfield.label(class="form-check-label") }}
-                        </div>
-                        {% endfor %}
-
-                        {% for error in form.rating.errors %}
-                            <span class="text-danger d-block">{{ error }}</span>
-                        {% endfor %}
+                <div class="mb-3">
+                    {{ form.rating.label(class="form-label") }}
+                    {% for subfield in form.rating %}
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        {{ subfield.label(class="form-check-label") }}
                     </div>
+                    {% endfor %}
 
-                    <div class="mb-3">
-                        {{ form.comment.label(class="form-label") }}
-                        {{ form.comment(class="form-control", rows=4) }}
-
-                        {% for error in form.comment.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-
-                    {{ form.submit(class="btn btn-primary") }}
-                </form>
-            {% else %}
-                <div class="alert alert-warning" role="alert">
-                    Bạn phải <a href="{{ url_for('auth.login', next=request.url) }}" class="alert-link">đăng nhập</a> để viết đánh giá.
+                    {% for error in form.rating.errors %}
+                    <span class="text-danger d-block">{{ error }}</span>
+                    {% endfor %}
                 </div>
+
+                <div class="mb-3">
+                    {{ form.comment.label(class="form-label") }}
+                    {{ form.comment(class="form-control", rows=4) }}
+
+                    {% for error in form.comment.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+                Bạn phải <a href="{{ url_for('auth.login', next=request.url) }}" class="alert-link">đăng nhập</a> để
+                viết đánh giá.
+            </div>
             {% endif %}
         </div>
     </div>

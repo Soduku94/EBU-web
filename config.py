@@ -33,9 +33,10 @@ class Config:
     VNPAY_PAYMENT_URL = os.environ.get('VNPAY_PAYMENT_URL')
     VNPAY_RETURN_URL = os.environ.get('VNPAY_RETURN_URL')
     VNPAY_IPN_URL = os.environ.get('VNPAY_IPN_URL')
-
-
-
+#cấu hình đường dẫn lưu ảnh sản phẩm
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    # Định nghĩa các đuôi file ảnh cho phép
+    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif', '.jpeg']
     @staticmethod
     def init_app(app):
         pass

@@ -3,7 +3,8 @@ from .extensions import db, login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer as Serializer
 # --- Models liên quan đến User và Roles ---
 
 class Role(db.Model):
@@ -43,7 +44,22 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(128))
     phone = db.Column(db.String(20))
     address = db.Column(db.String(256))
+# quên mâtj khẩu
+    def get_reset_token(self, expires_sec=1800):
+        """Tạo token reset mật khẩu, hết hạn sau 30 phút (1800s)."""
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id}, salt='password-reset-salt')
 
+    @staticmethod
+    def verify_reset_token(token):
+        """Kiểm tra token và trả về User tương ứng."""
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            # Thử giải mã token, nếu quá hạn hoặc sai sẽ sinh lỗi
+            user_id = s.loads(token, salt='password-reset-salt', max_age=1800)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
 
 
 

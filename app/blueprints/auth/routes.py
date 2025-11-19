@@ -1,5 +1,8 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user, login_required
+from .forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.email import send_password_reset_email
+
 from . import auth
 from .forms import LoginForm, RegistrationForm
 from app.models import User, Role
@@ -75,3 +78,46 @@ def register():
         return redirect(url_for('main.index'))  # Chuyển về trang chủ
 
     return render_template('auth/register.html', title='Đăng ký', form=form)
+
+
+
+
+
+@auth.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    """Trang nhập email để yêu cầu reset."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+
+        # Luôn thông báo thành công để tránh lộ thông tin user (security best practice)
+        flash('Kiểm tra email của bạn để được hướng dẫn đặt lại mật khẩu.', 'info')
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password_request.html', title='Quên mật khẩu', form=form)
+
+
+@auth.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Trang nhập mật khẩu mới (sau khi click link email)."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    user = User.verify_reset_token(token)
+    if not user:
+        flash('Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.', 'danger')
+        return redirect(url_for('main.index'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Mật khẩu của bạn đã được đặt lại thành công.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password.html', title='Đặt lại mật khẩu', form=form)

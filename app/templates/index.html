@@ -63,9 +63,18 @@
         {% for product in products %}
         <div class="col">
             <div class="card h-100">
-                <img src="{{ product.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
-                     class="card-img-top"
-                     alt="{{ product.name }}">
+                {% if product.image_url %}
+                {% if product.image_url.startswith('http') %}
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
+                     style="height: 200px; object-fit: cover;">
+                {% else %}
+                <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top"
+                     alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                {% else %}
+                <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top"
+                     alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
 
                 <div class="card-body">
                     <h5 class="card-title">{{ product.name }}</h5>

@@ -20,6 +20,7 @@
                     {% for error in form.password.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
+                    <small><a href="{{ url_for('auth.reset_password_request') }}">Quên mật khẩu?</a></small>
                 </div>
                 
                 <div class="mb-3 form-check">

@@ -6,6 +6,43 @@ from app.extensions import db
 from app.decorators import admin_required  # Import decorator bảo vệ
 from flask_login import login_required, current_user
 from sqlalchemy import func
+import os
+from werkzeug.utils import secure_filename
+import uuid # Để tạo tên file ngẫu nhiên, tránh trùng lặp
+from flask import current_app # Để truy cập đường dẫn static
+
+import csv
+import io
+from flask import Response, make_response
+
+
+
+
+def save_picture(form_picture):
+    """Hàm lưu file ảnh vào thư mục static/uploads và trả về tên file."""
+    # 1. Lấy tên file gốc an toàn
+    original_filename = secure_filename(form_picture.filename)
+
+    # 2. Tạo tên file mới ngẫu nhiên để tránh trùng lặp (ví dụ: a8f9d0_tate.jpg)
+    random_hex = uuid.uuid4().hex[:8]
+    _, f_ext = os.path.splitext(original_filename)
+    picture_fn = random_hex + f_ext
+
+    # 3. Xác định thư mục chứa ảnh
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+
+    # Ktra xem thư mục có tồn tại không, nếu không thì TẠO MỚI
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+
+    # Tạo đường dẫn đầy đủ của file
+    picture_path = os.path.join(upload_dir, picture_fn)
+
+    # 4. Lưu file
+    form_picture.save(picture_path)
+
+    # 5. Trả về đường dẫn tương đối để lưu vào database
+    return 'uploads/' + picture_fn
 
 @admin.route('/')
 @login_required
@@ -64,6 +101,11 @@ def manage_products():
     form = ProductForm()
 
     if form.validate_on_submit():
+#lưu ảnh
+        image_path = None
+        if form.image.data:
+            image_path = save_picture(form.image.data)
+
         # Lấy đối tượng Category từ form
         category_obj = form.category.data
 
@@ -73,13 +115,20 @@ def manage_products():
             description=form.description.data,
             price=form.price.data,
             stock=form.stock.data,
-            image_url=form.image_url.data,
-            category=category_obj  # Gán cả đối tượng Category
+            image_url=image_path,
+            category=category_obj
+
         )
         db.session.add(product)
         db.session.commit()
         flash('Đã thêm sản phẩm mới thành công!', 'success')
         return redirect(url_for('admin.manage_products'))
+
+    else:
+        # === THÊM ĐOẠN NÀY ===
+        print("!!! FORM VALIDATION FAILED !!!")
+        print(form.errors)  # In chi tiết lỗi ra console
+        # =====================
 
     # Lấy tất cả sản phẩm hiện có
     # .options(db.joinedload('category')) giúp tải category ngay lập tức,
@@ -155,6 +204,57 @@ def manage_orders():
                            title='Quản lý Đơn hàng',
                            orders=orders,
                            pagination=pagination) # <-- Gửi cả đối tượng pagination
+
+
+
+
+
+@admin.route('/orders/export')
+@login_required
+@admin_required
+def export_orders():
+    """Xuất danh sách đơn hàng ra file CSV (Excel)."""
+
+    # 1. Lấy tất cả đơn hàng
+    orders = Order.query.order_by(Order.order_date.desc()).all()
+
+    # 2. Tạo file CSV trong bộ nhớ (RAM) thay vì lưu ra ổ cứng
+    # Dùng io.StringIO để xử lý văn bản
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # 3. Viết dòng Tiêu đề (Header)
+    # Lưu ý: Thứ tự cột phải khớp với dữ liệu bên dưới
+    writer.writerow(
+        ['Mã Đơn', 'Ngày đặt', 'Khách hàng', 'Email', 'SĐT', 'Địa chỉ', 'Tổng tiền', 'PT Thanh toán', 'Trạng thái'])
+
+    # 4. Viết dữ liệu từng đơn hàng
+    for order in orders:
+        writer.writerow([
+            order.id,
+            order.order_date.strftime('%d/%m/%Y %H:%M'),  # Định dạng ngày
+            order.customer_name,
+            order.customer_email,
+            order.customer_phone,
+            order.shipping_address,
+            f"{order.total_price:.0f}",  # Số tiền (bỏ số thập phân)
+            order.payment_method,
+            order.status
+        ])
+
+    # 5. Chuẩn bị dữ liệu để trả về
+    # Quan trọng: Cần encode 'utf-8-sig' để Excel hiển thị đúng tiếng Việt
+    csv_data = output.getvalue().encode('utf-8-sig')
+
+    # 6. Tạo Response trả về file
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=danh_sach_don_hang.csv"}
+    )
+
+
+
 
 @admin.route('/order/<int:order_id>', methods=['GET', 'POST'])
 @login_required

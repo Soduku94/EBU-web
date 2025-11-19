@@ -861,3 +861,10 @@ def buy_now(product_id):
 
     # 6. Chuyển hướng đến checkout. Giỏ hàng chính ('cart') vẫn an toàn.
     return redirect(url_for('main.checkout'))
+
+@main.route('/test-500')
+def test_error():
+    # Cố tình chia cho 0 để gây lỗi
+    return 1 / 0
+
+

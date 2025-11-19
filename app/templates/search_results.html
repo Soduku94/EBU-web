@@ -2,7 +2,8 @@
 
 {% block title %}Kết quả cho '{{ query }}'{% endblock %}
 
-{% block content %} <div class="container">
+{% block content %}
+<div class="container">
     <div class="row text-center mb-4">
         <div class="col">
             <h1>Kết quả tìm kiếm cho: "{{ query }}"</h1>
@@ -22,10 +23,11 @@
                     <select class="form-select filter-submit" name="category">
                         <option value="all">Tất cả danh mục</option>
                         {% for cat in categories %}
-                            <option value="{{ cat.id }}"
-                                    {{ 'selected' if current_category == cat.id|string else '' }}>
-                                {{ cat.name }}
-                            </option>
+                        <option value="{{ cat.id }}"
+                                {{
+                        'selected' if current_category == cat.id|string else '' }}>
+                        {{ cat.name }}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -33,19 +35,23 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Khoảng giá</label>
                     <div class="form-check">
-                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_all" value="all" {{ 'checked' if current_price == 'all' else '' }}>
+                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_all"
+                               value="all" {{ 'checked' if current_price == 'all' else '' }}>
                         <label class="form-check-label" for="price_all">Tất cả</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_1" value="under_500k" {{ 'checked' if current_price == 'under_500k' else '' }}>
+                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_1"
+                               value="under_500k" {{ 'checked' if current_price == 'under_500k' else '' }}>
                         <label class="form-check-label" for="price_1">Dưới 500.000đ</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_2" value="500k_to_1m" {{ 'checked' if current_price == '500k_to_1m' else '' }}>
+                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_2"
+                               value="500k_to_1m" {{ 'checked' if current_price == '500k_to_1m' else '' }}>
                         <label class="form-check-label" for="price_2">500.000đ - 1.000.000đ</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_3" value="over_1m" {{ 'checked' if current_price == 'over_1m' else '' }}>
+                        <input class="form-check-input filter-submit" type="radio" name="price_range" id="price_3"
+                               value="over_1m" {{ 'checked' if current_price == 'over_1m' else '' }}>
                         <label class="form-check-label" for="price_3">Trên 1.000.000đ</label>
                     </div>
                 </div>
@@ -53,52 +59,68 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Sắp xếp theo:</label>
                     <select class="form-select filter-submit" name="sort">
-                        <option value="default" {{ 'selected' if current_sort == 'default' else '' }}>
-                            Mặc định (A-Z)
+                        <option value="default" {{
+                        'selected' if current_sort == 'default' else '' }}>
+                        Mặc định (A-Z)
                         </option>
-                        <option value="price_asc" {{ 'selected' if current_sort == 'price_asc' else '' }}>
-                            Giá: Tăng dần
+                        <option value="price_asc" {{
+                        'selected' if current_sort == 'price_asc' else '' }}>
+                        Giá: Tăng dần
                         </option>
-                        <option value="price_desc" {{ 'selected' if current_sort == 'price_desc' else '' }}>
-                            Giá: Giảm dần
+                        <option value="price_desc" {{
+                        'selected' if current_sort == 'price_desc' else '' }}>
+                        Giá: Giảm dần
                         </option>
                     </select>
                 </div>
             </form>
-        </div> <div class="col-md-9">
+        </div>
+        <div class="col-md-9">
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 {% if products %}
-                    {% for product in products %}
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="{{ product.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
-                                 class="card-img-top"
-                                 alt="{{ product.name }}">
+                {% for product in products %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if product.image_url %}
+                        {% if product.image_url.startswith('http') %}
+                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
+                             style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top"
+                             alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top"
+                             alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description[:100] }}...</p>
+                            <p class="card-text">
+                                <strong>Giá: {{ "%.0f"|format(product.price) }} VND</strong>
+                            </p>
+                        </div>
 
-                            <div class="card-body">
-                                <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text">{{ product.description[:100] }}...</p>
-                                <p class="card-text">
-                                    <strong>Giá: {{ "%.0f"|format(product.price) }} VND</strong>
-                                </p>
-                            </div>
-
-                            <div class="card-footer">
-                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-success btn-sm">Thêm vào giỏ</button>
-                                </form>
-                            </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('main.product_detail', product_id=product.id) }}"
+                               class="btn btn-primary btn-sm">Xem chi tiết</a>
+                            <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-success btn-sm">Thêm vào giỏ</button>
+                            </form>
                         </div>
                     </div>
-                    {% endfor %}
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div class="col-12 text-center">
-                        <p class="lead">Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn.</p>
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="lead">Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn.</p>
+                </div>
                 {% endif %}
             </div>
-        </div> </div> </div>
+        </div>
+    </div>
+</div>
 
 {% block scripts %}
 {{ super() }}
@@ -107,8 +129,8 @@
     const filterInputs = document.querySelectorAll('.filter-submit');
 
     // Thêm sự kiện 'change' cho mỗi input
-    filterInputs.forEach(function(input) {
-        input.addEventListener('change', function() {
+    filterInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
             // Khi người dùng thay đổi bất kỳ bộ lọc nào, submit form
             document.getElementById('filterForm').submit();
         });
