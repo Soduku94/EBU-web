@@ -1,16 +1,36 @@
 {% extends "base.html" %}
 
-{% block title %}Quản lý Sản phẩm{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<style>
+    /* CSS cho hiệu ứng Hover */
+    .product-actions {
+        opacity: 0; /* Mờ đi */
+        visibility: hidden; /* Ẩn khỏi tương tác chuột */
+        transition: all 0.2s ease-in-out; /* Hiệu ứng mượt */
+    }
+
+    /* Khi di chuột vào dòng (tr): Hiện lên */
+    tr:hover .product-actions {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Làm sáng dòng đang chọn để dễ nhìn hơn */
+    tr:hover td {
+        background-color: #e9ecef; /* Màu xám đậm hơn mặc định một chút */
+        cursor: default;
+    }
+</style>
+
 <div class="container">
     <div class="row">
         <div class="col-md-5">
             <h3>Thêm Sản phẩm mới</h3>
             <form method="POST" enctype="multipart/form-data" novalidate>
-
-
                 {{ form.hidden_tag() }}
+
                 <div class="mb-3">
                     {{ form.name.label(class="form-label") }}
                     {{ form.name(class="form-control") }}
@@ -32,12 +52,15 @@
                 </div>
 
                 <div class="mb-3">
-                    {{ form.image.label(class="form-label") }} {{ form.image(class="form-control") }} {% if
-                    form.image.errors %}
-                    {% for error in form.image.errors %} <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
+                    {{ form.image.label(class="form-label") }}
+                    {{ form.image(class="form-control") }}
+                    {% if form.image.errors %}
+                        {% for error in form.image.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
                     {% endif %}
                 </div>
+
                 <div class="mb-3">
                     {{ form.description.label(class="form-label") }}
                     {{ form.description(class="form-control", rows=3) }}
@@ -50,22 +73,35 @@
         <div class="col-md-7">
             <h3>Danh sách Sản phẩm</h3>
             {% if products %}
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-striped align-middle"> <thead>
                 <tr>
                     <th scope="col">Tên</th>
                     <th scope="col">Danh mục</th>
                     <th scope="col">Giá</th>
                     <th scope="col">Kho</th>
-                </tr>
+                    <th scope="col" style="width: 100px;">Hành động</th> </tr>
                 </thead>
                 <tbody>
                 {% for product in products %}
                 <tr>
                     <td>{{ product.name }}</td>
                     <td>{{ product.category.name }}</td>
-                    <td>{{ "%.0f"|format(product.price) }} VND</td>
-                    <td>{{ product.stock }}</td>
+                    <td>{{ "%.0f"|format(product.price) }}</td> <td>{{ product.stock }}</td>
+                    <td>
+                        <div class="btn-group product-actions" role="group">
+
+                            <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn btn-sm btn-warning" title="Sửa">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <form action="{{ url_for('admin.delete_product', id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
+                                <button type="submit" class="btn btn-sm btn-danger ms-1" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>

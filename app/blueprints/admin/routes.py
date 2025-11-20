@@ -14,7 +14,7 @@ from flask import current_app # Để truy cập đường dẫn static
 import csv
 import io
 from flask import Response, make_response
-
+from slugify import slugify
 
 
 
@@ -108,7 +108,8 @@ def manage_products():
 
         # Lấy đối tượng Category từ form
         category_obj = form.category.data
-
+        base_slug = slugify(form.name.data)
+        unique_slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
         # Tạo sản phẩm mới
         product = Product(
             name=form.name.data,
@@ -116,7 +117,8 @@ def manage_products():
             price=form.price.data,
             stock=form.stock.data,
             image_url=image_path,
-            category=category_obj
+            category=category_obj,
+            slug=unique_slug
 
         )
         db.session.add(product)
@@ -124,11 +126,7 @@ def manage_products():
         flash('Đã thêm sản phẩm mới thành công!', 'success')
         return redirect(url_for('admin.manage_products'))
 
-    else:
-        # === THÊM ĐOẠN NÀY ===
-        print("!!! FORM VALIDATION FAILED !!!")
-        print(form.errors)  # In chi tiết lỗi ra console
-        # =====================
+
 
     # Lấy tất cả sản phẩm hiện có
     # .options(db.joinedload('category')) giúp tải category ngay lập tức,
@@ -301,3 +299,76 @@ def manage_messages():
                            title='Hộp thư Liên hệ',
                            messages=messages,
                            pagination=pagination) # <-- Gửi pagination
+
+
+@admin.route('/product/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_product(id):
+    product = Product.query.get_or_404(id)
+    form = ProductForm()
+
+    if form.validate_on_submit():
+        # Cập nhật thông tin từ form
+        product.name = form.name.data
+        product.description = form.description.data
+        product.price = form.price.data
+        product.stock = form.stock.data
+        product.category = form.category.data
+
+        # Cập nhật Slug (nếu tên thay đổi)
+        from slugify import slugify
+        import uuid
+        # Tạo slug mới để đảm bảo đồng bộ với tên mới
+        base_slug = slugify(form.name.data)
+        product.slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
+
+        # Xử lý ảnh (Chỉ cập nhật nếu người dùng upload ảnh mới)
+        if form.image.data:
+            # (Tùy chọn: Xóa ảnh cũ để tiết kiệm dung lượng server)
+            # ...
+            image_path = save_picture(form.image.data)
+            product.image_url = image_path
+
+        db.session.commit()
+        flash('Đã cập nhật sản phẩm thành công!', 'success')
+        return redirect(url_for('admin.manage_products'))
+
+    # Khi vào trang (GET), điền sẵn dữ liệu cũ vào form
+    elif request.method == 'GET':
+        form.name.data = product.name
+        form.description.data = product.description
+        form.price.data = product.price
+        form.stock.data = product.stock
+        form.category.data = product.category
+        # Không cần điền form.image.data vì đó là file upload
+
+    return render_template('admin/edit_product.html',
+                           title='Sửa Sản phẩm',
+                           form=form,
+                           product=product)
+
+
+# === 2. ROUTE XÓA SẢN PHẨM (DELETE) ===
+@admin.route('/product/delete/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_product(id):
+    product = Product.query.get_or_404(id)
+
+    # (Tùy chọn: Kiểm tra xem sản phẩm có đang nằm trong đơn hàng nào không
+    #  để tránh lỗi khóa ngoại ForeignKey.
+    #  Tạm thời chúng ta xóa thẳng, nếu có lỗi database sẽ báo)
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Đã xóa sản phẩm thành công.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Không thể xóa sản phẩm này (có thể do đang có đơn hàng liên quan).', 'danger')
+        print(e)
+
+    return redirect(url_for('admin.manage_products'))
+
+

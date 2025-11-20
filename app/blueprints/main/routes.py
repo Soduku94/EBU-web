@@ -19,7 +19,7 @@ from app.vnpay_service import get_vnpay_payment_url, validate_vnpay_response
 from .forms import ContactForm
 from app.models import ContactMessage
 from app.extensions import db
-
+from .forms import UpdateProfileForm, ChangePasswordForm # Import 2 form mới
 
 
 from app.models import ContactMessage
@@ -358,9 +358,11 @@ def order_complete(order_id):
 
 
 
-@main.route('/product/<int:product_id>', methods=['GET', 'POST'])  # <-- Thêm methods
-def product_detail(product_id):
-    product = Product.query.get_or_404(product_id)
+# Đổi <int:product_id> thành <string:slug>
+@main.route('/product/<string:slug>', methods=['GET', 'POST'])
+def product_detail(slug):
+    # Tìm sản phẩm theo slug thay vì id
+    product = Product.query.filter_by(slug=slug).first_or_404()
     form = ReviewForm()  # Tạo form đánh giá
 
     # Xử lý khi người dùng gửi đánh giá
@@ -382,7 +384,7 @@ def product_detail(product_id):
 
         flash('Cảm ơn bạn đã gửi đánh giá!', 'success')
         # Redirect lại chính trang này để xóa form (Post-Redirect-Get pattern)
-        return redirect(url_for('main.product_detail', product_id=product.id))
+        return redirect(url_for('main.product_detail', slug=product.slug))
 
     # Tải tất cả review của sản phẩm này, mới nhất lên đầu
     # Dùng joinedload để tải 'author' (User) cùng lúc, tránh N+1 query
@@ -521,7 +523,44 @@ def account():
     return render_template('account.html',
                            title='Tài khoản của tôi',
                            orders=orders)
+@main.route('/account/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form_profile = UpdateProfileForm()
+    form_pass = ChangePasswordForm()
 
+    # --- XỬ LÝ FORM CẬP NHẬT THÔNG TIN ---
+    if 'submit_profile' in request.form and form_profile.validate_on_submit():
+        current_user.full_name = form_profile.full_name.data
+        current_user.phone = form_profile.phone.data
+        current_user.address = form_profile.address.data
+        db.session.commit()
+        flash('Thông tin cá nhân đã được cập nhật.', 'success')
+        return redirect(url_for('main.profile'))
+
+    # --- XỬ LÝ FORM ĐỔI MẬT KHẨU ---
+    if 'submit_password' in request.form and form_pass.validate_on_submit():
+        # 1. Kiểm tra mật khẩu cũ có đúng không
+        if not current_user.check_password(form_pass.old_password.data):
+            flash('Mật khẩu hiện tại không đúng.', 'danger')
+        else:
+            # 2. Đổi sang mật khẩu mới
+            current_user.set_password(form_pass.new_password.data)
+            db.session.commit()
+            flash('Mật khẩu đã được thay đổi thành công!', 'success')
+            return redirect(url_for('main.profile'))
+
+    # --- ĐIỀN DỮ LIỆU CŨ VÀO FORM (KHI GET) ---
+    if request.method == 'GET':
+        form_profile.full_name.data = current_user.full_name
+        form_profile.email.data = current_user.email
+        form_profile.phone.data = current_user.phone
+        form_profile.address.data = current_user.address
+
+    return render_template('profile.html',
+                           title='Hồ sơ cá nhân',
+                           form_profile=form_profile,
+                           form_pass=form_pass)
 
 @main.route('/contact', methods=['GET', 'POST']) # <-- Thêm 'methods'
 def contact():
@@ -862,9 +901,34 @@ def buy_now(product_id):
     # 6. Chuyển hướng đến checkout. Giỏ hàng chính ('cart') vẫn an toàn.
     return redirect(url_for('main.checkout'))
 
-@main.route('/test-500')
-def test_error():
-    # Cố tình chia cho 0 để gây lỗi
-    return 1 / 0
+
+@main.route('/wishlist')
+@login_required
+def view_wishlist():
+    """Trang xem danh sách yêu thích."""
+    # Lấy các sản phẩm trong wishlist của user hiện tại
+    products = current_user.wishlist.all()
+    return render_template('wishlist.html', title='Danh sách Yêu thích', products=products)
 
 
+@main.route('/wishlist/toggle/<int:product_id>')
+@login_required
+def toggle_wishlist(product_id):
+    """Thêm hoặc Xóa sản phẩm khỏi wishlist."""
+    product = Product.query.get_or_404(product_id)
+
+    # Kiểm tra xem sản phẩm đã có trong wishlist chưa
+    # (Dùng query dynamic)
+    if current_user.wishlist.filter_by(id=product.id).first():
+        # Nếu có rồi -> Xóa
+        current_user.wishlist.remove(product)
+        flash(f'Đã xóa "{product.name}" khỏi yêu thích.', 'info')
+    else:
+        # Nếu chưa có -> Thêm
+        current_user.wishlist.append(product)
+        flash(f'Đã thêm "{product.name}" vào yêu thích.', 'success')
+
+    db.session.commit()
+
+    # Quay lại trang cũ
+    return redirect(request.referrer or url_for('main.index'))

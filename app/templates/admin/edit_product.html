@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">Chỉnh sửa Sản phẩm</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.price.label(class="form-label") }}
+                                {{ form.price(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.stock.label(class="form-label") }}
+                                {{ form.stock(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh hiện tại:</label>
+                            <div class="mb-2">
+                                {% if product.image_url %}
+                                    {% if product.image_url.startswith('http') %}
+                                        <img src="{{ product.image_url }}" style="height: 100px; border-radius: 5px;">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename=product.image_url) }}" style="height: 100px; border-radius: 5px;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Không có ảnh</span>
+                                {% endif %}
+                            </div>
+                            
+                            {{ form.image.label(class="form-label") }}
+                            {{ form.image(class="form-control") }}
+                            <small class="text-muted">Chỉ chọn file nếu bạn muốn thay đổi ảnh.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=4) }}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.manage_products') }}" class="btn btn-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

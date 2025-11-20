@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, RadioField, IntegerField
-from wtforms.validators import DataRequired, Email, Length, InputRequired
-
+from wtforms import StringField, TextAreaField, SubmitField, RadioField, IntegerField, PasswordField
+from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo
 
 
 class CheckoutForm(FlaskForm):
@@ -72,3 +71,22 @@ class ContactForm(FlaskForm):
     subject = StringField('Chủ đề', validators=[DataRequired(message="Vui lòng nhập chủ đề.")])
     message = TextAreaField('Nội dung tin nhắn', validators=[DataRequired(message="Vui lòng nhập nội dung.")])
     submit = SubmitField('Gửi tin nhắn')
+
+class UpdateProfileForm(FlaskForm):
+        """Form cập nhật thông tin cá nhân."""
+        full_name = StringField('Họ và Tên', validators=[DataRequired()])
+        email = StringField('Email', validators=[DataRequired(), Email()],
+                            render_kw={'readonly': True})  # Email thường không cho đổi để tránh rắc rối
+        phone = StringField('Số điện thoại', validators=[DataRequired(), Length(min=9, max=11)])
+        address = TextAreaField('Địa chỉ mặc định', validators=[DataRequired()])
+        submit_profile = SubmitField('Cập nhật Thông tin')
+
+class ChangePasswordForm(FlaskForm):
+        """Form đổi mật khẩu (yêu cầu mật khẩu cũ)."""
+        old_password = PasswordField('Mật khẩu hiện tại', validators=[DataRequired()])
+        new_password = PasswordField('Mật khẩu mới', validators=[DataRequired(), Length(min=6,
+                                                                                        message="Mật khẩu phải dài hơn 6 ký tự.")])
+        confirm_password = PasswordField('Nhập lại mật khẩu mới', validators=[DataRequired(), EqualTo('new_password',
+                                                                                                      message='Mật khẩu mới không khớp.')])
+        submit_password = SubmitField('Đổi Mật khẩu')
+

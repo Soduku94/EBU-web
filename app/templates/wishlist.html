@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Sản phẩm Yêu thích ❤️</h2>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="list-group">
+                <a href="{{ url_for('main.account') }}" class="list-group-item list-group-item-action">
+                    Lịch sử Đơn hàng
+                </a>
+                <a href="{{ url_for('main.profile') }}" class="list-group-item list-group-item-action">
+                    Thông tin cá nhân
+                </a>
+                <a href="{{ url_for('main.view_wishlist') }}" class="list-group-item list-group-item-action active">
+                    Sản phẩm Yêu thích
+                </a>
+                <a href="#" class="list-group-item list-group-item-action text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% if products %}
+            <div class="row row-cols-1 row-cols-md-3 g-4"> {% for product in products %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if product.image_url %}
+                            {% if product.image_url.startswith('http') %}
+                                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-success fw-bold">{{ "%.0f"|format(product.price) }} VND</p>
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between bg-white">
+                            <a href="{{ url_for('main.product_detail', slug=product.slug) }}" class="btn btn-primary btn-sm">Xem</a>
+
+                            <a href="{{ url_for('main.toggle_wishlist', product_id=product.id) }}"
+                               class="btn btn-outline-danger btn-sm"
+                               title="Bỏ thích">
+                                <i class="bi bi-trash"></i> Bỏ thích
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <div class="text-center mt-5">
+                    <p class="lead">Bạn chưa yêu thích sản phẩm nào.</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Đi dạo cửa hàng</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

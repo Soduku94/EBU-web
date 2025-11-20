@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Quản lý Hồ sơ</h2>
+    
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="list-group">
+                <a href="{{ url_for('main.account') }}" class="list-group-item list-group-item-action">
+                    Lịch sử Đơn hàng
+                </a>
+                <a href="{{ url_for('main.profile') }}" class="list-group-item list-group-item-action active">
+                    Thông tin cá nhân
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action text-danger">
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-light fw-bold">Thông tin cơ bản</div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form_profile.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form_profile.full_name.label(class="form-label") }}
+                                {{ form_profile.full_name(class="form-control") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_profile.email.label(class="form-label") }}
+                                {{ form_profile.email(class="form-control bg-light") }} </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_profile.phone.label(class="form-label") }}
+                            {{ form_profile.phone(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_profile.address.label(class="form-label") }}
+                            {{ form_profile.address(class="form-control", rows=2) }}
+                        </div>
+
+                        {{ form_profile.submit_profile(class="btn btn-primary") }}
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white fw-bold">Đổi Mật khẩu</div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form_pass.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form_pass.old_password.label(class="form-label") }}
+                            {{ form_pass.old_password(class="form-control") }}
+                            {% for error in form_pass.old_password.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <hr>
+
+                        <div class="mb-3">
+                            {{ form_pass.new_password.label(class="form-label") }}
+                            {{ form_pass.new_password(class="form-control") }}
+                            {% for error in form_pass.new_password.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_pass.confirm_password.label(class="form-label") }}
+                            {{ form_pass.confirm_password(class="form-control") }}
+                            {% for error in form_pass.confirm_password.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        {{ form_pass.submit_password(class="btn btn-danger") }}
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

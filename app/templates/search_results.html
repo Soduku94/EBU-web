@@ -24,8 +24,7 @@
                         <option value="all">Tất cả danh mục</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}"
-                                {{
-                        'selected' if current_category == cat.id|string else '' }}>
+                                {{ 'selected' if current_category == cat.id|string else '' }}>
                         {{ cat.name }}
                         </option>
                         {% endfor %}
@@ -59,70 +58,69 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Sắp xếp theo:</label>
                     <select class="form-select filter-submit" name="sort">
-                        <option value="default" {{
-                        'selected' if current_sort == 'default' else '' }}>
-                        Mặc định (A-Z)
+                        <option value="default" {{ 'selected' if current_sort == 'default' else '' }}>
+                            Mặc định (A-Z)
                         </option>
-                        <option value="price_asc" {{
-                        'selected' if current_sort == 'price_asc' else '' }}>
-                        Giá: Tăng dần
+                        <option value="price_asc" {{ 'selected' if current_sort == 'price_asc' else '' }}>
+                            Giá: Tăng dần
                         </option>
-                        <option value="price_desc" {{
-                        'selected' if current_sort == 'price_desc' else '' }}>
-                        Giá: Giảm dần
+                        <option value="price_desc" {{ 'selected' if current_sort == 'price_desc' else '' }}>
+                            Giá: Giảm dần
                         </option>
                     </select>
                 </div>
             </form>
         </div>
+
         <div class="col-md-9">
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 {% if products %}
-                {% for product in products %}
-                <div class="col">
-                    <div class="card h-100">
-                        {% if product.image_url %}
-                        {% if product.image_url.startswith('http') %}
-                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
-                             style="height: 200px; object-fit: cover;">
-                        {% else %}
-                        <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top"
-                             alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                        {% endif %}
-                        {% else %}
-                        <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top"
-                             alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.description[:100] }}...</p>
-                            <p class="card-text">
-                                <strong>Giá: {{ "%.0f"|format(product.price) }} VND</strong>
-                            </p>
-                        </div>
+                    {% for product in products %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if product.image_url %}
+                                {% if product.image_url.startswith('http') %}
+                                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
+                                         style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top"
+                                         alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top"
+                                     alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
 
-                        <div class="card-footer">
-                            <a href="{{ url_for('main.product_detail', product_id=product.id) }}"
-                               class="btn btn-primary btn-sm">Xem chi tiết</a>
-                            <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
-                                  class="d-inline">
-                                <button type="submit" class="btn btn-success btn-sm">Thêm vào giỏ</button>
-                            </form>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text">{{ product.description[:100] }}...</p>
+                                <p class="card-text">
+                                    <strong>Giá: {{ "%.0f"|format(product.price) }} VND</strong>
+                                </p>
+                            </div>
+
+                            <div class="card-footer">
+                                 <a href="{{ url_for('main.product_detail', slug=product.slug) }}"
+                                   class="btn btn-primary btn-sm">Xem chi tiết</a>
+
+                                <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Thêm vào giỏ</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
                 {% else %}
-                <div class="col-12 text-center">
-                    <p class="lead">Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn.</p>
-                </div>
+                    <div class="col-12 text-center">
+                        <p class="lead">Không tìm thấy sản phẩm nào phù hợp với bộ lọc của bạn.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 {{ super() }}
 <script>
     // Tìm tất cả các input (select, radio) có class 'filter-submit'
@@ -136,6 +134,4 @@
         });
     });
 </script>
-{% endblock %}
-
 {% endblock %}

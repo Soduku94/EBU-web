@@ -10,95 +10,94 @@
     {{ ckeditor.load() }}
 
 
-    <head>
-        <style>
-            #chat-bubble {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 60px;
-                height: 60px;
-                background-color: #0d6efd;
-                border-radius: 50%;
-                color: white;
-                font-size: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                z-index: 1000;
-            }
+    <style>
+        #chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #0d6efd;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
 
-            #chat-window {
-                position: fixed;
-                bottom: 90px;
-                right: 20px;
-                width: 350px;
-                height: 450px;
-                background: white;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                display: none;
-                flex-direction: column;
-                z-index: 1001;
-                overflow: hidden;
-            }
+        #chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
 
-            #chat-header {
-                background: #0d6efd;
-                color: white;
-                padding: 10px;
-                font-weight: bold;
-                text-align: center;
-            }
+        #chat-header {
+            background: #0d6efd;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
 
-            #chat-messages {
-                flex-grow: 1;
-                padding: 10px;
-                overflow-y: auto;
-                background: #f9f9f9;
-            }
+        #chat-messages {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
 
-            #chat-input-container {
-                display: flex;
-                border-top: 1px solid #ddd;
-                padding: 10px;
-            }
+        #chat-input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
 
-            #chat-input {
-                flex-grow: 1;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                padding: 8px;
-            }
+        #chat-input {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px;
+        }
 
-            #chat-send {
-                margin-left: 10px;
-            }
+        #chat-send {
+            margin-left: 10px;
+        }
 
-            .chat-message {
-                margin-bottom: 10px;
-                padding: 8px 12px;
-                border-radius: 15px;
-                max-width: 80%;
-            }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
 
-            .user-message {
-                background: #0d6efd;
-                color: white;
-                margin-left: auto;
-                border-bottom-right-radius: 5px;
-            }
+        .user-message {
+            background: #0d6efd;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
 
-            .bot-message {
-                background: #e9e9e9;
-                color: black;
-                margin-right: auto;
-                border-bottom-left-radius: 5px;
-            }
-        </style>
-    </head>
+        .bot-message {
+            background: #e9e9e9;
+            color: black;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+    </style>
+
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -133,12 +132,16 @@
             <a class="nav-link" href="{{ url_for('main.account') }}">
                 Tài khoản: {{ current_user.username }}
             </a>
-
+            <a class="nav-link text-danger" href="{{ url_for('main.view_wishlist') }}">
+                <i class="bi bi-heart-fill"></i>
+            </a>
             {% if current_user.role.name == 'Admin' %}
             <a class="nav-link text-danger" href="{{ url_for('admin.index') }}">Admin</a>
             {% endif %}
 
-            <a class="nav-link" href="{{ url_for('auth.logout') }}">Đăng xuất</a>
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                Đăng xuất
+            </a>
             {% else %}
             <a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a>
             <a class="nav-link" href="{{ url_for('auth.register') }}">Đăng ký</a>
@@ -161,7 +164,7 @@
 
     {% block content %}{% endblock %}
 </div>
-</div>
+
 <footer class="bg-light text-dark pt-5 pb-4 mt-5 border-top">
     <div class="container text-md-start">
         <div class="row">
@@ -312,4 +315,28 @@
     </div>
 </div>
 </body>
+
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Xác nhận đăng xuất</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</html>
+
+
 </html>

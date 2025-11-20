@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
     <h2 class="mb-4">Chào mừng, {{ current_user.username }}!</h2>
-    
+
     <div class="row">
         <div class="col-md-3">
             <h4>Tài khoản</h4>
@@ -13,8 +13,13 @@
                 <a href="{{ url_for('main.account') }}" class="list-group-item list-group-item-action active">
                     Lịch sử Đơn hàng
                 </a>
-                <a href="#" class="list-group-item list-group-item-action disabled">(Sắp có) Thông tin cá nhân</a>
-                <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action text-danger">
+                <a href="{{ url_for('main.profile') }}" class="list-group-item list-group-item-action">
+                    Thông tin cá nhân
+                </a>
+                <a href="#"
+                   class="list-group-item list-group-item-action text-danger"
+                   data-bs-toggle="modal"
+                   data-bs-target="#logoutModal">
                     Đăng xuất
                 </a>
             </div>
@@ -25,38 +30,39 @@
             {% if orders %}
             <table class="table table-hover align-middle">
                 <thead>
-                    <tr>
-                        <th scope="col">Mã Đơn</th>
-                        <th scope="col">Ngày đặt</th>
-                        <th scope="col">Tổng tiền</th>
-                        <th scope="col">P.thức TT</th>
-                        <th scope="col">Trạng thái</th>
-                        <th scope="col"></th>
-                    </tr>
+                <tr>
+                    <th scope="col">Mã Đơn</th>
+                    <th scope="col">Ngày đặt</th>
+                    <th scope="col">Tổng tiền</th>
+                    <th scope="col">P.thức TT</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col"></th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td><strong>#{{ order.id }}</strong></td>
-                        <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ "%.0f"|format(order.total_price) }} VND</td>
-                        <td>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>#{{ order.id }}</strong></td>
+                    <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                    <td>{{ "%.0f"|format(order.total_price) }} VND</td>
+                    <td>
                             <span class="badge {{ 'bg-info' if order.payment_method == 'COD' else 'bg-primary' }}">
                                 {{ order.payment_method }}
                             </span>
-                        </td>
-                        <td>
+                    </td>
+                    <td>
                             <span class="badge {{ 'bg-success' if order.status == 'Delivered' else 'bg-warning' }}">
                                 {{ order.status }}
                             </span>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('main.order_complete', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
-                                Xem chi tiết
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('main.order_complete', order_id=order.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            Xem chi tiết
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
                 </tbody>
             </table>
             {% else %}

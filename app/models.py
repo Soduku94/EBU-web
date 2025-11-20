@@ -18,7 +18,10 @@ class Role(db.Model):
     def __repr__(self):
         return f'<Role {self.name}>'
 
-
+wishlist_table = db.Table('wishlist_items',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id'), primary_key=True)
+)
 class User(UserMixin, db.Model):
     """Bảng User: Lưu trữ thông tin người dùng (Khách và Admin)."""
     __tablename__ = 'users'
@@ -27,10 +30,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(256))  # Không lưu password gốc
 
-    # Thông tin cá nhân (có thể thêm sau)
-    # full_name = db.Column(db.String(128))
-    # phone = db.Column(db.String(20))
-    # address = db.Column(db.String(256))
+
 
     # Khóa ngoại liên kết với Role
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
@@ -49,6 +49,15 @@ class User(UserMixin, db.Model):
         """Tạo token reset mật khẩu, hết hạn sau 30 phút (1800s)."""
         s = Serializer(current_app.config['SECRET_KEY'])
         return s.dumps({'user_id': self.id}, salt='password-reset-salt')
+
+# tính năng cho danh sách các sản phẩm yêu thích
+    wishlist = db.relationship('Product',
+                               secondary=wishlist_table,
+                               lazy='dynamic',
+                               backref=db.backref('favorited_by', lazy='dynamic'))
+
+
+
 
     @staticmethod
     def verify_reset_token(token):
@@ -110,6 +119,9 @@ class Product(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
+
+    # unique=True để đảm bảo không có 2 sản phẩm trùng link
+    slug = db.Column(db.String(256), unique=True)
 
     def __repr__(self):
         return f'<Product {self.name}>'

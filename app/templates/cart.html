@@ -40,7 +40,7 @@
                 </td>
 
                 <td>
-                    <a href="{{ url_for('main.product_detail', product_id=item.product.id) }}">
+                    <a href="{{ url_for('main.product_detail', slug=product.slug }}">
                         <strong>{{ item.product.name }}</strong>
                     </a>
                 </td>
