@@ -25,22 +25,28 @@
                 <input type="hidden" name="product_id" value="{{ item.product.id }}">
 
                 <td>
-                    {% if product.image_url %}
-                    {% if product.image_url.startswith('http') %}
-                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
-                         style="height: 200px; object-fit: cover;">
+                    {% if item.product.image_url %}
+                    {% if item.product.image_url.startswith('http') %}
+                    <img src="{{ item.product.image_url }}"
+                         alt="{{ item.product.name }}"
+                         class="img-fluid rounded"
+                         style="max-height: 75px;">
                     {% else %}
-                    <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top"
-                         alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    <img src="{{ url_for('static', filename=item.product.image_url) }}"
+                         alt="{{ item.product.name }}"
+                         class="img-fluid rounded"
+                         style="max-height: 75px;">
                     {% endif %}
                     {% else %}
-                    <img src="https://via.placeholder.com/300x200.png?text=Home+Fit+Pro" class="card-img-top"
-                         alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    <img src="https://via.placeholder.com/100"
+                         alt="{{ item.product.name }}"
+                         class="img-fluid rounded"
+                         style="max-height: 75px;">
                     {% endif %}
                 </td>
 
                 <td>
-                    <a href="{{ url_for('main.product_detail', slug=product.slug }}">
+                   <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}">
                         <strong>{{ item.product.name }}</strong>
                     </a>
                 </td>

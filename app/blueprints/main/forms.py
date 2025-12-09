@@ -1,15 +1,20 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField, RadioField, IntegerField, PasswordField
-from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo
-
+from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo, Optional
+from wtforms import RadioField
 
 class CheckoutForm(FlaskForm):
     """Form điền thông tin khi thanh toán."""
     full_name = StringField('Họ và Tên', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Số điện thoại', validators=[DataRequired(), Length(min=9, max=11)])
-    shipping_address = TextAreaField('Địa chỉ nhận hàng', validators=[DataRequired()])
-
+    # địa chỉ mới
+    province = StringField('Tỉnh / Thành phố', validators=[DataRequired()])
+    district = StringField('Quận / Huyện', validators=[DataRequired()])
+    ward = StringField('Phường / Xã', validators=[DataRequired()])
+    specific_address = StringField('Địa chỉ chi tiết (Số nhà, đường...)',validators=[Optional()])
+    # mã giảm giá
+    coupon_code = StringField('Mã giảm giá (Nếu có)')
     payment_method = RadioField(
         'Phương thức thanh toán',
         choices=[
@@ -18,6 +23,7 @@ class CheckoutForm(FlaskForm):
         ],
         default='COD',
         validators=[DataRequired()]
+
     )
     submit = SubmitField('Hoàn tất Đơn hàng')
 
@@ -90,3 +96,68 @@ class ChangePasswordForm(FlaskForm):
                                                                                                       message='Mật khẩu mới không khớp.')])
         submit_password = SubmitField('Đổi Mật khẩu')
 
+
+class ParqForm(FlaskForm):
+    """Bảng câu hỏi PAR-Q (7 câu)."""
+    # Choices: 'yes' -> True, 'no' -> False
+    choices = [('no', 'Không'), ('yes', 'Có')]
+
+    q1 = RadioField('1. Bác sĩ có từng nói bạn bị bệnh tim và chỉ nên tập thể dục khi có sự giám sát?',
+                    choices=choices, validators=[DataRequired()])
+
+    q2 = RadioField('2. Bạn có cảm thấy đau ngực khi tham gia hoạt động thể chất không?',
+                    choices=choices, validators=[DataRequired()])
+
+    q3 = RadioField('3. Trong tháng qua, bạn có bị đau ngực khi KHÔNG tham gia hoạt động thể chất không?',
+                    choices=choices, validators=[DataRequired()])
+
+    q4 = RadioField('4. Bạn có bị mất thăng bằng do chóng mặt hoặc từng bị mất ý thức không?',
+                    choices=choices, validators=[DataRequired()])
+
+    q5 = RadioField(
+        '5. Bạn có vấn đề về xương khớp (lưng, đầu gối...) có thể tồi tệ hơn nếu thay đổi cường độ vận động?',
+        choices=choices, validators=[DataRequired()])
+
+    q6 = RadioField('6. Bạn có đang kê đơn thuốc cho huyết áp hoặc bệnh tim không?',
+                    choices=choices, validators=[DataRequired()])
+
+    q7 = RadioField('7. Bạn có biết lý do nào khác khiến bạn không nên tham gia hoạt động thể chất không?',
+                    choices=choices, validators=[DataRequired()])
+
+    submit = SubmitField('Gửi đánh giá')
+
+
+# Import SelectField
+from wtforms import SelectField
+
+
+class NeedsAssessmentForm(FlaskForm):
+    """Form đánh giá nhu cầu tập luyện."""
+
+    goal = SelectField('1. Mục tiêu chính của bạn là gì?', choices=[
+        ('lose_weight', 'Giảm cân / Đốt mỡ'),
+        ('gain_muscle', 'Tăng cơ bắp / Sức mạnh'),
+        ('health', 'Duy trì sức khỏe / Tim mạch'),
+        ('recovery', 'Phục hồi / Thư giãn (Yoga)')
+    ], validators=[DataRequired()])
+
+    experience = SelectField('2. Kinh nghiệm tập luyện của bạn?', choices=[
+        ('newbie', 'Mới bắt đầu (Chưa bao giờ tập)'),
+        ('intermediate', 'Đã từng tập (Biết cơ bản)'),
+        ('pro', 'Tập thường xuyên (Nâng cao)')
+    ], validators=[DataRequired()])
+
+    space = SelectField('3. Không gian tập tại nhà?', choices=[
+        ('small', 'Nhỏ / Hẹp (Căn hộ, Phòng ngủ)'),
+        ('medium', 'Trung bình (Phòng khách rộng)'),
+        ('large', 'Rộng (Có phòng tập riêng / Sân vườn)')
+    ], validators=[DataRequired()])
+
+    budget = SelectField('4. Ngân sách dự kiến?', choices=[
+        ('low', 'Dưới 1 triệu'),
+        ('medium', 'Từ 1 - 5 triệu'),
+        ('high', 'Trên 5 triệu'),
+        ('unlimited', 'Thoải mái, miễn là tốt')
+    ], validators=[DataRequired()])
+
+    submit = SubmitField('Xem Gợi ý Phù hợp')

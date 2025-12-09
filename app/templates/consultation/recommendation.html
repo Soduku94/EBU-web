@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Gợi ý dành riêng cho bạn <i class="bi bi-stars text-warning"></i></h1>
+        <p class="lead">Dựa trên mục tiêu và điều kiện của bạn, đây là những thiết bị tối ưu nhất:</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 shadow hover-shadow transition">
+                {% if product.image_url %}
+                    {% if product.image_url.startswith('http') %}
+                        <img src="{{ product.image_url }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <img src="{{ url_for('static', filename=product.image_url) }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                {% else %}
+                    <img src="https://via.placeholder.com/300" class="card-img-top">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-success fw-bold fs-5">{{ "%.0f"|format(product.price) }} VND</p>
+                    <p class="card-text small text-muted">{{ product.description | truncate(80) }}</p>
+                </div>
+                
+                <div class="card-footer bg-white border-top-0 pb-3">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.product_detail', slug=product.slug) }}" class="btn btn-outline-primary">Xem chi tiết</a>
+                        <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success w-100">Thêm vào giỏ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="text-center mt-5">
+        <a href="{{ url_for('main.index') }}" class="btn btn-link text-muted">Xem tất cả sản phẩm khác</a>
+    </div>
+</div>
+{% endblock %}

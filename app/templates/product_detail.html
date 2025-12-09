@@ -34,7 +34,7 @@
             {% if product.stock > 0 %}
             <p>Tình trạng: <span class="badge bg-success">Còn hàng ({{ product.stock }})</span></p>
 
-            <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST">
+            <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">
                 <div class="input-group mb-3" style="max-width: 150px;">
                     <button class="btn btn-outline-secondary" type="button" id="button-decrease">-</button>
 

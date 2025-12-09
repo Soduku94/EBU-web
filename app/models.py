@@ -140,6 +140,11 @@ class Order(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # Chứa tất cả các 'món hàng' trong đơn hàng này
     items = db.relationship('OrderItem', backref='order', lazy='dynamic')
+    shipping_fee = db.Column(db.Float, default=0)
+
+
+    # thanh toán , tiền chảy về túi chưa
+    is_paid = db.Column(db.Boolean, default=False)
 
     # === THAY ĐỔI VÀ THÊM MỚI ===
     # 1. Cho phép customer_id bị rỗng (nullable=True) cho khách vãng lai
@@ -227,3 +232,43 @@ class ContactMessage(db.Model):
 
     def __repr__(self):
         return f'<ContactMessage {self.subject}>'
+
+class Coupon(db.Model):
+        """Bảng lưu mã giảm giá."""
+        __tablename__ = 'coupons'
+        id = db.Column(db.Integer, primary_key=True)
+        code = db.Column(db.String(50), unique=True, nullable=False)  # Ví dụ: SALE10
+        discount_type = db.Column(db.String(20), default='percent')  # 'percent' (phần trăm) hoặc 'fixed' (tiền mặt)
+        discount_value = db.Column(db.Float, nullable=False)  # Ví dụ: 10 (cho 10%) hoặc 50000 (cho 50k)
+        expiration_date = db.Column(db.DateTime)  # Hạn sử dụng
+        min_order_value = db.Column(db.Float, default=0)  # Đơn tối thiểu để dùng mã
+        active = db.Column(db.Boolean, default=True)  # Trạng thái bật/tắt
+
+        def __repr__(self):
+            return f'<Coupon {self.code}>'
+
+
+class HealthScreening(db.Model):
+    """Lưu kết quả bảng câu hỏi PAR-Q."""
+    __tablename__ = 'health_screenings'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Liên kết với User
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    # Lưu câu trả lời cho 7 câu hỏi (True = Có/Yes, False = Không/No)
+    q1 = db.Column(db.Boolean, default=False)  # Tim mạch
+    q2 = db.Column(db.Boolean, default=False)  # Đau ngực khi tập
+    q3 = db.Column(db.Boolean, default=False)  # Đau ngực khi nghỉ
+    q4 = db.Column(db.Boolean, default=False)  # Chóng mặt/Mất thăng bằng
+    q5 = db.Column(db.Boolean, default=False)  # Xương khớp
+    q6 = db.Column(db.Boolean, default=False)  # Thuốc huyết áp/tim
+    q7 = db.Column(db.Boolean, default=False)  # Lý do khác
+
+    # Kết quả tổng hợp
+    # True = Có rủi ro (Cần bác sĩ), False = An toàn
+    risk_detected = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'<HealthScreening User {self.user_id} Risk {self.risk_detected}>'

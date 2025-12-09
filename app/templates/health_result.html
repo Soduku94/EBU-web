@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center" style="min-height: 60vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            {% if result.risk_detected %}
+            <div class="card border-danger mb-3">
+                <div class="card-header bg-danger text-white fw-bold">KẾT QUẢ: CẦN THAM KHẢO Ý KIẾN BÁC SĨ</div>
+                <div class="card-body text-danger">
+                    <h1 class="display-1 mb-3"><i class="bi bi-exclamation-triangle-fill"></i></h1>
+                    <h4 class="card-title">Khoan đã! Bạn chưa nên tập luyện nặng ngay.</h4>
+                    <p class="card-text lead mt-3">
+                        Dựa trên câu trả lời của bạn (có ít nhất 1 câu "Có"), chúng tôi khuyên bạn nên
+                        <strong>gặp bác sĩ hoặc chuyên gia y tế</strong> trước khi bắt đầu chương trình tập luyện mới.
+                    </p>
+                    <hr>
+                    <p>Vui lòng liên hệ với chúng tôi để được tư vấn dòng thiết bị phục hồi chức năng hoặc cường độ
+                        nhẹ.</p>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-danger mt-3">Liên hệ Chuyên gia</a>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="card border-success mb-3">
+                <div class="card-header bg-success text-white fw-bold">KẾT QUẢ: AN TOÀN</div>
+                <div class="card-body text-success">
+                    <h1 class="display-1 mb-3"><i class="bi bi-check-circle-fill"></i></h1>
+                    <h4 class="card-title">Bạn đã sẵn sàng!</h4>
+                    <p class="card-text lead mt-3">
+                        Bạn đủ điều kiện sức khỏe để tham gia các hoạt động thể chất và sử dụng thiết bị của chúng tôi.
+                    </p>
+                    <hr>
+                    <p>Hãy bắt đầu chọn thiết bị phù hợp với mục tiêu của bạn ngay thôi.</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-success btn-lg mt-3">Khám phá Sản phẩm</a>
+                    <a href="{{ url_for('main.needs_assessment') }}" class="btn btn-success btn-lg mt-3">
+                        Tiếp tục: Tư vấn chọn thiết bị &rarr;
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

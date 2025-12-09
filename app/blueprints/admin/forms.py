@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, FloatField, IntegerField
+from wtforms import StringField, SubmitField, TextAreaField, FloatField, IntegerField, SelectField, DateTimeField, \
+    BooleanField
 from wtforms.validators import DataRequired, ValidationError, NumberRange
 from app.models import Category, Product
 from wtforms_sqlalchemy.fields import QuerySelectField
@@ -54,3 +55,15 @@ class PostForm(FlaskForm):
     # Đây chính là trình soạn thảo "Word thu nhỏ"
     body = CKEditorField('Nội dung', validators=[DataRequired()])
     submit = SubmitField('Đăng bài')
+
+
+class CouponForm(FlaskForm):
+    """Form thêm mã giảm giá."""
+    code = StringField('Mã Coupon (VD: SALE10)', validators=[DataRequired()])
+    discount_type = SelectField('Loại giảm giá', choices=[('percent', 'Phần trăm (%)'), ('fixed', 'Số tiền cố định (VNĐ)')])
+    discount_value = FloatField('Giá trị giảm', validators=[DataRequired()])
+    min_order_value = FloatField('Giá trị đơn tối thiểu', default=0)
+    # Dùng format='%Y-%m-%d' để khớp với input type="date" của HTML5
+    expiration_date = DateTimeField('Hạn sử dụng (YYYY-MM-DD)', format='%Y-%m-%d', validators=[DataRequired()])
+    active = BooleanField('Kích hoạt ngay')
+    submit = SubmitField('Lưu Coupon')

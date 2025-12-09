@@ -7,6 +7,7 @@
     <h2 class="mb-4">{{ title }}</h2>
 
     <div class="row g-4">
+        <!-- DANH SÁCH SẢN PHẨM -->
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header">Các sản phẩm trong đơn</div>
@@ -16,10 +17,14 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="my-0">{{ item.product.name }}</h6>
-                                <small class="text-muted">Giá lúc mua: {{ "%.0f"|format(item.price_at_purchase) }}</small>
+                                <small class="text-muted">
+                                    Giá lúc mua: {{ "%.0f"|format(item.price_at_purchase) }} VND
+                                </small>
                             </div>
                             <span class="text-muted">Số lượng: {{ item.quantity }}</span>
-                            <strong>{{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND</strong>
+                            <strong>
+                                {{ "%.0f"|format(item.price_at_purchase * item.quantity) }} VND
+                            </strong>
                         </li>
                         {% endfor %}
                         <li class="list-group-item d-flex justify-content-between bg-light">
@@ -28,10 +33,36 @@
                         </li>
                     </ul>
                 </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Thanh toán:</span>
+                            {% if order.is_paid %}
+                            <span class="badge bg-success">ĐÃ THANH TOÁN (Tiền đã về)</span>
+                            {% else %}
+                            <span class="badge bg-danger">CHƯA THANH TOÁN (Công nợ)</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+
+                    {% if not order.is_paid %}
+                    <div class="mt-3 text-end">
+                        <form action="{{ url_for('admin.confirm_payment', order_id=order.id) }}" method="POST"
+                              onsubmit="return confirm('Xác nhận đã cầm tiền của đơn này?');">
+                            <button type="submit" class="btn btn-success">
+                                💰 Xác nhận Đã nhận tiền
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+
             </div>
         </div>
 
+        <!-- THÔNG TIN & TRẠNG THÁI -->
         <div class="col-lg-4">
+
             <div class="card mb-4">
                 <div class="card-header">Thông tin Khách hàng</div>
                 <div class="card-body">
@@ -39,24 +70,24 @@
                     <p><strong>Email:</strong> {{ order.customer_email }}</p>
                     <p><strong>SĐT:</strong> {{ order.customer_phone }}</p>
                     <hr>
-                    <p><strong>Địa chỉ giao hàng:</strong><br>
-                       {{ order.shipping_address }}
-                    </p>
+                    <p><strong>Địa chỉ giao hàng:</strong><br>{{ order.shipping_address }}</p>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header">Cập nhật Trạng thái</div>
                 <div class="card-body">
-                    <p>Trạng thái hiện tại: 
+                    <p>
+                        Trạng thái hiện tại:
                         <strong class="badge bg-warning">{{ order.status }}</strong>
                     </p>
+
                     <form method="POST">
                         <div class="mb-3">
                             <label for="status" class="form-label">Đổi trạng thái:</label>
                             <select class="form-select" id="status" name="status">
                                 {% for s in statuses %}
-                                <option value="{{ s }}" {{ 'selected' if s == order.status else '' }}>
+                                <option value="{{ s }}" {% if s== order.status %}selected{% endif %}>
                                     {{ s }}
                                 </option>
                                 {% endfor %}
@@ -66,6 +97,14 @@
                     </form>
                 </div>
             </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('admin.print_invoice', order_id=order.id) }}"
+                   target="_blank" class="btn btn-outline-secondary">
+                    <i class="bi bi-printer"></i> In Hóa đơn
+                </a>
+            </div>
+
         </div>
     </div>
 </div>

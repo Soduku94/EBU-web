@@ -1,31 +1,60 @@
-from flask import render_template, session, redirect, url_for, flash, request
-from flask_login import current_user, login_required
+# Standard library
 from datetime import datetime
+
+# Third-party
 import google.generativeai as genai
-from flask import current_app, jsonify
 
+# Flask
+from flask import (
+    render_template,
+    session,
+    redirect,
+    url_for,
+    flash,
+    request,
+    current_app,
+    jsonify
+)
+from flask_login import current_user, login_required
+
+# Project - Blueprint
 from . import main
-from .forms import CheckoutForm, ReviewForm  # Import form checkout chúng ta vừa định nghĩa
-from app.models import Product, Category, Order, OrderItem, Review, Post
-from app.extensions import db
-from app.email import send_order_confirmation_email
-from app.models import Order
-from .forms import TrackOrderForm
-from flask import render_template, request, flash, redirect, url_for  # Đảm bảo đã import
-
-from app.vnpay_service import get_vnpay_payment_url, validate_vnpay_response
-
-
-from .forms import ContactForm
-from app.models import ContactMessage
-from app.extensions import db
-from .forms import UpdateProfileForm, ChangePasswordForm # Import 2 form mới
-
-
-from app.models import ContactMessage
 from ..admin import admin
 from ...decorators import admin_required
 
+# Project - Forms
+from .forms import (
+    CheckoutForm,
+    ReviewForm,
+    TrackOrderForm,
+    ContactForm,
+    UpdateProfileForm,
+    ChangePasswordForm, NeedsAssessmentForm
+)
+
+# Project - Models
+from app.models import (
+    Product,
+    Category,
+    Order,
+    OrderItem,
+    Review,
+    Post,
+    ContactMessage
+)
+
+# Project - Services & Extensions
+from app.extensions import db
+from app.email import send_order_confirmation_email
+from app.vnpay_service import (
+    get_vnpay_payment_url,
+    validate_vnpay_response
+)
+from app.models import Coupon
+from datetime import datetime
+
+from .forms import ParqForm
+from app.models import HealthScreening
 
 @main.route('/')
 @main.route('/index')
@@ -53,50 +82,58 @@ def index():
                            latest_reviews=latest_reviews)  # <-- Gửi reviews ra template
 
 
-# === 2. THÊM VÀO GIỎ HÀNG (DÙNG SESSION) ===
 @main.route('/add-to-cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
-    # 1. Lấy giỏ hàng từ session
     cart = session.get('cart', {})
-
-    # 2. Lấy sản phẩm
     product = Product.query.get_or_404(product_id)
-    product_id_str = str(product.id)  # Session keys phải là string
+    product_id_str = str(product.id)
 
-    # 3. Lấy số lượng từ form
-    # Dùng .get('quantity', '1') để lấy, nếu không có (từ trang chủ) thì mặc định là '1'
-    # Dùng int() để chuyển sang số nguyên
+    # Lấy số lượng (Hỗ trợ cả Form thường và JSON nếu cần)
     try:
         quantity_to_add = int(request.form.get('quantity', '1'))
     except ValueError:
-        quantity_to_add = 1  # Nếu ai đó cố tình nhập chữ, mặc định là 1
-
-    # Đảm bảo số lượng luôn là số dương
+        quantity_to_add = 1
     if quantity_to_add <= 0:
         quantity_to_add = 1
 
-    # 4. Kiểm tra tồn kho
+    # Kiểm tra tồn kho
     current_quantity_in_cart = cart.get(product_id_str, 0)
-
-    # Kiểm tra xem tổng số lượng (trong giỏ + sắp thêm) có vượt kho không
     if current_quantity_in_cart + quantity_to_add > product.stock:
-        flash(
-            f'Xin lỗi, bạn chỉ có thể thêm tối đa {product.stock - current_quantity_in_cart} sản phẩm "{product.name}" nữa.',
-            'warning')
+        msg = f'Xin lỗi, chỉ còn {product.stock} sản phẩm "{product.name}" trong kho.'
+
+        # === LOGIC MỚI: KIỂM TRA AJAX ===
+        # Nếu có header đặc biệt này, trả về JSON lỗi
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'status': 'error', 'message': msg})
+
+        # Nếu không, chạy logic cũ (flash + redirect)
+        flash(msg, 'warning')
         return redirect(request.referrer or url_for('main.index'))
 
-    # 5. Thêm vào giỏ
+    # Thêm vào giỏ
     if product_id_str in cart:
         cart[product_id_str] += quantity_to_add
     else:
         cart[product_id_str] = quantity_to_add
 
-    # 6. Lưu lại session
     session['cart'] = cart
 
-    flash(f'Đã thêm {product.name} vào giỏ hàng!', 'success')
-    return redirect(request.referrer or url_for('main.index'))
+    # Tính tổng số lượng mới để cập nhật badge
+    new_cart_count = sum(cart.values())
 
+    msg = f'Đã thêm {quantity_to_add} "{product.name}" vào giỏ hàng!'
+
+    # === LOGIC MỚI: TRẢ VỀ JSON THÀNH CÔNG ===
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            'status': 'success',
+            'message': msg,
+            'cart_count': new_cart_count
+        })
+
+    # Logic cũ
+    flash(msg, 'success')
+    return redirect(request.referrer or url_for('main.index'))
 
 # === 3. XEM GIỎ HÀNG ===
 @main.route('/cart')
@@ -138,42 +175,35 @@ def view_cart():
                            total_price=total_price)
 
 
-
-
 @main.route('/checkout', methods=['GET', 'POST'])
 def checkout():
-    # === PHẦN 1: KIỂM TRA GIỎ HÀNG (LUỒNG "MUA NGAY" HOẶC "GIỎ HÀNG") ===
-    # ---------------------------------------------------------------
-    # Kiểm tra xem người dùng có đang ở luồng "Mua Ngay" (từ trang chi tiết) không
-    is_buy_now = session.get('is_buy_now', False)
+    # ==================================================================
+    # PHẦN 1: LẤY GIỎ HÀNG & CHUẨN BỊ DỮ LIỆU HIỂN THỊ (GET)
+    # ==================================================================
 
+    # 1. Kiểm tra luồng "Mua Ngay" hay "Giỏ Hàng"
+    is_buy_now = session.get('is_buy_now', False)
     if is_buy_now:
-        # Nếu là luồng Mua Ngay, dùng giỏ hàng tạm thời
         cart = session.get('buy_now_cart', {})
     else:
-        # Nếu là luồng Giỏ hàng bình thường, dùng giỏ hàng chính
         cart = session.get('cart', {})
 
-    # Nếu không có giỏ hàng nào (rỗng), quay về trang chủ
     if not cart:
         flash('Giỏ hàng của bạn đang rỗng.', 'info')
         return redirect(url_for('main.index'))
 
-    # === PHẦN 2: TÍNH TOÁN DỮ LIỆU HIỂN THỊ (CHO GET REQUEST) ===
-    # ----------------------------------------------------------
-    # (Dùng để hiển thị "Tóm tắt đơn hàng" bên phải, chạy ngay cả khi GET)
-
+    # 2. Tính toán dữ liệu để hiển thị ra giao diện (HTML)
     product_ids = [int(pid) for pid in cart.keys()]
     products_in_cart = Product.query.filter(Product.id.in_(product_ids)).all()
 
-    items_for_display = []  # Danh sách để gửi ra template
-    total_price = 0  # Tổng tiền để gửi ra template
+    items_for_display = []
+    total_price = 0
 
     for product in products_in_cart:
         product_id_str = str(product.id)
         quantity = cart[product_id_str]
 
-        # Nếu là GET request, cảnh báo nếu kho không đủ
+        # Cảnh báo tồn kho (chỉ hiển thị khi xem trang, không chặn)
         if quantity > product.stock and request.method == 'GET':
             flash(f'Lưu ý: Sản phẩm "{product.name}" chỉ còn {product.stock} cái.', 'warning')
 
@@ -185,37 +215,32 @@ def checkout():
             'subtotal': subtotal
         })
 
-    # === PHẦN 3: KHỞI TẠO FORM VÀ XỬ LÝ GET ===
-    # -----------------------------------------------
+    # 3. Khởi tạo Form và điền dữ liệu cũ (nếu đã đăng nhập)
     form = CheckoutForm()
-
-    # Tự động điền form nếu user đã đăng nhập (chỉ khi là GET)
     if request.method == 'GET' and current_user.is_authenticated:
         form.full_name.data = current_user.full_name or ''
         form.email.data = current_user.email or ''
         form.phone.data = current_user.phone or ''
-        form.shipping_address.data = current_user.address or ''
+        # Điền địa chỉ cũ vào ô "chi tiết" (tạm thời)
+        form.specific_address.data = current_user.address or ''
 
-    # === PHẦN 4: XỬ LÝ KHI NGƯỜI DÙNG NHẤN "HOÀN TẤT ĐƠN HÀNG" (POST) ===
-    # ----------------------------------------------------------------------
+    # ==================================================================
+    # PHẦN 2: XỬ LÝ KHI NGƯỜI DÙNG BẤM "HOÀN TẤT" (POST)
+    # ==================================================================
     if form.validate_on_submit():
 
-        # --- 4a. Kiểm tra Server-side (Bảo mật) ---
-        # (Tính toán lại tổng tiền và kiểm tra kho lần cuối
-        #  để đảm bảo không bị thay đổi ở phía client)
-
+        # --- BƯỚC A: KIỂM TRA LẠI GIÁ TRỊ ĐƠN HÀNG (SECURITY CHECK) ---
         items_to_order = []
         total_price_check = 0
 
-        # Dùng lại 'products_in_cart' (đã tải ở Phần 2) cho hiệu quả
         for product in products_in_cart:
             product_id_str = str(product.id)
             quantity = cart[product_id_str]
 
-            # Kiểm tra chặn (nghiêm ngặt)
+            # Kiểm tra tồn kho nghiêm ngặt (Chặn đứng nếu hết hàng)
             if quantity > product.stock:
-                flash(f'Sản phẩm "{product.name}" chỉ còn {product.stock} cái. Vui lòng quay lại giỏ hàng.', 'danger')
-                return redirect(url_for('main.view_cart'))  # Quay về giỏ hàng (không phải checkout)
+                flash(f'Sản phẩm "{product.name}" chỉ còn {product.stock} cái. Vui lòng cập nhật giỏ hàng.', 'danger')
+                return redirect(url_for('main.view_cart'))
 
             subtotal = product.price * quantity
             total_price_check += subtotal
@@ -225,123 +250,172 @@ def checkout():
                 'price_at_purchase': product.price
             })
 
-        # Đảm bảo giá không bị thay đổi (tổng tiền lúc GET và POST phải khớp)
+        # Chống hack: Đảm bảo giá client gửi lên khớp với giá server tính
         if total_price != total_price_check:
-            flash('Đã có lỗi xảy ra với tổng tiền, vui lòng thử lại.', 'danger')
+            flash('Dữ liệu giá không đồng bộ, vui lòng thử lại.', 'danger')
             return redirect(url_for('main.view_cart'))
 
-        # --- 4b. Bắt đầu Giao dịch Database (Tạo Đơn hàng) ---
+        # --- BƯỚC B: TÍNH PHÍ VẬN CHUYỂN (SHIPPING FEE) ---
+        shipping_fee = 0
+        SHOP_LOCATION = 'Thành phố Hà Nội'  # Cấu hình vị trí shop
+        user_province = form.province.data
+
+        # Logic Freeship: Đơn hàng >= 1 triệu -> Miễn phí
+        if total_price_check >= 1000000:
+            shipping_fee = 0
+        else:
+            # Nếu cùng tỉnh -> 20k, khác tỉnh -> 35k
+            if user_province == SHOP_LOCATION:
+                shipping_fee = 20000
+            else:
+                shipping_fee = 35000
+
+        # --- BƯỚC C: TÍNH MÃ GIẢM GIÁ (COUPON) ---
+        discount_amount = 0
+        coupon_code = form.coupon_code.data
+
+        if coupon_code:
+            coupon = Coupon.query.filter_by(code=coupon_code.upper()).first()
+            now = datetime.now()
+
+            # 1. Kiểm tra mã hợp lệ
+            if not coupon or not coupon.active or coupon.expiration_date < now:
+                flash("Mã giảm giá không hợp lệ hoặc đã hết hạn.", 'danger')
+                return redirect(url_for('main.view_cart'))  # Chặn
+
+            # 2. Kiểm tra giá trị đơn tối thiểu
+            if total_price_check < coupon.min_order_value:
+                flash(f"Mã này chỉ áp dụng cho đơn từ {coupon.min_order_value:,.0f} đ.", 'danger')
+                return redirect(url_for('main.view_cart'))  # Chặn
+
+            # 3. Tính tiền giảm
+            if coupon.discount_type == 'percent':
+                discount_amount = total_price_check * (coupon.discount_value / 100)
+            else:
+                discount_amount = coupon.discount_value
+
+            # Không cho phép giảm giá vượt quá tiền hàng
+            if discount_amount > total_price_check:
+                discount_amount = total_price_check
+
+            flash(f"Áp dụng mã {coupon.code} thành công! Giảm {discount_amount:,.0f} đ", 'success')
+
+        # --- BƯỚC D: TÍNH TỔNG TIỀN CUỐI CÙNG ---
+        # Công thức: (Tiền hàng - Giảm giá) + Ship
+        final_total_price = (total_price_check - discount_amount) + shipping_fee
+
+        # --- BƯỚC E: LƯU VÀO DATABASE & THANH TOÁN ---
         try:
-            # 1. Tạo đối tượng Order
+            # 1. Xử lý địa chỉ: Gộp 4 trường thành 1 chuỗi
+            specific = form.specific_address.data or ""
+            full_address = f"{specific}, {form.ward.data}, {form.district.data}, {form.province.data}"
+            if full_address.startswith(", "): full_address = full_address[2:]
+
+            # 2. Tạo đối tượng Order
             new_order = Order(
-                total_price=total_price_check,  # Dùng giá đã kiểm tra
+                total_price=final_total_price,  # Dùng giá cuối cùng
+                shipping_fee=shipping_fee,  # Lưu phí ship
                 customer_name=form.full_name.data,
                 customer_email=form.email.data,
                 customer_phone=form.phone.data,
-                shipping_address=form.shipping_address.data,
+                shipping_address=full_address,
                 payment_method=form.payment_method.data
             )
 
-            # 2. Gán User (nếu đã đăng nhập)
+            # 3. Gán User (nếu có) và Cập nhật hồ sơ
             if current_user.is_authenticated:
                 new_order.customer = current_user
-                # Cập nhật thông tin profile cho user
                 current_user.full_name = form.full_name.data
                 current_user.phone = form.phone.data
-                current_user.address = form.shipping_address.data
+                current_user.address = full_address  # Lưu địa chỉ mới nhất vào hồ sơ
                 db.session.add(current_user)
 
-            # Add đơn hàng (new_order) vào session
+            # Add đơn hàng (chưa commit)
             db.session.add(new_order)
 
-            # --- 4c. Rẽ nhánh xử lý COD / VNPAY ---
+            # 4. RẼ NHÁNH THANH TOÁN
 
+            # === TRƯỜNG HỢP: COD ===
             if new_order.payment_method == 'COD':
-                # --- Xử lý COD ---
-                new_order.status = 'Pending'  # Trạng thái chờ xử lý
+                new_order.status = 'Pending'
 
-                # TẠO OrderItem VÀ TRỪ KHO
+                # Tạo Item và TRỪ KHO ngay
                 for item in items_to_order:
-                    product_to_update = item['product_obj']
                     order_item = OrderItem(
                         quantity=item['quantity'],
                         price_at_purchase=item['price_at_purchase'],
-                        order=new_order, product=product_to_update
+                        order=new_order, product=item['product_obj']
                     )
                     db.session.add(order_item)
+                    # Trừ kho
+                    item['product_obj'].stock -= item['quantity']
+                    db.session.add(item['product_obj'])
 
-                    product_to_update.stock -= item['quantity']
-                    db.session.add(product_to_update)
+                db.session.commit()  # Lưu tất cả
 
-                # Commit và gửi email
-                db.session.commit()
+                # Gửi email
                 try:
                     send_order_confirmation_email(new_order)
                 except Exception as e:
                     current_app.logger.error(f'Lỗi gửi email COD: {e}')
 
-                # *** SỬA LỖI LOGIC DỌN DẸP SESSION ***
+                # Dọn dẹp Session
                 if is_buy_now:
                     session.pop('buy_now_cart', None)
                     session.pop('is_buy_now', None)
                 else:
                     session.pop('cart', None)
 
-                # CHUYỂN HƯỚNG
                 return redirect(url_for('main.order_complete', order_id=new_order.id))
 
 
+            # === TRƯỜNG HỢP: VNPAY ===
             elif new_order.payment_method == 'VNPAY':
-                # --- Xử lý VNPAY ---
-                new_order.status = 'Pending Payment'  # Trạng thái chờ thanh toán
+                new_order.status = 'Pending Payment'
 
-                # CHỈ TẠO OrderItem, KHÔNG TRỪ KHO
+                # Tạo Item nhưng KHÔNG TRỪ KHO (Chờ IPN)
                 for item in items_to_order:
-                    product_to_update = item['product_obj']
                     order_item = OrderItem(
                         quantity=item['quantity'],
                         price_at_purchase=item['price_at_purchase'],
-                        order=new_order, product=product_to_update
+                        order=new_order, product=item['product_obj']
                     )
                     db.session.add(order_item)
 
-                # Commit để lấy new_order.id
-                db.session.commit()
+                db.session.commit()  # Lưu để lấy ID đơn hàng
 
-                # *** DỌN DẸP SESSION (Code cũ của bạn đã đúng) ***
+                # Dọn dẹp Session
                 if is_buy_now:
                     session.pop('buy_now_cart', None)
                     session.pop('is_buy_now', None)
                 else:
                     session.pop('cart', None)
 
-                # Lấy IP của khách (quan trọng cho VNPay)
+                # Tạo URL thanh toán
                 ip_addr = request.remote_addr
-
-                # Tạo URL VNPay
                 payment_url = get_vnpay_payment_url(
                     order_id=new_order.id,
-                    total_price=new_order.total_price,
+                    total_price=final_total_price,  # Dùng giá cuối cùng
                     order_desc=f'Thanh toan don hang {new_order.id}',
                     ip_addr=ip_addr
                 )
 
-                # CHUYỂN HƯỚNG
                 return redirect(payment_url)
 
         except Exception as e:
             db.session.rollback()
-            flash(f'Đã xảy ra lỗi khi đặt hàng: {str(e)}', 'danger')
+            print(f"Lỗi Checkout: {e}")  # In lỗi ra console để debug
+            flash(f'Đã xảy ra lỗi khi xử lý đơn hàng: {str(e)}', 'danger')
             return redirect(url_for('main.view_cart'))
 
-    # === PHẦN 5: RENDER TRANG (CHO GET REQUEST) ===
-    # ------------------------------------------------
-    # (Nếu không phải POST, hoặc nếu form validate thất bại)
+    # ==================================================================
+    # PHẦN 3: RENDER GIAO DIỆN (GET hoặc khi Form lỗi)
+    # ==================================================================
     return render_template('checkout.html',
                            title='Thanh toán',
                            form=form,
-                           items=items_for_display,  # Gửi tóm tắt đơn hàng
-                           total_price=total_price)  # Gửi tổng tiền
+                           items=items_for_display,
+                           total_price=total_price)
 
 # === 5. TRANG HOÀN TẤT ĐƠN HÀNG ===
 @main.route('/order-complete/<int:order_id>')
@@ -809,7 +883,8 @@ def vnpay_ipn():
         # 6. XỬ LÝ THANH TOÁN
         if vnp_response_code == '00':
             # Thanh toán THÀNH CÔNG
-            order.status = 'Confirmed'  # Hoặc 'Processing'
+            order.status = 'Confirmed' # Hoặc 'Processing'
+            order.is_paid = True
 
             # === TIẾN HÀNH TRỪ KHO (CHỈ KHI IPN THÀNH CÔNG) ===
             for item in order.items:
@@ -932,3 +1007,145 @@ def toggle_wishlist(product_id):
 
     # Quay lại trang cũ
     return redirect(request.referrer or url_for('main.index'))
+
+
+# === ROUTE SÀNG LỌC SỨC KHỎE (PAR-Q) ===
+@main.route('/health-screening', methods=['GET', 'POST'])
+@login_required  # Bắt buộc đăng nhập để lưu hồ sơ
+def health_screening():
+    form = ParqForm()
+
+    if form.validate_on_submit():
+        # Kiểm tra xem có bất kỳ câu nào là 'yes' không
+        answers = [
+            form.q1.data, form.q2.data, form.q3.data, form.q4.data,
+            form.q5.data, form.q6.data, form.q7.data
+        ]
+
+
+        # Nếu 'yes' xuất hiện trong danh sách -> Có rủi ro
+        has_risk = 'yes' in answers
+
+        # Lưu vào database
+        screening = HealthScreening(
+            user_id=current_user.id,
+            q1=(form.q1.data == 'yes'),
+            q2=(form.q2.data == 'yes'),
+            q3=(form.q3.data == 'yes'),
+            q4=(form.q4.data == 'yes'),
+            q5=(form.q5.data == 'yes'),
+            q6=(form.q6.data == 'yes'),
+            q7=(form.q7.data == 'yes'),
+            risk_detected=has_risk
+        )
+        db.session.add(screening)
+        db.session.commit()
+
+        # Chuyển hướng đến trang kết quả
+        return redirect(url_for('main.health_result', result_id=screening.id))
+
+    if request.method == 'POST':
+        print("=" * 30)
+
+        print("!!! POST REQUEST FAILED VALIDATION !!!")
+
+        print(f"Form Data nhận được: {request.form}")
+
+        print(f"Lỗi cụ thể (Errors): {form.errors}")
+
+        print("=" * 30)
+    return render_template('health_screening.html', title='Sàng lọc Sức khỏe (PAR-Q)', form=form)
+
+
+@main.route('/health-result/<int:result_id>')
+@login_required
+def health_result(result_id):
+    """Trang hiển thị kết quả (Safe hoặc Warning)."""
+    result = HealthScreening.query.get_or_404(result_id)
+
+    # Bảo mật: Chỉ xem được kết quả của chính mình
+    if result.user_id != current_user.id and current_user.role.name != 'Admin':
+        flash('Bạn không có quyền xem kết quả này.', 'danger')
+        return redirect(url_for('main.index'))
+
+    return render_template('health_result.html', title='Kết quả Sàng lọc', result=result)
+
+
+@main.route('/consultation/needs', methods=['GET', 'POST'])
+@login_required
+def needs_assessment():
+    # Kiểm tra xem user đã làm PAR-Q chưa? (Tùy chọn, nhưng nên làm)
+    # last_screening = HealthScreening.query.filter_by(user_id=current_user.id).order_by(HealthScreening.timestamp.desc()).first()
+    # if not last_screening or last_screening.risk_detected:
+    #     flash('Vui lòng hoàn thành sàng lọc sức khỏe trước.', 'warning')
+    #     return redirect(url_for('main.health_screening'))
+
+    form = NeedsAssessmentForm()
+
+    if form.validate_on_submit():
+        # Chuyển hướng sang trang kết quả kèm theo các tham số
+        return redirect(url_for('main.recommendation',
+                                goal=form.goal.data,
+                                space=form.space.data,
+                                budget=form.budget.data))
+
+    return render_template('consultation/needs.html', title='Đánh giá Nhu cầu', form=form)
+
+
+# === BƯỚC 3: TRANG GỢI Ý SẢN PHẨM ===
+@main.route('/consultation/recommendation')
+@login_required
+def recommendation():
+    goal = request.args.get('goal')
+    space = request.args.get('space')
+    budget = request.args.get('budget')
+
+    # --- LOGIC GỢI Ý (ALGORITHM) ---
+    query = Product.query
+
+    # 1. Lọc theo NGÂN SÁCH
+    if budget == 'low':
+        query = query.filter(Product.price < 1000000)
+    elif budget == 'medium':
+        query = query.filter(Product.price.between(1000000, 5000000))
+    elif budget == 'high':
+        query = query.filter(Product.price > 5000000)
+
+    # 2. Lọc theo KHÔNG GIAN (Dùng tên danh mục để lọc tương đối)
+    # Chúng ta giả định admin đặt tên danh mục có chứa các từ khóa này
+    if space == 'small':
+        # Nhà nhỏ: Chỉ lấy Tạ, Dây, Thảm, Phụ kiện (Tránh máy to)
+        # Dùng NOT ILIKE để loại trừ máy to
+        query = query.filter(
+            ~Product.name.ilike('%máy chạy%'),
+            ~Product.name.ilike('%giàn tạ%'),
+            ~Product.name.ilike('%xe đạp%')
+        )
+
+    # 3. Lọc theo MỤC TIÊU
+    if goal == 'recovery':
+        # Ưu tiên Yoga, Foam roller
+        query = query.filter(
+            db.or_(
+                Product.name.ilike('%yoga%'),
+                Product.name.ilike('%thảm%'),
+                Product.name.ilike('%roller%'),
+                Product.description.ilike('%phục hồi%')
+            )
+        )
+    elif goal == 'gain_muscle':
+        # Ưu tiên Tạ
+        query = query.filter(Product.name.ilike('%tạ%'))
+
+    # Lấy kết quả (tối đa 6 món tốt nhất)
+    suggested_products = query.limit(6).all()
+
+    # Nếu không tìm thấy gì (do lọc quá kỹ), lấy random vài món "Best Seller" để lấp vào
+    if not suggested_products:
+        suggested_products = Product.query.limit(4).all()
+        flash('Chúng tôi không tìm thấy sản phẩm khớp 100% tiêu chí, nhưng đây là các gợi ý phổ biến:', 'info')
+
+    return render_template('consultation/recommendation.html',
+                           title='Gợi ý cho bạn',
+                           products=suggested_products)
+

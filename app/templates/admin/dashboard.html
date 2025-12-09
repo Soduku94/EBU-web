@@ -80,6 +80,9 @@
                 <a href="{{ url_for('admin.manage_messages') }}" class="list-group-item list-group-item-action">
                     Hộp thư Liên hệ
                 </a>
+                <a href="{{ url_for('admin.manage_coupons') }}" class="list-group-item list-group-item-action">
+                    Quản lý Mã giảm giá
+                </a>
             </div>
         </div>
     </div>
@@ -88,17 +91,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Dữ liệu giả lập (Để hiển thị demo biểu đồ trước)
-    // Sau này chúng ta có thể query từ database để lấy số liệu thật theo ngày
     const ctx = document.getElementById('revenueChart');
 
     new Chart(ctx, {
-        type: 'bar', // Loại biểu đồ: bar (cột), line (đường)
+        type: 'bar',
         data: {
-            labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+            // Chuyển list Python sang JS an toàn bằng tojson
+            labels: {{ chart_labels | tojson }},
             datasets: [{
-                label: 'Doanh thu tuần này (VND)',
-                data: [1200000, 1900000, 300000, 500000, 200000, 3000000, {{ total_revenue }}], // Lấy số thật cho ngày cuối
+                label: 'Doanh thu (VND)',
+                data: {{ chart_values | tojson }},
                 borderWidth: 1,
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                 borderColor: 'rgb(54, 162, 235)'
@@ -107,7 +109,30 @@
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        // Format số tiền đẹp hơn
+                        callback: function (value) {
+                            return value.toLocaleString() + ' đ';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toLocaleString() + ' đ';
+                            }
+                            return label;
+                        }
+                    }
                 }
             }
         }

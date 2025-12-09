@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 70vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h2 class="text-primary fw-bold">Thấu hiểu Nhu cầu của Bạn</h2>
+                <p class="lead">Hãy cho chúng tôi biết thêm một chút để tìm ra dụng cụ hoàn hảo nhất.</p>
+            </div>
+            
+            <form method="POST" class="card p-5 shadow-lg border-0">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold h5"><i class="bi bi-bullseye text-danger"></i> {{ form.goal.label.text }}</label>
+                    {{ form.goal(class="form-select form-select-lg") }}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold h5"><i class="bi bi-graph-up text-success"></i> {{ form.experience.label.text }}</label>
+                    {{ form.experience(class="form-select form-select-lg") }}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold h5"><i class="bi bi-house-door text-info"></i> {{ form.space.label.text }}</label>
+                    {{ form.space(class="form-select form-select-lg") }}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold h5"><i class="bi bi-wallet2 text-warning"></i> {{ form.budget.label.text }}</label>
+                    {{ form.budget(class="form-select form-select-lg") }}
+                </div>
+
+                <div class="d-grid mt-4">
+                    {{ form.submit(class="btn btn-primary btn-lg rounded-pill") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

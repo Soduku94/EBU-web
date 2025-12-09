@@ -108,6 +108,9 @@
             <a class="nav-link" href="{{ url_for('main.index') }}">Trang chủ</a>
 
             <a class="nav-link" href="{{ url_for('main.blog_index') }}">Blog</a>
+            <a class="nav-link" href="{{ url_for('main.health_screening') }}">
+                   Tư vấn Sức khỏe
+                </a>
 
         </div>
 
@@ -122,12 +125,17 @@
                 <button type="submit" class="btn btn-outline-success">Tìm</button>
             </div>
         </form>
-        <div class="navbar-nav ms-2"><a class="nav-link" href="{{ url_for('main.view_cart') }}">
-            Giỏ hàng
-            {% if cart_count > 0 %}
-            <span class="badge bg-success rounded-pill">{{ cart_count }}</span>
-            {% endif %}
-        </a>
+        <div class="navbar-nav ms-2">
+            <a class="nav-link position-relative" href="{{ url_for('main.view_cart') }}">
+                Giỏ hàng
+
+                <span id="cart-badge"
+                      class="badge bg-success rounded-pill ms-1"
+                      style="{{ 'display: none;' if cart_count == 0 else '' }}">
+        {{ cart_count if cart_count > 0 else '' }}
+    </span>
+            </a>
+            </a>
             {% if current_user.is_authenticated %}
             <a class="nav-link" href="{{ url_for('main.account') }}">
                 Tài khoản: {{ current_user.username }}
@@ -223,6 +231,78 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+        // 1. Tìm tất cả các form có class 'ajax-add-cart'
+        // (Chúng ta sẽ thêm class này vào các form ở bước 4)
+        const ajaxForms = document.querySelectorAll('.ajax-add-cart');
+
+        // Khởi tạo Toast của Bootstrap
+        const toastEl = document.getElementById('liveToast');
+        const toastBody = document.getElementById('toast-message');
+        // Kiểm tra xem thư viện Bootstrap có sẵn sàng không
+        let bsToast = null;
+        if (typeof bootstrap !== 'undefined' && toastEl) {
+            bsToast = new bootstrap.Toast(toastEl);
+        }
+
+        ajaxForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+
+                if (e.submitter && e.submitter.innerText.includes('Mua Ngay')) {
+                    // Nếu là nút "Mua Ngay", KHÔNG chặn, để nó chạy bình thường
+                    return;
+                }
+                e.preventDefault(); // CHẶN tải lại trang!
+
+                const url = form.action;
+                const formData = new FormData(form);
+
+                // Gửi request ngầm (Fetch API)
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        // Header này báo cho server biết đây là AJAX
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // 1. Cập nhật số lượng trên Badge
+                           const badge = document.getElementById('cart-badge');
+                            if (badge) {
+                                badge.textContent = data.cart_count; // Điền số mới
+                                badge.style.display = 'inline-block'; // Hiện badge lên (nếu đang ẩn)
+                            }
+
+                            // 2. Hiện Toast thông báo thành công
+                            if (bsToast) {
+                                toastEl.classList.remove('bg-danger');
+                                toastEl.classList.add('bg-success');
+                                toastBody.textContent = data.message;
+                                bsToast.show();
+                            }
+                        } else if (data.status === 'error') {
+                            // Hiện Toast lỗi
+                            if (bsToast) {
+                                toastEl.classList.remove('bg-success');
+                                toastEl.classList.add('bg-danger');
+                                toastBody.textContent = data.message;
+                                bsToast.show();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
         const bubble = document.getElementById('chat-bubble');
         const window = document.getElementById('chat-window');
         const input = document.getElementById('chat-input');
@@ -314,6 +394,36 @@
         <button id="chat-send" class="btn btn-primary btn-sm">Gửi</button>
     </div>
 </div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toast-message">
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<div id="loading-overlay"
+     class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+     style="background: rgba(255, 255, 255, 0.8); z-index: 9999;">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="mt-3 text-primary fw-bold">Đang xử lý, vui lòng chờ...</h4>
+        <p class="text-muted">Vui lòng không tắt trình duyệt.</p>
+    </div>
+</div>
+<script>
+    // Hàm hiển thị Loading (Dùng chung cho toàn web)
+    function showLoading() {
+        document.getElementById('loading-overlay').classList.remove('d-none');
+    }
+</script>
+
+
 </body>
 
 
@@ -339,4 +449,3 @@
 </html>
 
 
-</html>

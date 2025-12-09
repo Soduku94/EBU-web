@@ -1,22 +1,36 @@
-from flask import render_template, flash, redirect, url_for,request
+# Standard library
+import os
+import uuid
+import csv
+import io
+from datetime import datetime, timedelta
+
+# Third-party
+from slugify import slugify
+from sqlalchemy import func
+from werkzeug.utils import secure_filename
+
+# Flask
+from flask import (
+    render_template,
+    flash,
+    redirect,
+    url_for,
+    request,
+    current_app,
+    Response,
+    make_response
+)
+from flask_login import login_required, current_user
+
+# Project imports
 from . import admin
 from .forms import CategoryForm, ProductForm, PostForm
 from app.models import Category, Product, Post, Order, ContactMessage
 from app.extensions import db
-from app.decorators import admin_required  # Import decorator bảo vệ
-from flask_login import login_required, current_user
-from sqlalchemy import func
-import os
-from werkzeug.utils import secure_filename
-import uuid # Để tạo tên file ngẫu nhiên, tránh trùng lặp
-from flask import current_app # Để truy cập đường dẫn static
-
-import csv
-import io
-from flask import Response, make_response
-from slugify import slugify
-
-
+from app.decorators import admin_required
+from app.models import Coupon
+from .forms import CouponForm
 
 def save_picture(form_picture):
     """Hàm lưu file ảnh vào thư mục static/uploads và trả về tên file."""
@@ -44,33 +58,65 @@ def save_picture(form_picture):
     # 5. Trả về đường dẫn tương đối để lưu vào database
     return 'uploads/' + picture_fn
 
+
 @admin.route('/')
 @login_required
 @admin_required
 def index():
-    # 1. Tổng Doanh thu (Chỉ tính đơn hàng KHÔNG bị hủy)
-    total_revenue = db.session.query(func.sum(Order.total_price))\
-        .filter(Order.status != 'Cancelled').scalar() or 0
+    # MỚI: Phải "Đã thanh toán" (is_paid = True) mới tính là Doanh thu
+    total_revenue = db.session.query(func.sum(Order.total_price)) \
+                        .filter(Order.is_paid == True).scalar() or 0
 
-    # 2. Tổng số đơn hàng (Không tính đơn hủy)
+
     order_count = Order.query.filter(Order.status != 'Cancelled').count()
-
-    # 3. Tổng số sản phẩm
     product_count = Product.query.count()
 
-    # 4. Số lượng khách hàng (User có role Customer)
-    # (Cần import Role nếu chưa có)
-    # customer_count = User.query.join(Role).filter(Role.name == 'Customer').count()
-    # Tạm thời lấy tổng user cho đơn giản
     from app.models import User
     user_count = User.query.count()
+
+    # === PHẦN 2: TÍNH TOÁN BIỂU ĐỒ (7 NGÀY GẦN NHẤT) ===
+
+    # A. Tạo khung dữ liệu cho 7 ngày qua (mặc định doanh thu là 0)
+    # Kết quả mong muốn: { '2023-11-15': 0, '2023-11-16': 0, ... }
+    revenue_map = {}
+    today = datetime.now().date()
+
+    for i in range(6, -1, -1):  # Lùi lại 6 ngày trước đến hôm nay
+        date_key = today - timedelta(days=i)
+        revenue_map[date_key] = 0
+
+    # B. Lấy các đơn hàng thành công trong 7 ngày qua
+    seven_days_ago = datetime.now() - timedelta(days=7)
+    recent_orders = Order.query.filter(
+        Order.order_date >= seven_days_ago,
+        Order.status != 'Cancelled',  # Chỉ tính đơn chưa hủy
+        Order.is_paid == True
+    ).all()
+
+    # C. Cộng tiền vào đúng ngày trong map
+    for order in recent_orders:
+        # Chuyển đổi timestamp của đơn hàng sang date (ngày/tháng/năm)
+        order_date = order.order_date.date()
+
+        # Nếu ngày này nằm trong 7 ngày chúng ta đang xét
+        if order_date in revenue_map:
+            revenue_map[order_date] += order.total_price
+
+    # D. Tách ra 2 danh sách để gửi cho Chart.js
+    # labels: ['14/11', '15/11', ...]
+    # values: [0, 500000, 120000, ...]
+    chart_labels = [date.strftime('%d/%m') for date in revenue_map.keys()]
+    chart_values = list(revenue_map.values())
 
     return render_template('admin/dashboard.html',
                            title='Admin Dashboard',
                            total_revenue=total_revenue,
                            order_count=order_count,
                            product_count=product_count,
-                           user_count=user_count)
+                           user_count=user_count,
+                           # Gửi dữ liệu biểu đồ
+                           chart_labels=chart_labels,
+                           chart_values=chart_values)
 
 # Trang quản lý danh mục
 @admin.route('/categories', methods=['GET', 'POST'])
@@ -372,3 +418,61 @@ def delete_product(id):
     return redirect(url_for('admin.manage_products'))
 
 
+# === QUẢN LÝ COUPON ===
+@admin.route('/coupons', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_coupons():
+    form = CouponForm()
+    if form.validate_on_submit():
+        coupon = Coupon(
+            code=form.code.data.upper(), # Luôn lưu chữ in hoa
+            discount_type=form.discount_type.data,
+            discount_value=form.discount_value.data,
+            min_order_value=form.min_order_value.data,
+            expiration_date=form.expiration_date.data,
+            active=form.active.data
+        )
+        db.session.add(coupon)
+        db.session.commit()
+        flash('Đã tạo mã giảm giá thành công!', 'success')
+        return redirect(url_for('admin.manage_coupons'))
+
+    coupons = Coupon.query.order_by(Coupon.id.desc()).all()
+    return render_template('admin/coupons.html', title='Quản lý Mã giảm giá', form=form, coupons=coupons)
+
+@admin.route('/coupon/delete/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_coupon(id):
+    coupon = Coupon.query.get_or_404(id)
+    db.session.delete(coupon)
+    db.session.commit()
+    flash('Đã xóa mã giảm giá.', 'success')
+    return redirect(url_for('admin.manage_coupons'))
+
+@admin.route('/order/<int:order_id>/invoice')
+@login_required
+@admin_required
+def print_invoice(order_id):
+    """Trang in hóa đơn/phiếu giao hàng (Giao diện tối giản để in)."""
+    order = Order.query.get_or_404(order_id)
+    # Tính lại danh sách item để hiển thị
+    return render_template('admin/invoice.html', order=order)
+
+
+@admin.route('/order/<int:order_id>/confirm-payment', methods=['POST'])
+@login_required
+@admin_required
+def confirm_payment(order_id):
+    """Admin xác nhận đã nhận được tiền (cho đơn COD)."""
+    order = Order.query.get_or_404(order_id)
+
+    order.is_paid = True
+    # Thường khi nhận tiền xong tức là đơn cũng hoàn thành
+    if order.status != 'Delivered':
+        order.status = 'Delivered'  # Hoặc trạng thái nào bạn muốn
+
+    db.session.commit()
+    flash(f'Đã xác nhận nhận tiền cho đơn #{order.id}. Doanh thu đã được cập nhật.', 'success')
+    return redirect(url_for('admin.order_detail', order_id=order.id))
