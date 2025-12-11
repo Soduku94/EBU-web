@@ -11,7 +11,7 @@
             </li>
             <li class="breadcrumb-item">
                 <a href="{{ url_for('main.category_products', category_id=product.category.id) }}"
-                   class="text-decoration-none">
+                    class="text-decoration-none">
                     {{ product.category.name }}
                 </a>
             </li>
@@ -21,48 +21,54 @@
 
     <div class="row g-5">
         <!-- Left Column: Product Image -->
-       <div class="col-lg-6 mb-4 fade-in">
+        <div class="col-lg-6 mb-4 fade-in">
 
             {# --- BƯỚC 1: GỘP TẤT CẢ ẢNH VÀO 1 DANH SÁCH --- #}
             {% set all_images = [] %}
 
             {# Thêm ảnh chính #}
             {% if product.image_url %}
-                {% do all_images.append(product.image_url) %}
+            {% do all_images.append(product.image_url) %}
             {% endif %}
 
             {# Thêm các ảnh phụ từ Database #}
             {% for img in product.images %}
-                {% do all_images.append(img.image_url) %}
+            {% do all_images.append(img.image_url) %}
             {% endfor %}
 
             {# --- BƯỚC 2: HIỂN THỊ CAROUSEL (SLIDER) --- #}
-            <div id="productCarousel" class="carousel slide product-detail-image-wrapper shadow-sm rounded overflow-hidden" data-bs-ride="false">
+            <div id="productCarousel"
+                class="carousel slide product-detail-image-wrapper shadow-sm rounded overflow-hidden"
+                data-bs-ride="false">
 
                 <div class="carousel-inner h-100">
                     {% if all_images %}
-                        {% for img_url in all_images %}
-                        <div class="carousel-item h-100 {{ 'active' if loop.first else '' }}">
-                            {% if img_url.startswith('http') %}
-                                <img src="{{ img_url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
-                            {% else %}
-                                <img src="{{ url_for('static', filename=img_url) }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
-                            {% endif %}
-                        </div>
-                        {% endfor %}
+                    {% for img_url in all_images %}
+                    <div class="carousel-item h-100 {{ 'active' if loop.first else '' }}">
+                        {% if img_url.startswith('http') %}
+                        <img src="{{ img_url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
+                        {% else %}
+                        <img src="{{ url_for('static', filename=img_url) }}"
+                            class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div class="carousel-item active h-100">
-                            <img src="https://via.placeholder.com/800x600.png?text=No+Image" class="d-block w-100 h-100 object-fit-cover">
-                        </div>
+                    <div class="carousel-item active h-100">
+                        <img src="https://via.placeholder.com/800x600.png?text=No+Image"
+                            class="d-block w-100 h-100 object-fit-cover">
+                    </div>
                     {% endif %}
                 </div>
 
                 {% if all_images|length > 1 %}
-                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel"
+                    data-bs-slide="prev">
                     <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel"
+                    data-bs-slide="next">
                     <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
@@ -75,11 +81,12 @@
                 {% for img_url in all_images %}
                 <div class="col-3 col-md-2">
                     <div class="thumbnail-wrapper rounded border cursor-pointer {{ 'border-primary border-2' if loop.first else '' }}"
-                         onclick="switchSlide({{ loop.index0 }}, this)">
+                        onclick="switchSlide({{ loop.index0 }}, this)">
                         {% if img_url.startswith('http') %}
-                            <img src="{{ img_url }}" class="w-100 h-100 object-fit-cover rounded">
+                        <img src="{{ img_url }}" class="w-100 h-100 object-fit-cover rounded">
                         {% else %}
-                            <img src="{{ url_for('static', filename=img_url) }}" class="w-100 h-100 object-fit-cover rounded">
+                        <img src="{{ url_for('static', filename=img_url) }}"
+                            class="w-100 h-100 object-fit-cover rounded">
                         {% endif %}
                     </div>
                 </div>
@@ -91,7 +98,7 @@
         <div class="col-lg-6">
             <div class="product-info fade-in" style="animation-delay: 0.2s;">
                 <a href="{{ url_for('main.category_products', category_id=product.category.id) }}"
-                   class="product-category-badge">
+                    class="product-category-badge">
                     {{ product.category.name }}
                 </a>
 
@@ -126,7 +133,7 @@
 
                 {% if product.stock > 0 %}
                 <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
-                      class="ajax-add-cart">
+                    class="ajax-add-cart">
                     <div class="mb-4">
                         <label class="form-label fw-bold mb-2">Số lượng:</label>
                         <div class="quantity-selector-modern">
@@ -134,7 +141,7 @@
                                 <i class="bi bi-dash"></i>
                             </button>
                             <input type="number" class="quantity-input-modern" value="1" min="1"
-                                   max="{{ product.stock }}" name="quantity" id="quantity-input" readonly>
+                                max="{{ product.stock }}" name="quantity" id="quantity-input" readonly>
                             <button class="btn-quantity" type="button" id="button-increase">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -142,28 +149,31 @@
                     </div>
 
                     <div class="product-actions">
-                        <button type="submit" class="btn-add-cart-modern">
-                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
-                        </button>
+                        <div class="d-flex gap-2 w-100">
+                            <button type="submit" class="btn-add-cart-modern flex-grow-1">
+                                <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                            </button>
 
-                        <button type="submit" class="btn-buy-now-modern"
-                                formaction="{{ url_for('main.buy_now', product_id=product.id) }}">
+                            {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.toggle_wishlist', product_id=product.id) }}"
+                                class="btn-wishlist-modern {{ 'active' if product in current_user.liked_products else '' }}"
+                                title="{{ 'Bỏ thích' if product in current_user.liked_products else 'Yêu thích' }}"
+                                style="flex: 0 0 55px; width: 55px; height: 55px;">
+                                <i
+                                    class="bi {{ 'bi-heart-fill' if product in current_user.liked_products else 'bi-heart' }}"></i>
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-wishlist-modern"
+                                title="Đăng nhập để lưu tin" style="flex: 0 0 55px; width: 55px; height: 55px;">
+                                <i class="bi bi-heart"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn-buy-now-modern w-100"
+                            formaction="{{ url_for('main.buy_now', product_id=product.id) }}">
                             <i class="bi bi-lightning-charge-fill"></i> Mua Ngay
                         </button>
-
-                        {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.toggle_wishlist', product_id=product.id) }}"
-                           class="btn-wishlist-modern {{ 'active' if product in current_user.liked_products else '' }}"
-                           title="{{ 'Bỏ thích' if product in current_user.liked_products else 'Yêu thích' }}">
-                            <i
-                                    class="bi {{ 'bi-heart-fill' if product in current_user.liked_products else 'bi-heart' }}"></i>
-                        </a>
-                        {% else %}
-                        <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-wishlist-modern"
-                           title="Đăng nhập để lưu tin">
-                            <i class="bi bi-heart"></i>
-                        </a>
-                        {% endif %}
                     </div>
                 </form>
                 {% else %}
@@ -216,7 +226,7 @@
 
                     {% if current_user.is_authenticated %}
                     <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#reviewForm">
+                        data-bs-target="#reviewForm">
                         Viết đánh giá
                     </button>
                     {% else %}
@@ -260,7 +270,7 @@
                     <div class="review-header">
                         <div class="d-flex align-items-center gap-2">
                             <div class="avatar-circle bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 40px; height: 40px;">
+                                style="width: 40px; height: 40px;">
                                 <i class="bi bi-person-fill text-muted"></i>
                             </div>
                             <div>
@@ -290,7 +300,7 @@
     {% if related_products %}
     <div class="related-products-header fade-in" style="animation-delay: 0.6s;">
         <h2 class="section-header-modern">Sản phẩm tương tự</h2>
-        <div style="width: 60px; height: 4px; background: var(--primary-color); margin: 10px auto; border-radius: 2px;">
+        <div style="width: 100%; height: 4px; background: var(--primary-color); margin: 10px auto; border-radius: 2px;">
         </div>
     </div>
 
@@ -301,10 +311,10 @@
                 <div class="product-badge">Hot</div>
                 <div class="product-image-wrapper">
                     <img src="{{ rel_prod.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
-                         alt="{{ rel_prod.name }}">
+                        alt="{{ rel_prod.name }}">
                     <div class="product-image-overlay">
                         <a href="{{ url_for('main.product_detail', slug=rel_prod.slug) }}" class="quick-action-btn"
-                           title="Xem chi tiết">
+                            title="Xem chi tiết">
                             <i class="bi bi-eye"></i>
                         </a>
                     </div>
@@ -312,22 +322,12 @@
                 <div class="product-card-body">
                     <h5 class="fw-bold text-truncate">{{ rel_prod.name }}</h5>
                     <div class="product-price">{{ "{:,.0f}".format(rel_prod.price) }} đ</div>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning small me-2">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-half"></i>
-                        </div>
-                        <small class="text-muted">(12)</small>
-                    </div>
-                    <div class="product-card-footer mt-auto p-0">
-                        <a href="{{ url_for('main.product_detail', slug=rel_prod.slug) }}"
-                           class="btn-product-primary w-100">
-                            Xem Ngay
-                        </a>
-                    </div>
+                </div>
+                <div class="product-card-footer">
+                    <a href="{{ url_for('main.product_detail', slug=rel_prod.slug) }}"
+                        class="btn-product-primary w-100">
+                        Xem chi tiết
+                    </a>
                 </div>
             </div>
         </div>
@@ -348,7 +348,7 @@
                     entry.target.classList.add('visible');
                 }
             });
-        }, {threshold: 0.1});
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
@@ -404,29 +404,443 @@
             }
         });
     });
+
 </script>
 
 <style>
     /* CSS cho khung ảnh chính */
     .product-detail-image-wrapper {
-        aspect-ratio: 4/3; /* Tỷ lệ khung ảnh (4:3 hoặc 1:1 tùy bạn) */
+        aspect-ratio: 4/3;
+        /* Tỷ lệ khung ảnh (4:3 hoặc 1:1 tùy bạn) */
         background: #f8f9fa;
     }
 
     /* CSS cho Thumbnails */
     .thumbnail-wrapper {
-        height: 60px; /* Chiều cao ảnh nhỏ */
+        height: 60px;
+        /* Chiều cao ảnh nhỏ */
         cursor: pointer;
         opacity: 0.7;
         transition: all 0.2s;
         overflow: hidden;
     }
+
     .thumbnail-wrapper:hover {
         opacity: 1;
     }
+
     .thumbnail-wrapper.border-primary {
         opacity: 1;
     }
+
+    /* === MOBILE RESPONSIVE STYLES === */
+
+    /* Tablet & Below */
+    @media (max-width: 991px) {
+        .product-detail-section {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .row.g-5 {
+            gap: 2rem !important;
+        }
+
+        .product-title-modern {
+            font-size: 2rem;
+        }
+
+        .product-price-large {
+            font-size: 2rem;
+        }
+    }
+
+    /* Mobile Devices */
+    @media (max-width: 767px) {
+
+        /* Breadcrumb - Compact */
+        .breadcrumb {
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb-item+.breadcrumb-item::before {
+            padding: 0 0.25rem;
+        }
+
+        /* Product Image - Full width */
+        .product-detail-image-wrapper {
+            aspect-ratio: 1/1;
+            /* Square on mobile */
+            border-radius: 12px !important;
+        }
+
+        /* Thumbnails - Scrollable horizontal */
+        .thumbnail-wrapper {
+            height: 70px;
+        }
+
+        .row.mt-2.g-2 {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
+        }
+
+        .row.mt-2.g-2::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .row.mt-2.g-2>.col-3 {
+            flex: 0 0 auto;
+            width: 80px;
+        }
+
+        /* Product Info Section */
+        .product-info {
+            padding-top: 1rem;
+        }
+
+        .product-category-badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .product-title-modern {
+            font-size: 1.5rem;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        /* Rating & Stock */
+        .d-flex.align-items-center.mb-4 {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+
+        /* Price */
+        .product-price-large {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Description */
+        .product-description-modern {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Quantity Selector - Larger touch targets */
+        .quantity-selector-modern {
+            padding: 0.5rem;
+        }
+
+        .quantity-selector-modern button {
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+        }
+
+        .quantity-input-modern {
+            width: 70px;
+            font-size: 1.1rem;
+        }
+
+        /* Action Buttons - Wrap layout on mobile */
+        .product-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* First row: Add to Cart + Wishlist (same line) */
+        .btn-add-cart-modern {
+            order: 1 !important;
+            flex: 1 1 calc(100% - 65px) !important;
+            min-width: 0 !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
+            justify-content: center !important;
+        }
+
+        /* Wishlist button inline on mobile - order 2 to appear after Add to Cart */
+        .btn-wishlist-modern {
+            order: 2 !important;
+            position: static !important;
+            flex: 0 0 55px !important;
+            width: 55px !important;
+            height: 55px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Second row: Buy Now (full width) - order 3 to appear last */
+        .btn-buy-now-modern {
+            order: 3 !important;
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            min-width: auto !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
+            justify-content: center !important;
+        }
+
+        /* Tabs - Compact */
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .nav-tabs .nav-link {
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .tab-content {
+            padding: 1.5rem 0;
+        }
+
+        /* Reviews */
+        .review-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-rating {
+            font-size: 0.9rem;
+        }
+
+        .review-author {
+            font-size: 0.95rem;
+        }
+
+        .review-text {
+            font-size: 0.9rem;
+        }
+
+        /* Related Products */
+        .related-products-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .product-card-modern {
+            margin-bottom: 1rem;
+        }
+
+        /* Sticky Buy Button on Mobile */
+        .mobile-sticky-buy {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .mobile-sticky-buy .product-price {
+            flex: 0 0 auto;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .mobile-sticky-buy .btn {
+            flex: 1;
+            padding: 0.875rem;
+            font-weight: 600;
+        }
+    }
+
+    /* Extra Small Devices */
+    @media (max-width: 576px) {
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Breadcrumb - Hide middle items on very small screens */
+        .breadcrumb-item:not(:first-child):not(:last-child) {
+            display: none;
+        }
+
+        .breadcrumb-item:first-child::after {
+            content: "...";
+            padding: 0 0.5rem;
+        }
+
+        /* Product Title */
+        .product-title-modern {
+            font-size: 1.25rem;
+        }
+
+        /* Price */
+        .product-price-large {
+            font-size: 1.5rem;
+        }
+
+        /* Thumbnails - Smaller */
+        .thumbnail-wrapper {
+            height: 60px;
+        }
+
+        .row.mt-2.g-2>.col-3 {
+            width: 70px;
+        }
+
+        /* Quantity Selector */
+        .quantity-selector-modern button {
+            width: 40px;
+            height: 40px;
+        }
+
+        .quantity-input-modern {
+            width: 60px;
+        }
+
+        /* Tabs - Scrollable */
+        .nav-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs .nav-link {
+            white-space: nowrap;
+            font-size: 0.85rem;
+            padding: 0.65rem 0.85rem;
+        }
+
+        /* Related Products - 2 columns */
+        .row.g-4>div[class*="col-"] {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        /* Mobile Sticky Buy - Compact */
+        .mobile-sticky-buy {
+            padding: 0.75rem 1rem;
+        }
+
+        .mobile-sticky-buy .product-price {
+            font-size: 1.1rem;
+        }
+
+        .mobile-sticky-buy .btn {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Landscape Mobile */
+    @media (max-width: 767px) and (orientation: landscape) {
+        .product-detail-image-wrapper {
+            aspect-ratio: 16/9;
+        }
+
+        .product-title-modern {
+            font-size: 1.3rem;
+        }
+
+        .btn-wishlist-modern {
+            bottom: 20px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+        }
+    }
+
+    /* Touch Device Optimizations */
+    @media (hover: none) and (pointer: coarse) {
+
+        /* Larger touch targets */
+        .btn,
+        .nav-link,
+        .thumbnail-wrapper {
+            min-height: 44px;
+        }
+
+        /* Prevent double-tap zoom */
+        button,
+        a,
+        .thumbnail-wrapper {
+            touch-action: manipulation;
+        }
+
+        /* Better tap feedback */
+        .btn:active,
+        .thumbnail-wrapper:active {
+            transform: scale(0.98);
+        }
+    }
+
+    /* Smooth scrolling for thumbnails */
+    .row.mt-2.g-2 {
+        scroll-behavior: smooth;
+    }
+
+    /* Hide desktop-only elements on mobile */
+    @media (max-width: 767px) {
+        .d-none-mobile {
+            display: none !important;
+        }
+
+        /* === MOBILE HORIZONTAL SCROLL FOR RELATED PRODUCTS === */
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4 {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 1rem;
+            padding: 1rem 0;
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
+        }
+
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4>.col {
+            flex: 0 0 auto;
+            width: 250px;
+            scroll-snap-align: start;
+        }
+
+        /* Adjust product card for mobile scroll */
+        .product-card-modern {
+            height: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4>.col {
+            width: 200px;
+        }
+    }
 </style>
+
 </script>
 {% endblock %}

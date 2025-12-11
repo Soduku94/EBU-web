@@ -93,8 +93,12 @@
 </div>
 
 <!-- FEATURED PRODUCTS SECTION -->
-<div class="container section-spacing" id="featured-products">
-    <div class="section-header-modern fade-in">
+<div class="container section-spacing section-gradient-1 pattern-dots" id="featured-products"
+    style="position: relative; overflow: hidden;">
+    <!-- Decorative Shapes -->
+    <div class="decorative-shape shape-blob-1"></div>
+
+    <div class="section-header-modern fade-in" style="position: relative; z-index: 1;">
         <h2>Sản phẩm Nổi bật</h2>
         <p>Những thiết bị vừa "cập bến" tại Home Fit Pro</p>
     </div>
@@ -193,25 +197,30 @@
 </div>
 
 <!-- CATEGORIES SECTION -->
-<div class="container section-spacing">
-    <div class="section-header-modern fade-in">
-        <h2>Mua sắm theo Danh mục</h2>
-        <p>Tìm kiếm chính xác dụng cụ bạn cần</p>
-    </div>
+<div class="section-spacing section-gradient-2 wave-background" style="position: relative; padding: 4rem 0;">
+    <!-- Decorative Shapes -->
+    <div class="decorative-shape shape-circle-1"></div>
 
-    <div class="row g-4">
-        {% set featured_categories = categories[:4] %}
-        {% for cat in featured_categories %}
-        <div class="col-md-6 fade-in">
-            <a href="{{ url_for('main.category_products', category_id=cat.id) }}" class="category-card-modern">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop"
-                    alt="{{ cat.name }}">
-                <div class="category-overlay">
-                    <h3>{{ cat.name }}</h3>
-                </div>
-            </a>
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="section-header-modern fade-in">
+            <h2>Mua sắm theo Danh mục</h2>
+            <p>Tìm kiếm chính xác dụng cụ bạn cần</p>
         </div>
-        {% endfor %}
+
+        <div class="row g-4">
+            {% set featured_categories = categories[:4] %}
+            {% for cat in featured_categories %}
+            <div class="col-md-6 fade-in">
+                <a href="{{ url_for('main.category_products', category_id=cat.id) }}" class="category-card-modern">
+                    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop"
+                        alt="{{ cat.name }}">
+                    <div class="category-overlay">
+                        <h3>{{ cat.name }}</h3>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
@@ -274,33 +283,25 @@
 </div>
 
 <!-- TESTIMONIALS SECTION -->
-<div class="container section-spacing">
-    <div class="section-header-modern fade-in">
-        <h2>Khách hàng nói gì về chúng tôi</h2>
-        <p>Những đánh giá 5 sao thực tế từ khách hàng</p>
-    </div>
-
-    <div class="row g-4">
-        {% if latest_reviews %}
-        {% for review in latest_reviews %}
-        <div class="col-md-4 fade-in">
-            <div class="testimonial-card-modern">
-                <div class="testimonial-stars">★★★★★</div>
-                <blockquote>
-                    "{{ review.comment | truncate(150) }}"
-                </blockquote>
-                <div class="testimonial-author">{{ review.author.username }}</div>
-                <div class="testimonial-product">
-                    <a href="{{ url_for('main.product_detail', slug=review.product.slug) }}"
-                        style="color: var(--text-light); text-decoration: none;">
-                        {{ review.product.name }}
-                    </a>
-                </div>
-            </div>
+{% for review in latest_reviews %}
+<div class="col-md-4 fade-in">
+    <div class="testimonial-card-modern">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>
+            "{{ review.comment | truncate(150) }}"
+        </blockquote>
+        <div class="testimonial-author">{{ review.author.username }}</div>
+        <div class="testimonial-product">
+            <a href="{{ url_for('main.product_detail', slug=review.product.slug) }}"
+                style="color: var(--text-light); text-decoration: none;">
+                {{ review.product.name }}
+            </a>
         </div>
-        {% endfor %}
-        {% endif %}
     </div>
+</div>
+{% endfor %}
+
+</div>
 </div>
 
 <!-- SCROLL ANIMATION SCRIPT -->

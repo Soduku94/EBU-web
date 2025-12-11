@@ -4,20 +4,23 @@
 
 /* === CSS VARIABLES (DESIGN TOKENS) === */
 :root {
-    /* Colors */
-    --primary-color: #0066FF;
-    --secondary-color: #FF6B35;
-    --accent-color: #00D9FF;
+    /* Colors - Orange + Deep Blue Theme */
+    --primary-color: #FF6B35;
+    /* Energetic Orange */
+    --secondary-color: #1E3A8A;
+    /* Deep Navy Blue */
+    --accent-color: #60A5FA;
+    /* Light Blue */
     --dark-bg: #1A1A2E;
     --light-bg: #F8F9FA;
     --text-dark: #2C3E50;
     --text-light: #6C757D;
     --white: #FFFFFF;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%);
-    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    --gradient-overlay: linear-gradient(135deg, rgba(0, 102, 255, 0.9) 0%, rgba(0, 217, 255, 0.7) 100%);
+    /* Gradients - Orange + Blue Theme */
+    --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8C61 100%);
+    --gradient-hero: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #60A5FA 100%);
+    --gradient-overlay: linear-gradient(135deg, rgba(255, 107, 53, 0.9) 0%, rgba(30, 58, 138, 0.7) 100%);
 
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -35,7 +38,8 @@
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
-    --shadow-glow: 0 0 20px rgba(0, 102, 255, 0.3);
+    --shadow-glow: 0 0 20px rgba(255, 107, 53, 0.3);
+    /* Orange glow */
 
     /* Border Radius */
     --radius-sm: 8px;
@@ -2014,4 +2018,37 @@ h6 {
     height: 100%;
     object-fit: cover;
     /* Quan trọng: Cắt ảnh vừa khung, không bị méo */
+}
+
+/* === MOBILE RESPONSIVE FOR PRODUCT DETAIL BUTTONS === */
+@media (max-width: 767px) {
+    .product-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .product-actions .d-flex {
+        display: flex !important;
+    }
+
+    .btn-add-cart-modern {
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        min-width: 0 !important;
+    }
+
+    .btn-wishlist-modern {
+        position: static !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+
+    .btn-buy-now-modern {
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        min-width: 0 !important;
+    }
 }

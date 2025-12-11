@@ -769,7 +769,7 @@ def update_cart():
                 # Không cập nhật, chỉ tải lại trang
             else:
                 cart[product_id_str] = new_quantity
-                flash('Đã cập nhật số lượng sản phẩm.', 'success')
+                # flash('Đã cập nhật số lượng sản phẩm.', 'success')
 
     # Lưu lại giỏ hàng vào session
     session['cart'] = cart
@@ -997,11 +997,11 @@ def toggle_wishlist(product_id):
     if current_user.wishlist.filter_by(id=product.id).first():
         # Nếu có rồi -> Xóa
         current_user.wishlist.remove(product)
-        flash(f'Đã xóa "{product.name}" khỏi yêu thích.', 'info')
+        # flash(f'Đã xóa "{product.name}" khỏi yêu thích.', 'info')
     else:
         # Nếu chưa có -> Thêm
         current_user.wishlist.append(product)
-        flash(f'Đã thêm "{product.name}" vào yêu thích.', 'success')
+        # flash(f'Đã thêm "{product.name}" vào yêu thích.', 'success')
 
     db.session.commit()
 

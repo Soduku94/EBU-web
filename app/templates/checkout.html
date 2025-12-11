@@ -1,146 +1,311 @@
 {% extends "base.html" %}
 
-{% block title %}Thanh toán{% endblock %}
+{% block title %}Thanh toán - Home Fit Pro{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row g-5">
-        <div class="col-md-5 col-lg-4 order-md-last">
-            <h4 class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-primary">Đơn hàng của bạn</span>
-                <span class="badge bg-primary rounded-pill">{{ items|length }}</span>
-            </h4>
+<div class="container my-5">
 
-            <ul class="list-group mb-3">
+    <!-- Checkout Header -->
+    <div class="text-center mb-5 fade-in">
+        <h1 class="display-6 fw-bold mb-2">
+            <i class="bi bi-credit-card me-2" style="color: var(--primary-color);"></i>
+            Thanh toán đơn hàng
+        </h1>
+        <p class="text-muted">Vui lòng điền đầy đủ thông tin để hoàn tất đơn hàng</p>
+    </div>
 
-                {% for item in items %}
-                <li class="list-group-item d-flex justify-content-between lh-sm">
-                    <div>
-                        <h6 class="my-0">{{ item.product.name }}</h6>
-                        <small class="text-muted">Số lượng: {{ item.quantity }}</small>
-                    </div>
-                    <span class="text-muted">{{ "%.0f"|format(item.subtotal) }} VND</span>
-                </li>
-                {% endfor %}
-
-                <li class="list-group-item d-flex justify-content-between bg-light">
-                    <span>Tổng cộng (VND)</span>
-                    <strong>{{ "%.0f"|format(total_price) }} VND</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between bg-light">
-                    <div class="text-success">
-                        <h6 class="my-0">Phí vận chuyển</h6>
-                        <small>Tính toán dựa trên địa chỉ</small>
-                    </div>
-                    <span class="text-success">
-        (Sẽ tính sau)
-    </span>
-                </li>
-            </ul>
+    <!-- Progress Steps -->
+    <div class="checkout-steps mb-5 fade-in">
+        <div class="step active">
+            <div class="step-icon"><i class="bi bi-cart-check"></i></div>
+            <div class="step-label">Giỏ hàng</div>
         </div>
-        <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3">Thông tin nhận hàng</h4>
+        <div class="step-line"></div>
+        <div class="step active">
+            <div class="step-icon"><i class="bi bi-pencil-square"></i></div>
+            <div class="step-label">Thông tin</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-icon"><i class="bi bi-check-circle"></i></div>
+            <div class="step-label">Hoàn tất</div>
+        </div>
+    </div>
 
-            {% if not current_user.is_authenticated %}
-            <p>Đã có tài khoản? <a href="{{ url_for('auth.login', next=url_for('main.checkout')) }}">Đăng nhập</a> để
-                điền tự động.</p>
-            {% endif %}
+    <form method="POST" novalidate id="checkout-form">
+        {{ form.hidden_tag() }}
 
-          <form method="POST" novalidate onsubmit="if(this.checkValidity()) showLoading();">
-                {{ form.hidden_tag() }}
+        <div class="row g-4">
+            <!-- LEFT COLUMN: Checkout Form -->
+            <div class="col-lg-7">
 
-                <div class="row g-3">
-                    <div class="col-12">
-                        {{ form.full_name.label(class="form-label") }}
-                        {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else "")) }}
-                        <div class="invalid-feedback">
-                            {% for error in form.full_name.errors %}
-                            {{ error }}
-                            {% endfor %}
+                <!-- Customer Information Section -->
+                <div class="card border-0 shadow-sm mb-4 fade-in">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-person-circle me-2 text-primary"></i>
+                            Thông tin khách hàng
+                        </h5>
+
+                        {% if not current_user.is_authenticated %}
+                        <div class="alert alert-info border-0 mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Đã có tài khoản? <a href="{{ url_for('auth.login', next=url_for('main.checkout')) }}"
+                                class="alert-link fw-bold">Đăng nhập</a> để điền tự động.
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person me-1"></i>{{ form.full_name.label.text }}
+                                </label>
+                                {{ form.full_name(class="form-control form-control-lg" + (" is-invalid" if
+                                form.full_name.errors else ""), placeholder="Nguyễn Văn A") }}
+                                {% if form.full_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i>{{ form.email.label.text }}
+                                </label>
+                                {{ form.email(class="form-control form-control-lg" + (" is-invalid" if form.email.errors
+                                else ""), placeholder="email@example.com") }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-telephone me-1"></i>{{ form.phone.label.text }}
+                                </label>
+                                {{ form.phone(class="form-control form-control-lg" + (" is-invalid" if form.phone.errors
+                                else ""), placeholder="0912345678") }}
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""),
-                        placeholder="you@example.com") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
-                            {{ error }}
-                            {% endfor %}
-                        </div>
-                    </div>
+                <!-- Shipping Address Section -->
+                <div class="card border-0 shadow-sm mb-4 fade-in">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-geo-alt me-2 text-primary"></i>
+                            Địa chỉ giao hàng
+                        </h5>
 
-                    <div class="col-12">
-                        {{ form.phone.label(class="form-label") }}
-                        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
-                        <div class="invalid-feedback">
-                            {% for error in form.phone.errors %}
-                            {{ error }}
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Địa chỉ giao hàng</label>
-                        <div class="row g-2">
+                        <div class="row g-3">
                             <div class="col-md-4">
-                                <select class="form-select" id="province-select" required>
+                                <label class="form-label fw-semibold">Tỉnh/Thành phố</label>
+                                <select class="form-select form-select-lg" id="province-select" required>
                                     <option value="">Chọn Tỉnh/Thành</option>
                                 </select>
                                 {{ form.province(type="hidden", id="province-input") }}
                             </div>
+
                             <div class="col-md-4">
-                                <select class="form-select" id="district-select" disabled required>
+                                <label class="form-label fw-semibold">Quận/Huyện</label>
+                                <select class="form-select form-select-lg" id="district-select" disabled required>
                                     <option value="">Chọn Quận/Huyện</option>
                                 </select>
                                 {{ form.district(type="hidden", id="district-input") }}
                             </div>
+
                             <div class="col-md-4">
-                                <select class="form-select" id="ward-select" disabled required>
+                                <label class="form-label fw-semibold">Phường/Xã</label>
+                                <select class="form-select form-select-lg" id="ward-select" disabled required>
                                     <option value="">Chọn Phường/Xã</option>
                                 </select>
                                 {{ form.ward(type="hidden", id="ward-input") }}
                             </div>
 
-                            <div class="col-12 mt-2">
-                                {{ form.specific_address(class="form-control", placeholder="Số nhà, tên đường...") }}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-house-door me-1"></i>Địa chỉ cụ thể
+                                </label>
+                                {{ form.specific_address(class="form-control form-control-lg", placeholder="Số nhà, tên
+                                đường, tòa nhà...") }}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <hr class="my-4">
+                <!-- Payment Method Section -->
+                <div class="card border-0 shadow-sm mb-4 fade-in">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-wallet2 me-2 text-primary"></i>
+                            Phương thức thanh toán
+                        </h5>
 
-                <h4 class="mb-3">Phương thức thanh toán</h4>
-                <div class="my-3">
-                    {% for subfield in form.payment_method %}
-                    <div class="form-check">
-                        {{ subfield(class="form-check-input") }}
-                        {{ subfield.label(class="form-check-label") }}
-
+                        <div class="payment-methods">
+                            {% for subfield in form.payment_method %}
+                            <label class="payment-method-card">
+                                {{ subfield(class="payment-radio") }}
+                                <div class="payment-content">
+                                    <div class="payment-icon">
+                                        {% if 'COD' in subfield.label.text %}
+                                        <i class="bi bi-cash-coin"></i>
+                                        {% elif 'Chuyển khoản' in subfield.label.text %}
+                                        <i class="bi bi-bank"></i>
+                                        {% elif 'Ví điện tử' in subfield.label.text %}
+                                        <i class="bi bi-wallet"></i>
+                                        {% else %}
+                                        <i class="bi bi-credit-card"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="payment-details">
+                                        <div class="payment-title">{{ subfield.label.text }}</div>
+                                        <div class="payment-desc">
+                                            {% if 'COD' in subfield.label.text %}
+                                            Thanh toán khi nhận hàng
+                                            {% elif 'Chuyển khoản' in subfield.label.text %}
+                                            Chuyển khoản qua ngân hàng
+                                            {% elif 'Ví điện tử' in subfield.label.text %}
+                                            MoMo, ZaloPay, VNPay
+                                            {% else %}
+                                            Visa, Mastercard, JCB
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="payment-check">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
                     </div>
-                    {% endfor %}
                 </div>
-                <div class="col-12">
-                    {{ form.coupon_code.label(class="form-label") }}
-                    <div class="input-group">
-                        {{ form.coupon_code(class="form-control", placeholder="Nhập mã giảm giá") }}
+
+                <!-- Coupon Code -->
+                <div class="card border-0 shadow-sm mb-4 fade-in">
+                    <div class="card-body p-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-tag me-2"></i>Mã giảm giá
+                        </h6>
+                        <div class="input-group input-group-lg">
+                            {{ form.coupon_code(class="form-control", placeholder="Nhập mã giảm giá (nếu có)") }}
+                            <button class="btn btn-outline-primary" type="button">
+                                <i class="bi bi-check-lg me-1"></i>Áp dụng
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <hr class="my-4">
+            </div>
 
-                {{ form.submit(class="w-100 btn btn-primary btn-lg") }}
-            </form>
+            <!-- RIGHT COLUMN: Order Summary -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm sticky-top fade-in" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4 d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-receipt me-2 text-primary"></i>
+                                Đơn hàng của bạn
+                            </span>
+                            <span class="badge bg-primary rounded-pill">{{ items|length }}</span>
+                        </h5>
+
+                        <!-- Order Items -->
+                        <div class="order-items mb-3">
+                            {% for item in items %}
+                            <div class="order-item">
+                                <div class="order-item-image">
+                                    {% if item.product.image_url %}
+                                    {% if item.product.image_url.startswith('http') %}
+                                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <img src="{{ url_for('static', filename=item.product.image_url) }}"
+                                        alt="{{ item.product.name }}">
+                                    {% endif %}
+                                    {% else %}
+                                    <div class="placeholder-image">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                    {% endif %}
+                                    <span class="item-quantity">{{ item.quantity }}</span>
+                                </div>
+                                <div class="order-item-details">
+                                    <div class="item-name">{{ item.product.name }}</div>
+                                    <div class="item-price">{{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}₫
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Price Breakdown -->
+                        <div class="price-row">
+                            <span>Tạm tính</span>
+                            <span class="fw-semibold">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-success fw-semibold">Miễn phí</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Giảm giá</span>
+                            <span class="text-success fw-semibold">0₫</span>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Total -->
+                        <div class="price-row total-row">
+                            <span class="h5 mb-0 fw-bold">Tổng cộng</span>
+                            <span class="h4 mb-0 text-primary fw-bold">{{ "{:,.0f}".format(total_price).replace(',',
+                                '.') }}₫</span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
+                            <i class="bi bi-lock-fill me-2"></i>
+                            {{ form.submit.label.text }}
+                        </button>
+
+                        <!-- Trust Badges -->
+                        <div class="trust-badges mt-4">
+                            <div class="trust-item">
+                                <i class="bi bi-shield-check text-success"></i>
+                                <span>Thanh toán bảo mật</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="bi bi-truck text-primary"></i>
+                                <span>Giao hàng toàn quốc</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="bi bi-arrow-repeat text-info"></i>
+                                <span>Đổi trả trong 7 ngày</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
+
 </div>
+
 {% block scripts %}
 {{ super() }}
 <script>
+    // Address API Integration
     document.addEventListener('DOMContentLoaded', function () {
-        // URL API hành chính Việt Nam (miễn phí)
         const API_URL = "https://esgoo.net/api-tinhthanh";
 
         const provinceSelect = document.getElementById('province-select');
@@ -151,24 +316,23 @@
         const districtInput = document.getElementById('district-input');
         const wardInput = document.getElementById('ward-input');
 
-        // 1. Lấy danh sách Tỉnh/Thành
+        // Load provinces
         fetch(API_URL + "/1/0.htm")
             .then(response => response.json())
             .then(data => {
                 if (data.error === 0) {
                     data.data.forEach(province => {
                         const option = document.createElement('option');
-                        option.value = province.id; // ID để lấy quận huyện
-                        option.text = province.full_name; // Tên hiển thị
+                        option.value = province.id;
+                        option.text = province.full_name;
                         option.setAttribute('data-name', province.full_name);
                         provinceSelect.add(option);
                     });
                 }
             });
 
-        // 2. Khi chọn Tỉnh -> Lấy Quận/Huyện
+        // Province change
         provinceSelect.addEventListener('change', function () {
-            // Reset Quận và Phường
             districtSelect.length = 1;
             wardSelect.length = 1;
             districtSelect.disabled = true;
@@ -176,8 +340,6 @@
 
             const provinceId = this.value;
             const provinceName = this.options[this.selectedIndex].getAttribute('data-name');
-
-            // Lưu tên tỉnh vào input ẩn để gửi về server
             provinceInput.value = provinceName;
 
             if (provinceId) {
@@ -198,7 +360,7 @@
             }
         });
 
-        // 3. Khi chọn Quận -> Lấy Phường/Xã
+        // District change
         districtSelect.addEventListener('change', function () {
             wardSelect.length = 1;
             wardSelect.disabled = true;
@@ -225,13 +387,608 @@
             }
         });
 
-        // 4. Khi chọn Phường
+        // Ward change
         wardSelect.addEventListener('change', function () {
             const wardName = this.options[this.selectedIndex].getAttribute('data-name');
             wardInput.value = wardName;
         });
+
+        // Fade-in animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
     });
 </script>
+
+<style>
+    /* Progress Steps */
+    .checkout-steps {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 0 0 auto;
+    }
+
+    .step-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .step.active .step-icon {
+        background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+    }
+
+    .step-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .step.active .step-label {
+        color: #FF6B35;
+        font-weight: 600;
+    }
+
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: #e9ecef;
+        margin: 0 1rem;
+        max-width: 100px;
+    }
+
+    /* Payment Method Cards */
+    .payment-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .payment-method-card {
+        position: relative;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: block;
+    }
+
+    .payment-method-card:hover {
+        border-color: #FF6B35;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.1);
+    }
+
+    .payment-radio {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .payment-radio:checked+.payment-content {
+        border-color: #0066FF;
+    }
+
+    .payment-radio:checked~.payment-content .payment-check {
+        opacity: 1;
+        color: #0066FF;
+    }
+
+    .payment-method-card:has(.payment-radio:checked) {
+        border-color: #0066FF;
+        background: rgba(0, 102, 255, 0.02);
+    }
+
+    .payment-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .payment-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #0066FF;
+        flex-shrink: 0;
+    }
+
+    .payment-details {
+        flex: 1;
+    }
+
+    .payment-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .payment-desc {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .payment-check {
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    /* Order Items */
+    .order-items {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .order-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .order-item-image {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #f8f9fa;
+    }
+
+    .order-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 1.5rem;
+    }
+
+    .item-quantity {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #FF6B35;
+        color: white;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .order-item-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .item-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .item-price {
+        color: #0066FF;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Price Rows */
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        color: #6c757d;
+    }
+
+    .total-row {
+        margin-bottom: 0;
+        padding-top: 0.5rem;
+    }
+
+    /* Trust Badges */
+    .trust-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #e9ecef;
+    }
+
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .trust-item i {
+        font-size: 1.25rem;
+    }
+
+    /* Fade-in Animation */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991px) {
+        .checkout-steps {
+            transform: scale(0.9);
+            margin-bottom: 2rem;
+        }
+
+        .step-line {
+            max-width: 60px;
+        }
+
+        /* Order summary unsticky on tablet */
+        .sticky-top {
+            position: relative !important;
+            top: 0 !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+
+        /* Header */
+        h1.display-6 {
+            font-size: 1.75rem;
+        }
+
+        /* Progress Steps - Compact */
+        .checkout-steps {
+            transform: scale(0.8);
+            margin-bottom: 1.5rem;
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+        }
+
+        .step-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1.3rem;
+        }
+
+        .step-line {
+            max-width: 40px;
+            margin: 0 0.5rem;
+        }
+
+        /* Cards - Reduce padding */
+        .card-body {
+            padding: 1.5rem !important;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+        }
+
+        /* Form fields - Better touch targets */
+        .form-control,
+        .form-select {
+            font-size: 16px !important;
+            /* Prevent zoom on iOS */
+            padding: 0.75rem !important;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Payment Methods - Stack better */
+        .payment-method-card {
+            padding: 1rem;
+        }
+
+        .payment-content {
+            gap: 0.75rem;
+        }
+
+        .payment-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1.3rem;
+        }
+
+        .payment-title {
+            font-size: 0.95rem;
+        }
+
+        .payment-desc {
+            font-size: 0.8rem;
+        }
+
+        .payment-check {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Order Summary - Full width on mobile */
+        .order-items {
+            max-height: none;
+            /* Remove scroll on mobile */
+        }
+
+        .order-item {
+            padding: 1rem 0;
+        }
+
+        .order-item-image {
+            width: 70px;
+            height: 70px;
+        }
+
+        .item-quantity {
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+        }
+
+        .item-name {
+            font-size: 0.95rem;
+        }
+
+        .item-price {
+            font-size: 1rem;
+        }
+
+        /* Price rows - Larger text */
+        .price-row {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .total-row {
+            padding-top: 1rem;
+        }
+
+        .total-row .h5 {
+            font-size: 1.1rem;
+        }
+
+        .total-row .h4 {
+            font-size: 1.5rem;
+        }
+
+        /* Submit button - Sticky on mobile */
+        .btn-primary.btn-lg {
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            border-radius: 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Trust badges - Compact */
+        .trust-badges {
+            gap: 0.5rem;
+        }
+
+        .trust-item {
+            font-size: 0.8rem;
+        }
+
+        .trust-item i {
+            font-size: 1.1rem;
+        }
+
+        /* Alert - Compact */
+        .alert {
+            font-size: 0.85rem;
+            padding: 0.75rem;
+        }
+
+        /* Input group - Better spacing */
+        .input-group-lg .form-control,
+        .input-group-lg .btn {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        /* Extra small devices */
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Progress steps - Minimal */
+        .checkout-steps {
+            transform: scale(0.7);
+            margin-bottom: 1rem;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.1rem;
+        }
+
+        .step-label {
+            font-size: 0.65rem;
+            max-width: 60px;
+            text-align: center;
+        }
+
+        .step-line {
+            max-width: 30px;
+            margin: 0 0.25rem;
+        }
+
+        /* Cards - Minimal padding */
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        .card.mb-4 {
+            margin-bottom: 1rem !important;
+        }
+
+        /* Form - Single column */
+        .row.g-3 {
+            gap: 0.75rem !important;
+        }
+
+        /* Payment cards - Vertical layout */
+        .payment-content {
+            flex-direction: column;
+            align-items: flex-start;
+            padding-right: 2.5rem;
+            /* Space for check icon */
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Order items - Compact */
+        .order-item {
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+        }
+
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+        }
+
+        .item-name {
+            font-size: 0.9rem;
+            -webkit-line-clamp: 1;
+            /* Single line on very small screens */
+        }
+
+        /* Coupon input - Stack on very small screens */
+        .input-group {
+            flex-wrap: wrap;
+        }
+
+        .input-group .form-control {
+            flex: 1 1 100%;
+            border-radius: 0.5rem !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group .btn {
+            flex: 1 1 100%;
+            border-radius: 0.5rem !important;
+        }
+
+        /* Sticky button adjustment */
+        .btn-primary.btn-lg {
+            margin-left: -1rem;
+            margin-right: -1rem;
+            width: calc(100% + 2rem);
+        }
+    }
+
+    /* Landscape mobile optimization */
+    @media (max-width: 767px) and (orientation: landscape) {
+        .checkout-steps {
+            transform: scale(0.75);
+            margin-bottom: 1rem;
+        }
+
+        .card-body {
+            padding: 1.25rem !important;
+        }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+
+        /* Larger touch targets */
+        .payment-method-card {
+            min-height: 80px;
+        }
+
+        .form-control,
+        .form-select,
+        .btn {
+            min-height: 48px;
+            /* Apple's recommended minimum */
+        }
+
+        /* Prevent double-tap zoom */
+        button,
+        a,
+        input,
+        select {
+            touch-action: manipulation;
+        }
+    }
+</style>
 
 {% endblock %}
 {% endblock %}

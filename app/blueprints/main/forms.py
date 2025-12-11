@@ -19,7 +19,7 @@ class CheckoutForm(FlaskForm):
         'Phương thức thanh toán',
         choices=[
             ('COD', 'Thanh toán khi nhận hàng (COD)'),
-            ('VNPAY', 'Thanh toán qua VNPay (Sắp có)')  # Tạm thời vô hiệu hóa
+            ('VNPAY', 'Thanh toán qua VNPay')
         ],
         default='COD',
         validators=[DataRequired()]

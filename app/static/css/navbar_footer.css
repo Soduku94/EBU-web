@@ -23,7 +23,7 @@
     font-family: var(--font-heading, 'Outfit', sans-serif);
     font-size: 1.75rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -62,13 +62,13 @@
     transform: translateX(-50%);
     width: 0;
     height: 2px;
-    background: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
     transition: width 0.3s ease;
 }
 
 .nav-link-modern:hover {
-    background: rgba(0, 102, 255, 0.05);
-    color: #0066FF !important;
+    background: rgba(255, 107, 53, 0.05);
+    color: #FF6B35 !important;
 }
 
 .nav-link-modern:hover::after {
@@ -90,8 +90,8 @@
 }
 
 .search-form-modern .form-control:focus {
-    border-color: #0066FF;
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    border-color: #FF6B35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .search-form-modern .btn {
@@ -101,7 +101,7 @@
     transform: translateY(-50%);
     border-radius: 20px;
     padding: 0.4rem 1rem;
-    background: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
     border: none;
     color: white;
     font-weight: 600;
@@ -110,7 +110,7 @@
 
 .search-form-modern .btn:hover {
     transform: translateY(-50%) scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 /* Cart Badge */
@@ -163,16 +163,16 @@
 
 /* User Dropdown */
 .user-dropdown-modern {
-    background: rgba(0, 102, 255, 0.1);
-    border-radius: 25px;
+    background: rgba(255, 107, 53, 0.1);
+    border-radius: 50%;
     padding: 0.5rem 1rem;
-    color: #0066FF;
+    color: #FF6B35;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .user-dropdown-modern:hover {
-    background: rgba(0, 102, 255, 0.15);
+    background: rgba(255, 107, 53, 0.15);
     transform: translateY(-2px);
 }
 
@@ -200,7 +200,7 @@
     display: block;
     width: 26px;
     height: 2px;
-    background: #0066FF;
+    background: #FF6B35;
     /* Primary Color */
     position: relative;
     transition: all 0.3s ease;
@@ -213,7 +213,7 @@
     position: absolute;
     width: 26px;
     height: 2px;
-    background: #0066FF;
+    background: #FF6B35;
     /* Primary Color */
     left: 0;
     transition: all 0.3s ease;
@@ -271,7 +271,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #0066FF 0%, #00D9FF 50%, #FF6B35 100%);
+    background: linear-gradient(90deg, #FF6B35 0%, #1E3A8A 50%, #60A5FA 100%);
 }
 
 .footer-modern::after {
@@ -281,16 +281,16 @@
     right: -10%;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(0, 102, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
 
-.footer-brand {
+.footer-brand-modern {
     font-family: var(--font-heading, 'Outfit', sans-serif);
     font-size: 1.75rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #00D9FF 0%, #0066FF 100%);
+    background: linear-gradient(135deg, #1E3A8A 0%, #60A5FA 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -321,7 +321,7 @@
     left: 0;
     width: 50px;
     height: 3px;
-    background: linear-gradient(90deg, #0066FF 0%, #00D9FF 100%);
+    background: linear-gradient(90deg, #FF6B35 0%, #1E3A8A 100%);
     border-radius: 2px;
 }
 
@@ -344,7 +344,7 @@
 }
 
 .footer-link:hover {
-    color: #00D9FF;
+    color: #60A5FA;
     padding-left: 2rem;
 }
 
@@ -376,9 +376,9 @@
 }
 
 .social-link:hover {
-    background: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4);
+    background: linear-gradient(135deg, #FF6B35 0%, #FF9F1C 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
     color: white;
 }
 
@@ -473,7 +473,7 @@
     .cart-link-modern {
         justify-content: center;
         padding: 0.75rem 1rem;
-        background: rgba(0, 102, 255, 0.05);
+        background: rgba(255, 107, 53, 0.05);
         border-radius: 12px;
         margin: 0.5rem 0;
     }
@@ -556,8 +556,8 @@
 
 .btn-modern-outline {
     background: transparent;
-    border: 2px solid #0066FF;
-    color: #0066FF;
+    border: 2px solid #FF6B35;
+    color: #FF6B35;
     padding: 0.6rem 1.5rem;
     border-radius: 25px;
     font-weight: 600;
@@ -567,7 +567,7 @@
 }
 
 .btn-modern-outline:hover {
-    background: #0066FF;
+    background: #FF6B35;
     color: white;
     transform: translateY(-2px);
 }
@@ -589,14 +589,14 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0d6efd 0%, #00d9ff 100%) !important;
+    background: linear-gradient(135deg, #FF6B35 0%, #FF9F1C 100%);
     color: white !important;
     font-size: 1.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border: none;
     z-index: 1002;
@@ -693,7 +693,7 @@
 .contact-card-header {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color, #0066FF);
+    color: var(--primary-color, #FF6B35);
     margin-bottom: 15px;
     line-height: 1.4;
     border-bottom: 1px solid #eee;
@@ -796,8 +796,8 @@
 }
 
 .scroll-top-btn:hover {
-    background: var(--primary-color, #0066FF);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 102, 255, 0.3);
+    background: var(--primary-color, #FF6B35);
     color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(255, 107, 53, 0.3);
 }

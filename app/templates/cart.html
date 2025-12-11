@@ -1,138 +1,295 @@
 {% extends "base.html" %}
 
-{% block title %}Giỏ hàng của bạn{% endblock %}
+{% block title %}Giỏ hàng của bạn - Home Fit Pro{% endblock %}
 
 {% block content %}
-<div class="container mb-5">
+<div class="container my-5">
 
-    <div class="cart-header text-center rounded-3 mb-4">
-        <h2 class="cart-title">Giỏ hàng của bạn</h2>
-        <p class="text-muted mb-0">Bạn đang có {{ items|length }} sản phẩm trong giỏ hàng</p>
+    <!-- Cart Header -->
+    <div class="text-center mb-5 fade-in">
+        <h1 class="display-5 fw-bold mb-3">
+            <i class="bi bi-cart3 me-2" style="color: var(--primary-color);"></i>
+            Giỏ hàng của bạn
+        </h1>
+        {% if items %}
+        <p class="text-muted">Bạn đang có <strong class="text-primary">{{ items|length }}</strong> sản phẩm trong giỏ
+            hàng</p>
+        {% endif %}
     </div>
 
     {% if items %}
-    <div class="cart-grid">
-        <!-- LEFT COLUMN: PRODUCT LIST -->
-        <div class="cart-items-list">
+    <div class="row g-4">
+        <!-- LEFT COLUMN: Cart Items -->
+        <div class="col-lg-8">
             {% for item in items %}
-            <div class="cart-item-card fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+            <div class="card border-0 shadow-sm mb-3 cart-item-card fade-in"
+                style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                <div class="card-body p-4">
+                    <div class="row align-items-center g-3">
 
-                <!-- Image -->
-                <div class="cart-item-image">
-                    {% if item.product.image_url %}
-                    {% if item.product.image_url.startswith('http') %}
-                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
-                    {% else %}
-                    <img src="{{ url_for('static', filename=item.product.image_url) }}" alt="{{ item.product.name }}">
-                    {% endif %}
-                    {% else %}
-                    <img src="https://via.placeholder.com/150" alt="{{ item.product.name }}">
-                    {% endif %}
-                </div>
-
-                <!-- Details -->
-                <div class="cart-item-details">
-                    <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}" class="cart-item-name">
-                        {{ item.product.name }}
-                    </a>
-                    <div class="cart-item-price mb-2">
-                        {{ "{:,.0f}".format(item.product.price).replace(',', '.') }}₫
-                    </div>
-                </div>
-
-                <!-- Actions (Quantity & Remove) -->
-                <div class="cart-actions">
-                    <!-- Quantity Form -->
-                    <form action="{{ url_for('main.update_cart') }}" method="POST" class="d-flex align-items-center">
-                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                        <input type="hidden" name="action" value="update">
-
-                        <div class="quantity-selector-modern sm">
-                            <button type="button" onclick="updateQty(this, -1)">
-                                <i class="bi bi-dash"></i>
-                            </button>
-                            <!-- Auto-submit form when input changes could be added via JS, keeping manual button for now or auto-update logic -->
-                            <input type="number" class="quantity-input-modern" name="quantity"
-                                value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" readonly>
-                            <button type="button" onclick="updateQty(this, 1)">
-                                <i class="bi bi-plus"></i>
-                            </button>
+                        <!-- Product Image -->
+                        <div class="col-md-3 col-sm-4">
+                            <div class="position-relative">
+                                <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}">
+                                    {% if item.product.image_url %}
+                                    {% if item.product.image_url.startswith('http') %}
+                                    <img src="{{ item.product.image_url }}" class="img-fluid rounded"
+                                        alt="{{ item.product.name }}" style="aspect-ratio: 1/1; object-fit: cover;">
+                                    {% else %}
+                                    <img src="{{ url_for('static', filename=item.product.image_url) }}"
+                                        class="img-fluid rounded" alt="{{ item.product.name }}"
+                                        style="aspect-ratio: 1/1; object-fit: cover;">
+                                    {% endif %}
+                                    {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                        style="aspect-ratio: 1/1;">
+                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                    {% endif %}
+                                </a>
+                            </div>
                         </div>
 
-                        <!-- Update Button (Hidden, triggered via JS preferably or kept visible if simple) -->
-                        <button type="submit" class="btn btn-sm btn-link text-decoration-none ms-2"
-                            title="Cập nhật số lượng">
-                            <i class="bi bi-arrow-clockwise"></i>
-                        </button>
-                    </form>
+                        <!-- Product Info -->
+                        <div class="col-md-5 col-sm-8">
+                            <h5 class="mb-2">
+                                <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}"
+                                    class="text-decoration-none text-dark fw-bold">
+                                    {{ item.product.name }}
+                                </a>
+                            </h5>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-tag me-1"></i>{{ item.product.category.name if item.product.category
+                                else 'Chưa phân loại' }}
+                            </p>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-box-seam me-1"></i>
+                                    Còn {{ item.product.stock }} sản phẩm
+                                </span>
+                            </div>
+                        </div>
 
-                    <!-- Remove Form -->
-                    <form action="{{ url_for('main.update_cart') }}" method="POST">
-                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                        <input type="hidden" name="quantity" value="0">
-                        <input type="hidden" name="action" value="remove">
-                        <button type="submit" class="remove-btn" title="Xóa khỏi giỏ hàng">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </form>
+                        <!-- Quantity & Price -->
+                        <div class="col-md-4">
+                            <div class="text-md-end">
+                                <!-- Price -->
+                                <div class="mb-3">
+                                    <div class="text-muted small">Đơn giá</div>
+                                    <h5 class="text-primary fw-bold mb-0">
+                                        {{ "{:,.0f}".format(item.product.price).replace(',', '.') }}₫
+                                    </h5>
+                                </div>
+
+                                <!-- Quantity Selector -->
+                                <form action="{{ url_for('main.update_cart') }}" method="POST" class="mb-3">
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <input type="hidden" name="action" value="update">
+
+                                    <div class="d-flex align-items-center justify-content-md-end gap-2">
+                                        <label class="small text-muted mb-0">Số lượng:</label>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                onclick="updateQty(this, -1)" style="width: 35px;">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <input type="number" class="form-control form-control-sm text-center"
+                                                name="quantity" value="{{ item.quantity }}" min="1"
+                                                max="{{ item.product.stock }}" readonly
+                                                style="width: 60px; border-left: 0; border-right: 0;">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                onclick="updateQty(this, 1)" style="width: 35px;">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-primary" title="Cập nhật">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Subtotal & Remove -->
+                                <div class="d-flex align-items-center justify-content-md-end gap-3">
+                                    <div>
+                                        <div class="text-muted small">Tạm tính</div>
+                                        <strong class="text-dark">{{ "{:,.0f}".format(item.subtotal).replace(',', '.')
+                                            }}₫</strong>
+                                    </div>
+                                    <form action="{{ url_for('main.update_cart') }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                        <input type="hidden" name="quantity" value="0">
+                                        <input type="hidden" name="action" value="remove">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa sản phẩm"
+                                            onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-
             </div>
             {% endfor %}
+
+            <!-- Continue Shopping Button (Mobile) -->
+            <div class="d-lg-none mt-4">
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
+                </a>
+            </div>
         </div>
 
-        <!-- RIGHT COLUMN: SUMMARY -->
-        <div class="cart-summary-wrapper">
-            <div class="cart-summary-card">
-                <h4 class="mb-4 fw-bold">Tổng đơn hàng</h4>
+        <!-- RIGHT COLUMN: Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-4">
+                        <i class="bi bi-receipt me-2"></i>Tổng đơn hàng
+                    </h4>
 
-                <div class="summary-row">
-                    <span>Tạm tính:</span>
-                    <span class="fw-bold">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
+                    <!-- Summary Details -->
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tạm tính ({{ items|length }} sản phẩm)</span>
+                            <span class="fw-semibold">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Phí vận chuyển</span>
+                            <span class="text-success fw-semibold">Miễn phí</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Giảm giá</span>
+                            <span class="text-success fw-semibold">0₫</span>
+                        </div>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0 fw-bold">Tổng cộng</h5>
+                        <h4 class="mb-0 text-primary fw-bold">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫
+                        </h4>
+                    </div>
+
+                    <!-- Checkout Button -->
+                    <a href="{{ url_for('main.checkout') }}" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-credit-card me-2"></i>Thanh toán ngay
+                    </a>
+
+                    <!-- Continue Shopping (Desktop) -->
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary w-100 d-none d-lg-block">
+                        <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
+                    </a>
+
+                    <!-- Trust Badges -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="small text-muted text-center mb-2">
+                            <i class="bi bi-shield-check text-success me-1"></i>
+                            Thanh toán an toàn & bảo mật
+                        </div>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-truck"></i> Giao hàng nhanh
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-arrow-repeat"></i> Đổi trả 7 ngày
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-headset"></i> Hỗ trợ 24/7
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-row">
-                    <span>Giảm giá:</span>
-                    <span class="text-success fw-bold">0₫</span>
-                </div>
-
-                <div class="summary-total">
-                    <span>Tổng cộng:</span>
-                    <span class="text-primary">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
-                </div>
-
-                <a href="{{ url_for('main.checkout') }}" class="btn btn-checkout">
-                    Thanh toán ngay <i class="bi bi-arrow-right ms-2"></i>
-                </a>
-
-                <a href="{{ url_for('main.index') }}" class="continue-shopping">
-                    <i class="bi bi-arrow-left me-1"></i> Tiếp tục mua sắm
-                </a>
             </div>
         </div>
     </div>
 
     {% else %}
-    {% include 'cart_empty.html' %}
+    <!-- Empty Cart State -->
+    <div class="text-center py-5 fade-in">
+        <div class="mb-4">
+            <i class="bi bi-cart-x" style="font-size: 6rem; color: #e0e0e0;"></i>
+        </div>
+        <h2 class="mb-3">Giỏ hàng của bạn đang trống</h2>
+        <p class="text-muted mb-4 lead">Hãy khám phá các sản phẩm tuyệt vời của chúng tôi!</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-shop me-2"></i>Khám phá sản phẩm
+        </a>
+    </div>
     {% endif %}
 
 </div>
 
 <script>
-    // Simple Quantity Logic for Cart (Reusing similar logic from Product Detail)
+    // Quantity Update Function
     function updateQty(btn, change) {
-        const input = btn.parentElement.querySelector('input');
+        const inputGroup = btn.closest('.btn-group');
+        const input = inputGroup.querySelector('input[type="number"]');
         let newValue = parseInt(input.value) + change;
+
         if (newValue >= 1 && newValue <= parseInt(input.max)) {
             input.value = newValue;
-            // Optional: Auto submit form needed? 
-            // For better UX, we can find the submit button next to it and click it, 
-            // or just leave it for the user to click 'Update'. 
-            // Here we tripper the update button click for seamless experience
+
+            // Auto-submit form for better UX
             const form = btn.closest('form');
             const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.click();
+            if (submitBtn) {
+                // Add visual feedback
+                submitBtn.classList.add('btn-success');
+                submitBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
+                setTimeout(() => {
+                    submitBtn.click();
+                }, 300);
+            }
         }
     }
+
+    // Fade-in animation on scroll
+    document.addEventListener('DOMContentLoaded', function () {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    });
 </script>
+
+<style>
+    .cart-item-card {
+        transition: all 0.3s ease;
+    }
+
+    .cart-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Smooth number input */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
 
 {% endblock %}

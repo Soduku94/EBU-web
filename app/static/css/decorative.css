@@ -1,0 +1,299 @@
+/* ============================================
+   DECORATIVE ELEMENTS & VISUAL ENHANCEMENTS
+   ============================================ */
+
+/* === GRADIENT BACKGROUNDS FOR SECTIONS === */
+.section-gradient-1 {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.03) 0%, rgba(30, 58, 138, 0.03) 100%);
+    position: relative;
+}
+
+.section-gradient-2 {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(96, 165, 250, 0.05) 100%);
+    position: relative;
+}
+
+.section-gradient-3 {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.03) 0%, rgba(255, 107, 53, 0.03) 100%);
+    position: relative;
+}
+
+/* === DECORATIVE SHAPES === */
+.decorative-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.shape-circle-1 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
+    top: -200px;
+    right: -200px;
+    filter: blur(80px);
+}
+
+.shape-circle-2 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #60A5FA 0%, #FF6B35 100%);
+    bottom: -150px;
+    left: -150px;
+    filter: blur(60px);
+}
+
+.shape-blob-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+    top: 10%;
+    left: -10%;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    animation: blob-float 20s ease-in-out infinite;
+}
+
+.shape-blob-2 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(30, 58, 138, 0.15) 0%, transparent 70%);
+    bottom: 10%;
+    right: -5%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    animation: blob-float 25s ease-in-out infinite reverse;
+}
+
+@keyframes blob-float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(20px, -20px) rotate(5deg);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) rotate(-5deg);
+    }
+
+    75% {
+        transform: translate(20px, 20px) rotate(3deg);
+    }
+}
+
+/* === PATTERN OVERLAYS === */
+.pattern-dots {
+    background-image: radial-gradient(circle, rgba(30, 58, 138, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.pattern-grid {
+    background-image:
+        linear-gradient(rgba(30, 58, 138, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 58, 138, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+.pattern-diagonal {
+    background-image: repeating-linear-gradient(45deg,
+            transparent,
+            transparent 10px,
+            rgba(30, 58, 138, 0.02) 10px,
+            rgba(30, 58, 138, 0.02) 20px);
+}
+
+/* === GLASS MORPHISM EFFECTS === */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card-dark {
+    background: rgba(30, 58, 138, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-navbar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* === FLOATING PARTICLES === */
+.particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 107, 53, 0.3);
+    border-radius: 50%;
+    animation: float-particle 15s infinite ease-in-out;
+}
+
+.particle:nth-child(2n) {
+    background: rgba(30, 58, 138, 0.3);
+    animation-duration: 20s;
+    animation-delay: -5s;
+}
+
+.particle:nth-child(3n) {
+    background: rgba(96, 165, 250, 0.3);
+    animation-duration: 25s;
+    animation-delay: -10s;
+}
+
+@keyframes float-particle {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* === WAVE ANIMATIONS === */
+.wave-background {
+    position: relative;
+    overflow: hidden;
+}
+
+.wave-background::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(30, 58, 138, 0.1) 100%);
+    border-radius: 50%;
+    animation: wave 10s linear infinite;
+}
+
+@keyframes wave {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-25%) translateY(-10px);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* === GRADIENT BORDER CARDS === */
+.gradient-border-card {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
+}
+
+.gradient-border-card-inner {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+}
+
+/* === ANIMATED GRADIENT TEXT === */
+.gradient-text-animated {
+    background: linear-gradient(90deg, #FF6B35 0%, #1E3A8A 50%, #60A5FA 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* === GLOW EFFECTS === */
+.glow-orange {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.glow-blue {
+    box-shadow: 0 0 20px rgba(30, 58, 138, 0.3);
+}
+
+.glow-hover:hover {
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.4), 0 0 60px rgba(30, 58, 138, 0.2);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* === SECTION DIVIDERS === */
+.section-divider {
+    position: relative;
+    height: 80px;
+    overflow: hidden;
+}
+
+.section-divider svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media (max-width: 768px) {
+
+    .shape-circle-1,
+    .shape-circle-2,
+    .shape-blob-1,
+    .shape-blob-2 {
+        opacity: 0.05;
+    }
+
+    .decorative-shape {
+        filter: blur(40px);
+    }
+}

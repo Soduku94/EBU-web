@@ -19,6 +19,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home_styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar_footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/decorative.css') }}">
 
     <title>{% block title %}{% if title %}{{ title }} - {% endif %}Home Fit Pro{% endblock %}</title>
 
@@ -121,8 +122,21 @@
         style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}"
-                style="font-size: 1.5rem; background: linear-gradient(135deg, #0066FF 0%, #00D9FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                style="font-size: 1.5rem; background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
                 Home Fit Pro
+            </a>
+
+            <!-- Spacer to push cart and hamburger to the right on mobile -->
+            <div class="ms-auto d-lg-none"></div>
+
+            <!-- Mobile Cart Icon (Always Visible, right before hamburger) -->
+            <a class="nav-link cart-link-modern d-lg-none" href="{{ url_for('main.view_cart') }}"
+                style="position: relative; padding: 0.5rem;">
+                <i class="bi bi-cart3" style="font-size: 1.5rem;"></i>
+                <span id="cart-badge-mobile" class="cart-badge-modern"
+                    style="{{ 'display: none;' if cart_count == 0 else '' }}">
+                    {{ cart_count if cart_count > 0 else '' }}
+                </span>
             </a>
 
             <!-- Bootstrap Default Toggler -->
@@ -152,7 +166,8 @@
                 </form>
 
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <!-- Desktop Cart Icon (Hidden on Mobile) -->
+                    <li class="nav-item d-none d-lg-block">
                         <a class="nav-link nav-link-modern cart-link-modern" href="{{ url_for('main.view_cart') }}">
                             <i class="bi bi-cart3"></i> Giỏ hàng
                             <span id="cart-badge" class="cart-badge-modern"
@@ -252,7 +267,7 @@
             <div class="row">
                 <!-- Brand Section -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="footer-brand">Home Fit Pro</div>
+                    <div class="footer-brand-modern">Home Fit Pro</div>
                     <p class="footer-description">
                         Chuyên cung cấp các thiết bị tập luyện tại nhà chất lượng cao,
                         giúp bạn đạt được mục tiêu sức khỏe và fitness của mình.
