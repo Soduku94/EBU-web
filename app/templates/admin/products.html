@@ -19,96 +19,176 @@
 
     /* Làm sáng dòng đang chọn để dễ nhìn hơn */
     tr:hover td {
-        background-color: #e9ecef; /* Màu xám đậm hơn mặc định một chút */
+        background-color: #f8f9fa; /* Màu xám nhẹ */
         cursor: default;
+    }
+
+    /* Căn giữa nội dung trong ô bảng */
+    .table td, .table th {
+        vertical-align: middle;
     }
 </style>
 
-<div class="container">
+<div class="container mt-4">
     <div class="row">
-        <div class="col-md-5">
-            <h3>Thêm Sản phẩm mới</h3>
-            <form method="POST" enctype="multipart/form-data" novalidate>
-                {{ form.hidden_tag() }}
-
-                <div class="mb-3">
-                    {{ form.name.label(class="form-label") }}
-                    {{ form.name(class="form-control") }}
+        <div class="col-md-4 mb-5">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 90px; z-index: 1;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Thêm Sản phẩm mới</h5>
                 </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
 
-                <div class="mb-3">
-                    {{ form.category.label(class="form-label") }}
-                    {{ form.category(class="form-select") }}
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-bold") }}
+                            {{ form.name(class="form-control", placeholder="Nhập tên sản phẩm") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                {{ form.category.label(class="form-label fw-bold") }}
+                                {{ form.category(class="form-select") }}
+                            </div>
+                            <div class="col-6 mb-3">
+                                {{ form.stock.label(class="form-label fw-bold") }}
+                                {{ form.stock(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.price.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                {{ form.price(class="form-control") }}
+                                <span class="input-group-text">VND</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.image.label(class="form-label fw-bold") }} <span class="text-danger">*</span>
+                            {{ form.image(class="form-control") }}
+                            {% if form.image.errors %}
+                                {% for error in form.image.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3 p-3 bg-light border rounded">
+                            <label class="form-label fw-bold"><i class="bi bi-images"></i> Ảnh Phụ (Album)</label>
+                            {{ form.additional_images(class="form-control", multiple=True) }}
+                            <div class="form-text text-muted small">
+                                <i class="bi bi-info-circle"></i> Giữ phím <strong>Ctrl</strong> (hoặc Cmd) để chọn nhiều ảnh cùng lúc.
+                            </div>
+                            {% if form.additional_images.errors %}
+                                {% for error in form.additional_images.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-bold") }}
+                            {{ form.description(class="form-control", rows=3) }}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
                 </div>
-
-                <div class="mb-3">
-                    {{ form.price.label(class="form-label") }}
-                    {{ form.price(class="form-control") }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.stock.label(class="form-label") }}
-                    {{ form.stock(class="form-control") }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.image.label(class="form-label") }}
-                    {{ form.image(class="form-control") }}
-                    {% if form.image.errors %}
-                        {% for error in form.image.errors %}
-                            <span style="color: red;">[{{ error }}]</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.description.label(class="form-label") }}
-                    {{ form.description(class="form-control", rows=3) }}
-                </div>
-
-                {{ form.submit(class="btn btn-primary") }}
-            </form>
+            </div>
         </div>
 
-        <div class="col-md-7">
-            <h3>Danh sách Sản phẩm</h3>
-            {% if products %}
-            <table class="table table-striped align-middle"> <thead>
-                <tr>
-                    <th scope="col">Tên</th>
-                    <th scope="col">Danh mục</th>
-                    <th scope="col">Giá</th>
-                    <th scope="col">Kho</th>
-                    <th scope="col" style="width: 100px;">Hành động</th> </tr>
-                </thead>
-                <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.category.name }}</td>
-                    <td>{{ "%.0f"|format(product.price) }}</td> <td>{{ product.stock }}</td>
-                    <td>
-                        <div class="btn-group product-actions" role="group">
+        <div class="col-md-8">
+            <h3 class="mb-3 text-primary fw-bold">Danh sách Sản phẩm</h3>
 
-                            <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn btn-sm btn-warning" title="Sửa">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+            <div class="table-responsive shadow-sm rounded">
+                {% if products %}
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Ảnh</th>
+                            <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Giá</th>
+                            <th scope="col">Danh mục</th>
+                            <th scope="col">Kho</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" style="min-width: 100px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr class="{{ 'table-secondary text-muted' if not p.is_active else '' }}">
+                            <td>{{ p.id }}</td>
+                            <td>
+                                {% if p.image_url %}
+                                    {% if p.image_url.startswith('http') %}
+                                        <img src="{{ p.image_url }}" class="rounded border" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename=p.image_url) }}" class="rounded border" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">No img</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not p.is_active %}
+                                    <span class="text-decoration-line-through">{{ p.name }}</span>
+                                {% else %}
+                                    <span class="fw-bold text-primary">{{ p.name }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold">{{ "{:,.0f}".format(p.price) }}</td>
+                            <td><span class="badge bg-info text-dark">{{ p.category.name }}</span></td>
 
-                            <form action="{{ url_for('admin.delete_product', id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
-                                <button type="submit" class="btn btn-sm btn-danger ms-1" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                            <td>
+                                {% if p.stock == 0 %}
+                                    <span class="text-danger fw-bold">Hết</span>
+                                {% elif p.stock < 5 %}
+                                    <span class="text-warning fw-bold">{{ p.stock }}</span>
+                                {% else %}
+                                    {{ p.stock }}
+                                {% endif %}
+                            </td>
 
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>Chưa có sản phẩm nào.</p>
-            {% endif %}
+                            <td class="text-center">
+                                {% if p.is_active %}
+                                    <span class="badge bg-success">Đang bán</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Đã ẩn</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="btn-group product-actions"> <a href="{{ url_for('admin.edit_product', id=p.id) }}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <form action="{{ url_for('admin.toggle_product', id=p.id) }}" method="POST" class="d-inline">
+                                        {% if p.is_active %}
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Ẩn sản phẩm">
+                                                <i class="bi bi-eye-slash"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Hiện sản phẩm">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="alert alert-info text-center m-3">
+                    <i class="bi bi-box-seam fs-1"></i><br>
+                    Chưa có sản phẩm nào. Hãy thêm mới bên cột trái!
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

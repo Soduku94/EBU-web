@@ -3,98 +3,110 @@
 {% block title %}Giỏ hàng của bạn{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Giỏ hàng của bạn</h2>
-    <hr>
+<div class="container mb-5">
+
+    <div class="cart-header text-center rounded-3 mb-4">
+        <h2 class="cart-title">Giỏ hàng của bạn</h2>
+        <p class="text-muted mb-0">Bạn đang có {{ items|length }} sản phẩm trong giỏ hàng</p>
+    </div>
 
     {% if items %}
-    <table class="table align-middle">
-        <thead>
-        <tr>
-            <th scope="col" style="width: 15%;">Sản phẩm</th>
-            <th scope="col" style="width: 35%;"></th>
-            <th scope="col" style="width: 15%;">Giá</th>
-            <th scope="col" style="width: 20%;">Số lượng</th>
-            <th scope="col" style="width: 15%;">Tạm tính</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in items %}
-        <tr>
-            <form action="{{ url_for('main.update_cart') }}" method="POST">
-                <input type="hidden" name="product_id" value="{{ item.product.id }}">
+    <div class="cart-grid">
+        <!-- LEFT COLUMN: PRODUCT LIST -->
+        <div class="cart-items-list">
+            {% for item in items %}
+            <div class="cart-item-card fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
 
-                <td>
+                <!-- Image -->
+                <div class="cart-item-image">
                     {% if item.product.image_url %}
                     {% if item.product.image_url.startswith('http') %}
-                    <img src="{{ item.product.image_url }}"
-                         alt="{{ item.product.name }}"
-                         class="img-fluid rounded"
-                         style="max-height: 75px;">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
                     {% else %}
-                    <img src="{{ url_for('static', filename=item.product.image_url) }}"
-                         alt="{{ item.product.name }}"
-                         class="img-fluid rounded"
-                         style="max-height: 75px;">
+                    <img src="{{ url_for('static', filename=item.product.image_url) }}" alt="{{ item.product.name }}">
                     {% endif %}
                     {% else %}
-                    <img src="https://via.placeholder.com/100"
-                         alt="{{ item.product.name }}"
-                         class="img-fluid rounded"
-                         style="max-height: 75px;">
+                    <img src="https://via.placeholder.com/150" alt="{{ item.product.name }}">
                     {% endif %}
-                </td>
+                </div>
 
-                <td>
-                   <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}">
-                        <strong>{{ item.product.name }}</strong>
+                <!-- Details -->
+                <div class="cart-item-details">
+                    <a href="{{ url_for('main.product_detail', slug=item.product.slug) }}" class="cart-item-name">
+                        {{ item.product.name }}
                     </a>
-                </td>
-
-                <td>{{ "%.0f"|format(item.product.price) }} VND</td>
-
-                <td>
-                    <div class="input-group" style="width: 200px;">
-                        <input type="number"
-                               class="form-control"
-                               name="quantity"
-                               value="{{ item.quantity }}"
-                               min="0"
-                               max="{{ item.product.stock }}">
-
-                        <button type="submit"
-                                name="action"
-                                value="update"
-                                class="btn btn-outline-secondary btn-sm">
-                            Cập nhật
-                        </button>
-
-                        <button type="submit"
-                                name="action"
-                                value="remove"
-                                class="btn btn-outline-danger btn-sm"
-                                title="Xóa sản phẩm">
-                            &times;
-                        </button>
+                    <div class="cart-item-price mb-2">
+                        {{ "{:,.0f}".format(item.product.price).replace(',', '.') }}₫
                     </div>
-                    <small class="text-muted">Kho: {{ item.product.stock }}</small>
-                </td>
+                </div>
 
-                <td><strong>{{ "%.0f"|format(item.subtotal) }} VND</strong></td>
-            </form>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                <!-- Actions (Quantity & Remove) -->
+                <div class="cart-actions">
+                    <!-- Quantity Form -->
+                    <form action="{{ url_for('main.update_cart') }}" method="POST" class="d-flex align-items-center">
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <input type="hidden" name="action" value="update">
 
-    <div class="row justify-content-end">
-        <div class="col-md-4">
-            <h4>Tổng cộng:</h4>
-            <h2 class="text-success"><strong>{{ "%.0f"|format(total_price) }} VND</strong></h2>
-            <hr>
-            <div class="d-grid gap-2">
-                <a href="{{ url_for('main.checkout') }}" class="btn btn-primary btn-lg">Tiến hành Thanh toán</a>
-                <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+                        <div class="quantity-selector-modern sm">
+                            <button type="button" onclick="updateQty(this, -1)">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <!-- Auto-submit form when input changes could be added via JS, keeping manual button for now or auto-update logic -->
+                            <input type="number" class="quantity-input-modern" name="quantity"
+                                value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" readonly>
+                            <button type="button" onclick="updateQty(this, 1)">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+
+                        <!-- Update Button (Hidden, triggered via JS preferably or kept visible if simple) -->
+                        <button type="submit" class="btn btn-sm btn-link text-decoration-none ms-2"
+                            title="Cập nhật số lượng">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </form>
+
+                    <!-- Remove Form -->
+                    <form action="{{ url_for('main.update_cart') }}" method="POST">
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <input type="hidden" name="quantity" value="0">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="remove-btn" title="Xóa khỏi giỏ hàng">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- RIGHT COLUMN: SUMMARY -->
+        <div class="cart-summary-wrapper">
+            <div class="cart-summary-card">
+                <h4 class="mb-4 fw-bold">Tổng đơn hàng</h4>
+
+                <div class="summary-row">
+                    <span>Tạm tính:</span>
+                    <span class="fw-bold">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
+                </div>
+                <div class="summary-row">
+                    <span>Giảm giá:</span>
+                    <span class="text-success fw-bold">0₫</span>
+                </div>
+
+                <div class="summary-total">
+                    <span>Tổng cộng:</span>
+                    <span class="text-primary">{{ "{:,.0f}".format(total_price).replace(',', '.') }}₫</span>
+                </div>
+
+                <a href="{{ url_for('main.checkout') }}" class="btn btn-checkout">
+                    Thanh toán ngay <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+
+                <a href="{{ url_for('main.index') }}" class="continue-shopping">
+                    <i class="bi bi-arrow-left me-1"></i> Tiếp tục mua sắm
+                </a>
             </div>
         </div>
     </div>
@@ -104,4 +116,23 @@
     {% endif %}
 
 </div>
+
+<script>
+    // Simple Quantity Logic for Cart (Reusing similar logic from Product Detail)
+    function updateQty(btn, change) {
+        const input = btn.parentElement.querySelector('input');
+        let newValue = parseInt(input.value) + change;
+        if (newValue >= 1 && newValue <= parseInt(input.max)) {
+            input.value = newValue;
+            // Optional: Auto submit form needed? 
+            // For better UX, we can find the submit button next to it and click it, 
+            // or just leave it for the user to click 'Update'. 
+            // Here we tripper the update button click for seamless experience
+            const form = btn.closest('form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.click();
+        }
+    }
+</script>
+
 {% endblock %}

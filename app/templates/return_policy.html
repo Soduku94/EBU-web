@@ -1,36 +1,157 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Chính sách Đổi trả & Bảo hành - Home Fit Pro{% endblock %}
 
 {% block content %}
-<div class="container" style="min-height: 60vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="my-4">{{ title }}</h1>
-            
-            <p>Tại Home Fit Pro, sự hài lòng của bạn là ưu tiên hàng đầu. Chúng tôi hỗ trợ đổi trả sản phẩm trong vòng 7 ngày kể từ ngày nhận hàng với các điều kiện sau:</p>
+<div class="container pb-5">
 
-            <h4 class="mt-4">1. Điều kiện áp dụng:</h4>
-            <ul>
-                <li>Sản phẩm bị lỗi kỹ thuật do nhà sản xuất.</li>
-                <li>Sản phẩm giao không đúng mẫu mã, chủng loại mà khách hàng đã đặt.</li>
-                <li>Sản phẩm còn nguyên tem, mác, chưa qua sử dụng và còn đầy đủ bao bì, phụ kiện đi kèm.</li>
-            </ul>
+    <!-- HERO SECTION -->
+    <div class="policy-hero">
+        <h1 class="display-4 fw-bold">Chính Sách Đổi Trả & Bảo Hành</h1>
+        <p class="lead mb-0 opacity-75">An tâm mua sắm với cam kết hỗ trợ khách hàng tốt nhất từ Home Fit Pro</p>
+    </div>
 
-            <h4 class="mt-4">2. Các trường hợp không áp dụng:</h4>
-            <ul>
-                <li>Sản phẩm đã qua sử dụng.</li>
-                <li>Sản phẩm bị hư hỏng do lỗi của người dùng (va đập, tự ý sửa chữa...).</li>
-                <li>... (Bạn có thể bổ sung thêm các điều kiện của mình) ...</li>
-            </ul>
-
-            <h4 class="mt-4">3. Quy trình đổi trả:</h4>
-            <p>
-                Quý khách vui lòng liên hệ với chúng tôi qua trang <a href="{{ url_for('main.contact') }}">Liên hệ</a> 
-                hoặc email tại [Email của shop] để thông báo về tình trạng sản phẩm. 
-                Chúng tôi sẽ hướng dẫn bạn các bước chi tiết để gửi trả hàng và nhận sản phẩm mới.
-            </p>
+    <!-- PROCESS STEPS -->
+    <div class="row g-4 mb-5 justify-content-center">
+        <div class="col-md-4">
+            <div class="policy-step-card">
+                <div class="policy-icon-wrapper">
+                    <i class="bi bi-chat-right-text-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-3">1. Liên hệ</h5>
+                <p class="text-muted mb-0">Thông báo tình trạng sản phẩm qua Hotline hoặc Email trong vòng 7 ngày kể từ
+                    khi nhận hàng.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="policy-step-card">
+                <div class="policy-icon-wrapper">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-3">2. Gửi hàng</h5>
+                <p class="text-muted mb-0">Đóng gói sản phẩm cẩn thận kèm theo đầy đủ phụ kiện và gửi về showroom gần
+                    nhất.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="policy-step-card">
+                <div class="policy-icon-wrapper">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <h5 class="fw-bold mb-3">3. Hoàn tiền / Đổi mới</h5>
+                <p class="text-muted mb-0">Chúng tôi sẽ kiểm tra và thực hiện đổi mới hoặc hoàn tiền cho bạn ngay khi
+                    nhận được hàng.</p>
+            </div>
         </div>
     </div>
+
+    <!-- ACCORDION DETAILS -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h3 class="fw-bold mb-4 text-center">Chi tiết Chính sách</h3>
+
+            <div class="accordion policy-accordion" id="policyAccordion">
+
+                <!-- Item 1 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <i class="bi bi-check-circle-fill me-3 text-success"></i> Điều kiện áp dụng đổi trả
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                        data-bs-parent="#policyAccordion">
+                        <div class="accordion-body">
+                            Chúng tôi chấp nhận đổi trả trong các trường hợp sau:
+                            <ul class="mt-2 mb-0">
+                                <li>Sản phẩm bị lỗi kỹ thuật do nhà sản xuất.</li>
+                                <li>Sản phẩm hư hỏng trong quá trình vận chuyển.</li>
+                                <li>Sản phẩm giao không đúng mẫu mã, màu sắc, chủng loại đã đặt.</li>
+                                <li>Sản phẩm còn nguyên tem, mác, chưa qua sử dụng và đầy đủ bao bì.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <i class="bi bi-x-circle-fill me-3 text-danger"></i> Trường hợp KHÔNG áp dụng
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#policyAccordion">
+                        <div class="accordion-body">
+                            Rất tiếc, chúng tôi không thể hỗ trợ đổi trả nếu:
+                            <ul class="mt-2 mb-0">
+                                <li>Quá thời hạn 7 ngày kể từ khi nhận hàng.</li>
+                                <li>Sản phẩm đã qua sử dụng, bẩn, hỏng do lỗi người dùng.</li>
+                                <li>Sản phẩm mất tem, mác hoặc bao bì gốc không còn nguyên vẹn.</li>
+                                <li>Các sản phẩm quà tặng khuyến mãi kèm theo.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Item 2 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <i class="bi bi-x-circle-fill me-3 text-danger"></i> Trường hợp KHÔNG áp dụng
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#policyAccordion">
+                        <div class="accordion-body">
+                            Rất tiếc, chúng tôi không thể hỗ trợ đổi trả nếu:
+                            <ul class="mt-2 mb-0">
+                                <li>Quá thời hạn 7 ngày kể từ khi nhận hàng.</li>
+                                <li>Sản phẩm đã qua sử dụng, bẩn, hỏng do lỗi người dùng.</li>
+                                <li>Sản phẩm mất tem, mác hoặc bao bì gốc không còn nguyên vẹn.</li>
+                                <li>Các sản phẩm quà tặng khuyến mãi kèm theo.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            <i class="bi bi-truck me-3 text-primary"></i> Chi phí vận chuyển
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                        data-bs-parent="#policyAccordion">
+                        <div class="accordion-body">
+                            <p class="mb-2"><strong>Miễn phí vận chuyển:</strong> Đối với sản phẩm lỗi do nhà sản xuất
+                                hoặc giao sai mẫu.</p>
+                            <p class="mb-0"><strong>Khách hàng thanh toán:</strong> Trong trường hợp khách hàng muốn đổi
+                                sang sản phẩm khác vì lý do chủ quan (không ưng, đổi ý).</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- HELP CTA -->
+            <div class="help-cta-box">
+                <h4 class="fw-bold mb-3">Bạn vẫn còn thắc mắc?</h4>
+                <p class="text-muted mb-4">Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giải đáp mọi câu hỏi của bạn.</p>
+                <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="bi bi-envelope me-2"></i> Liên hệ ngay
+                </a>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}

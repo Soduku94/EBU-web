@@ -116,6 +116,9 @@ class Product(db.Model):
     price = db.Column(db.Float)  # Dùng Float cho đơn giản, Numeric nếu cần độ chính xác tuyệt đối
     stock = db.Column(db.Integer)  # Số lượng hàng tồn kho
     image_url = db.Column(db.String(512))  # Đường dẫn đến ảnh sản phẩm
+    images = db.relationship('ProductImage', backref='product', lazy=True, cascade="all, delete-orphan")
+
+    is_active = db.Column(db.Boolean, default=True)
 
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     reviews = db.relationship('Review', backref='product', lazy='dynamic')
@@ -125,6 +128,24 @@ class Product(db.Model):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+
+class ProductImage(db.Model):
+    """Bảng lưu trữ hình ảnh phụ cho sản phẩm."""
+    __tablename__ = 'product_images'
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_url = db.Column(db.String(255), nullable=False)
+
+    # Liên kết đến bảng Product
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+
+    # (Tùy chọn) Thứ tự hiển thị
+    display_order = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return f'<ProductImage {self.id} for Product {self.product_id}>'
+
 
 
 # --- Models liên quan đến Đơn hàng (Order) ---
@@ -272,3 +293,4 @@ class HealthScreening(db.Model):
 
     def __repr__(self):
         return f'<HealthScreening User {self.user_id} Risk {self.risk_detected}>'
+

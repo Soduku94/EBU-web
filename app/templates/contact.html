@@ -1,56 +1,159 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Liên hệ - Home Fit Pro{% endblock %}
 
 {% block content %}
-<div class="container" style="min-height: 60vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
-            <h1 class="my-4">{{ title }}</h1>
-            <p class="lead">Bạn có câu hỏi? Đừng ngần ngại gửi tin nhắn cho chúng tôi.</p>
+<div class="container pb-5">
+
+    <!-- HERO SECTION -->
+    <div class="contact-hero">
+        <h1 class="display-4 fw-bold">Liên Hệ Với Chúng Tôi</h1>
+        <p class="lead mb-0 opacity-75">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn 24/7</p>
+    </div>
+
+    <!-- INFO CARDS -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon-wrapper">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Showroom toàn quốc</h5>
+                <p class="text-muted mb-0">Showroom tại các quận và thành phố <br>Hà Nội, Đà Nẵng, TP. Hồ Chí Minh
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon-wrapper">
+                    <i class="bi bi-telephone-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Hotline</h5>
+                <p class="text-muted mb-0">
+                    <a href="tel:0901234567" class="text-decoration-none text-muted">090 123 4567</a><br>
+                    <span class="small text-success"><i class="bi bi-circle-fill" style="font-size: 8px;"></i> Online
+                        24/7</span>
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-info-card">
+                <div class="contact-icon-wrapper">
+                    <i class="bi bi-envelope-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Email</h5>
+                <p class="text-muted mb-0">
+                    <a href="mailto:support@homefitpro.vn"
+                        class="text-decoration-none text-muted">support@homefitpro.vn</a><br>
+                    <a href="mailto:info@homefitpro.vn" class="text-decoration-none text-muted">info@homefitpro.vn</a>
+                </p>
+            </div>
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }} <div class="mb-3">
-                    {{ form.name.label(class="form-label") }}
-                    {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
-                    <div class="invalid-feedback">
-                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+    <div class="row g-5">
+        <!-- CONTACT FORM -->
+        <div class="col-lg-6">
+            <div class="contact-form-container h-100">
+                <h3 class="fw-bold mb-4">Gửi tin nhắn cho chúng tôi</h3>
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="form-floating mb-3">
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Họ
+                        và tên") }}
+                        {{ form.name.label }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""),
+                        placeholder="name@example.com") }}
+                        {{ form.email.label }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        {{ form.subject(class="form-control" + (" is-invalid" if form.subject.errors else ""),
+                        placeholder="Tiêu đề") }}
+                        {{ form.subject.label }}
+                        <div class="invalid-feedback">
+                            {% for error in form.subject.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""),
+                        placeholder="Nội dung", style="height: 150px") }}
+                        {{ form.message.label }}
+                        <div class="invalid-feedback">
+                            {% for error in form.message.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3">
+                            Gửi Tin Nhắn <i class="bi bi-send-fill ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SHOWROOM LIST -->
+        <div class="col-lg-6">
+            <div class="h-100 p-4 bg-light rounded-3">
+                <h3 class="fw-bold mb-4">Hệ thống Showroom</h3>
+
+                <div class="d-flex flex-column gap-3">
+                    <!-- Showroom 1 -->
+                    <div class="bg-white p-3 rounded shadow-sm border-start border-5 border-primary">
+                        <h5 class="fw-bold text-dark mb-1">Showroom Quận 1 (TP.HCM)</h5>
+                        <p class="mb-1 text-muted small"><i class="bi bi-geo-alt-fill me-2 text-primary"></i>123 Đường
+                            Nguyễn Trãi, P. Bến Thành, Quận 1</p>
+                        <p class="mb-0 text-muted small"><i class="bi bi-telephone-fill me-2 text-primary"></i>090 123
+                            4567</p>
+                    </div>
+
+                    <!-- Showroom 2 -->
+                    <div class="bg-white p-3 rounded shadow-sm border-start border-5 border-success">
+                        <h5 class="fw-bold text-dark mb-1">Showroom Quận 7 (TP.HCM)</h5>
+                        <p class="mb-1 text-muted small"><i class="bi bi-geo-alt-fill me-2 text-success"></i>456 Nguyễn
+                            Thị Thập, P. Tân Quy, Quận 7</p>
+                        <p class="mb-0 text-muted small"><i class="bi bi-telephone-fill me-2 text-success"></i>091 234
+                            5678</p>
+                    </div>
+
+                    <!-- Showroom 3 -->
+                    <div class="bg-white p-3 rounded shadow-sm border-start border-5 border-danger">
+                        <h5 class="fw-bold text-dark mb-1">Showroom Cầu Giấy (Hà Nội)</h5>
+                        <p class="mb-1 text-muted small"><i class="bi bi-geo-alt-fill me-2 text-danger"></i>789 Cầu
+                            Giấy, P. Dịch Vọng, Q. Cầu Giấy</p>
+                        <p class="mb-0 text-muted small"><i class="bi bi-telephone-fill me-2 text-danger"></i>092 345
+                            6789</p>
+                    </div>
+
+                    <!-- Showroom 4 -->
+                    <div class="bg-white p-3 rounded shadow-sm border-start border-5 border-warning">
+                        <h5 class="fw-bold text-dark mb-1">Showroom Đà Nẵng</h5>
+                        <p class="mb-1 text-muted small"><i class="bi bi-geo-alt-fill me-2 text-warning"></i>101 Nguyễn
+                            Văn Linh, Q. Hải Châu</p>
+                        <p class="mb-0 text-muted small"><i class="bi bi-telephone-fill me-2 text-warning"></i>093 456
+                            7890</p>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    {{ form.email.label(class="form-label") }}
-                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
-                    <div class="invalid-feedback">
-                        {% for error in form.email.errors %}{{ error }}{% endfor %}
-                    </div>
+                <div class="mt-4 pt-3 border-top text-muted small">
+                    <i class="bi bi-clock me-1"></i> <strong>Giờ mở cửa:</strong> 8:00 - 21:00 (Tất cả các ngày trong
+                    tuần)
                 </div>
-
-                <div class="mb-3">
-                    {{ form.subject.label(class="form-label") }}
-                    {{ form.subject(class="form-control" + (" is-invalid" if form.subject.errors else "")) }}
-                    <div class="invalid-feedback">
-                        {% for error in form.subject.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    {{ form.message.label(class="form-label") }}
-                    {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), rows=5) }}
-                    <div class="invalid-feedback">
-                        {% for error in form.message.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-
-                <div class="d-grid">
-                    {{ form.submit(class="btn btn-primary btn-lg") }}
-                </div>
-            </form>
+            </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

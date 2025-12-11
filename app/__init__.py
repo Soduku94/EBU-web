@@ -16,6 +16,8 @@ def create_app(config_name='default'):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
+    app.jinja_env.add_extension('jinja2.ext.do')
+
     # 2. Khởi tạo Extensions
     db.init_app(app)
     migrate.init_app(app, db)

@@ -6,6 +6,7 @@ from app.models import Category, Product
 from wtforms_sqlalchemy.fields import QuerySelectField
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms import MultipleFileField
 
 # === SỬA LỖI: Đặt hàm này ở đây, bên ngoài tất cả các lớp ===
 def category_query():
@@ -37,6 +38,10 @@ class ProductForm(FlaskForm):
     stock = IntegerField('Số lượng tồn kho', validators=[DataRequired(), NumberRange(min=0)])
     image = FileField('Hình ảnh sản phẩm', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Chỉ chấp nhận file ảnh!')
+    ])
+
+    additional_images = MultipleFileField('Ảnh Phụ (Chọn nhiều ảnh)', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Chỉ chấp nhận file ảnh!')
     ])
     # Ô dropdown chọn danh mục
     category = QuerySelectField('Danh mục',

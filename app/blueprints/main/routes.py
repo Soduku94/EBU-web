@@ -56,30 +56,36 @@ from datetime import datetime
 from .forms import ParqForm
 from app.models import HealthScreening
 
+
 @main.route('/')
 @main.route('/index')
 def index():
-    featured_products = Product.query.order_by(Product.id.desc()).limit(8).all()
+    # 1. Lấy sản phẩm nổi bật (CHỈ LẤY SẢN PHẨM ĐANG ACTIVE)
+    featured_products = Product.query.filter(Product.is_active == True) \
+        .order_by(Product.id.desc()) \
+        .limit(8).all()
+
     categories = Category.query.all()
     latest_posts = Post.query.order_by(Post.timestamp.desc()).limit(2).all()
 
-    # === THÊM DÒNG NÀY VÀO ===
-    # Lấy 3 đánh giá 5 SAO mới nhất
-    # Tải kèm (joinedload) Tác giả và Sản phẩm để tránh N+1 query
+    # 2. Lấy 3 đánh giá 5 SAO mới nhất
     latest_reviews = Review.query.options(
         db.joinedload(Review.author),
         db.joinedload(Review.product)
     ) \
-        .filter_by(rating=5) \
+        .join(Product) \
+        .filter(Review.rating == 5) \
+        .filter(Product.is_active == True) \
         .order_by(Review.timestamp.desc()) \
         .limit(3).all()
-    # ==========================
+    # (Lưu ý: Mình thêm .join(Product) và filter is_active ở review luôn
+    # để tránh hiện review của sản phẩm đã xóa)
 
     return render_template('index.html',
                            products=featured_products,
                            categories=categories,
                            latest_posts=latest_posts,
-                           latest_reviews=latest_reviews)  # <-- Gửi reviews ra template
+                           latest_reviews=latest_reviews)
 
 
 @main.route('/add-to-cart/<int:product_id>', methods=['POST'])
@@ -480,7 +486,7 @@ def product_detail(slug):
 
 @main.route('/search')
 def search():
-    # 1. Lấy tất cả tham số từ URL
+    # 1. Lấy tham số
     query_str = request.args.get('q', '').strip()
     sort_by = request.args.get('sort', 'default')
     category_filter = request.args.get('category', 'all')
@@ -489,29 +495,28 @@ def search():
     if not query_str:
         return redirect(url_for('main.index'))
 
-    # 2. Lấy danh sách danh mục (để hiển thị trong bộ lọc)
     categories = Category.query.all()
 
-    # 3. Xây dựng truy vấn (Query) cơ sở
+    # 2. Xây dựng truy vấn cơ sở (THÊM ĐIỀU KIỆN ACTIVE NGAY ĐẦU)
     search_term = f"%{query_str}%"
-    results_query = Product.query.filter(
+
+    results_query = Product.query.filter(Product.is_active == True).filter(
         db.or_(
             Product.name.ilike(search_term),
             Product.description.ilike(search_term)
         )
     )
 
-    # 4. Áp dụng LỌC DANH MỤC (nếu có)
+    # 3. Áp dụng LỌC DANH MỤC
     if category_filter != 'all':
         try:
-            # Thêm bộ lọc .filter() vào query
             results_query = results_query.filter(
                 Product.category_id == int(category_filter)
             )
         except ValueError:
-            pass  # Bỏ qua nếu 'category' không phải là số
+            pass
 
-    # 5. Áp dụng LỌC GIÁ (nếu có)
+    # 4. Áp dụng LỌC GIÁ
     if price_range == 'under_500k':
         results_query = results_query.filter(Product.price < 500000)
     elif price_range == '500k_to_1m':
@@ -519,7 +524,7 @@ def search():
     elif price_range == 'over_1m':
         results_query = results_query.filter(Product.price > 1000000)
 
-    # 6. Áp dụng SẮP XẾP (luôn ở cuối cùng)
+    # 5. Áp dụng SẮP XẾP
     if sort_by == 'price_asc':
         results_query = results_query.order_by(Product.price.asc())
     elif sort_by == 'price_desc':
@@ -527,36 +532,31 @@ def search():
     else:
         results_query = results_query.order_by(Product.name.asc())
 
-    # 7. Lấy kết quả cuối cùng
+    # 6. Lấy kết quả
     results = results_query.all()
 
-    # 8. Render, gửi tất cả giá trị hiện tại ra template
     return render_template('search_results.html',
                            products=results,
                            query=query_str,
                            categories=categories,
                            current_sort=sort_by,
                            current_category=category_filter,
-                           current_price=price_range
-                           )
+                           current_price=price_range)
 
-
-# === THÊM ROUTE MỚI: LỌC SẢN PHẨM THEO DANH MỤC ===
 @main.route('/category/<int:category_id>')
 def category_products(category_id):
-    # 1. Lấy danh mục, nếu không tìm thấy sẽ tự động 404
+    # 1. Lấy danh mục
     category = Category.query.get_or_404(category_id)
 
-    # 2. Lấy tất cả sản phẩm thuộc danh mục đó
-    # (Vì relationship 'products' trong model Category là lazy='dynamic',
-    # chúng ta có thể dùng .order_by và .all() như một query)
-    products = category.products.order_by(Product.name.asc()).all()
+    # 2. Lấy tất cả sản phẩm thuộc danh mục (CHỈ LẤY ACTIVE)
+    # Lưu ý: category.products là query object (do lazy='dynamic')
+    products = category.products.filter(Product.is_active == True)\
+                                .order_by(Product.name.asc())\
+                                .all()
 
-    # 3. Render template mới, gửi category và products ra
     return render_template('category_products.html',
                            category=category,
                            products=products)
-
 
 
 @main.route('/blog')
@@ -1149,3 +1149,27 @@ def recommendation():
                            title='Gợi ý cho bạn',
                            products=suggested_products)
 
+
+@main.route('/force-fix-db')
+def force_fix_db():
+    try:
+        # 1. Kiểm tra tổng số sản phẩm hiện có
+        total_products = Product.query.count()
+
+        # 2. Cưỡng chế UPDATE toàn bộ bảng trong SQL (bất kể giá trị cũ là gì)
+        # Lệnh này tương đương: UPDATE products SET is_active = 1;
+        rows_updated = Product.query.update({Product.is_active: True})
+
+        db.session.commit()
+
+        return f"""
+        <h1>Báo cáo sửa lỗi:</h1>
+        <ul>
+            <li>Tổng số sản phẩm trong kho: <strong>{total_products}</strong></li>
+            <li>Số dòng đã được 'ép' bật Active: <strong>{rows_updated}</strong></li>
+        </ul>
+        <p>Bây giờ hãy quay lại <a href="/">Trang chủ</a> để kiểm tra.</p>
+        """
+    except Exception as e:
+        db.session.rollback()
+        return f"Lỗi: {str(e)}"

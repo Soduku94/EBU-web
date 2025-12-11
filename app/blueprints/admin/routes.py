@@ -1,5 +1,6 @@
 # Standard library
 import os
+import secrets
 import uuid
 import csv
 import io
@@ -32,32 +33,52 @@ from app.decorators import admin_required
 from app.models import Coupon
 from .forms import CouponForm
 
-def save_picture(form_picture):
-    """Hàm lưu file ảnh vào thư mục static/uploads và trả về tên file."""
-    # 1. Lấy tên file gốc an toàn
-    original_filename = secure_filename(form_picture.filename)
+from app.models import ProductImage  # Nhớ import
 
-    # 2. Tạo tên file mới ngẫu nhiên để tránh trùng lặp (ví dụ: a8f9d0_tate.jpg)
-    random_hex = uuid.uuid4().hex[:8]
-    _, f_ext = os.path.splitext(original_filename)
+
+def save_additional_images(product, files):
+    upload_folder = os.path.join(current_app.root_path, 'static', 'images', 'products')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    for file in files:
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            unique_filename = f"extra_{int(datetime.utcnow().timestamp())}_{filename}"
+
+            # Lưu file vật lý
+            file_path = os.path.join(upload_folder, unique_filename)
+            file.save(file_path)
+
+            # Lưu DB: Phải khớp với save_picture
+            db_path = f"images/products/{unique_filename}"
+
+            new_image = ProductImage(image_url=db_path, product=product)
+            db.session.add(new_image)
+
+    db.session.commit()
+
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
 
-    # 3. Xác định thư mục chứa ảnh
-    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+    # 1. Đường dẫn vật lý (để lưu file): app/static/images/products
+    upload_folder = os.path.join(current_app.root_path, 'static', 'images', 'products')
 
-    # Ktra xem thư mục có tồn tại không, nếu không thì TẠO MỚI
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
+    # Tạo thư mục nếu chưa có
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
 
-    # Tạo đường dẫn đầy đủ của file
-    picture_path = os.path.join(upload_dir, picture_fn)
+    picture_path = os.path.join(upload_folder, picture_fn)
 
-    # 4. Lưu file
+    # Lưu file
     form_picture.save(picture_path)
 
-    # 5. Trả về đường dẫn tương đối để lưu vào database
-    return 'uploads/' + picture_fn
-
+    # 2. Đường dẫn Database (QUAN TRỌNG): Phải trả về đường dẫn tương đối từ 'static'
+    # Đừng trả về 'uploads/' nữa, hãy đổi thành 'images/products/'
+    return f"images/products/{picture_fn}"
 
 @admin.route('/')
 @login_required
@@ -355,39 +376,44 @@ def edit_product(id):
     form = ProductForm()
 
     if form.validate_on_submit():
-        # Cập nhật thông tin từ form
+        # 1. Cập nhật thông tin cơ bản
         product.name = form.name.data
         product.description = form.description.data
         product.price = form.price.data
         product.stock = form.stock.data
         product.category = form.category.data
+        # product.is_active = form.is_active.data (Nếu form có field này)
 
-        # Cập nhật Slug (nếu tên thay đổi)
-        from slugify import slugify
-        import uuid
-        # Tạo slug mới để đảm bảo đồng bộ với tên mới
-        base_slug = slugify(form.name.data)
-        product.slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
+        # 2. Cập nhật Slug (Chỉ khi tên thay đổi để tối ưu SEO)
+        if product.name != form.name.data: # Kiểm tra xem tên có đổi không
+            from slugify import slugify
+            import uuid
+            base_slug = slugify(form.name.data)
+            product.slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
 
-        # Xử lý ảnh (Chỉ cập nhật nếu người dùng upload ảnh mới)
+        # 3. Xử lý Ảnh Chính (Chỉ cập nhật nếu có upload mới)
         if form.image.data:
-            # (Tùy chọn: Xóa ảnh cũ để tiết kiệm dung lượng server)
-            # ...
-            image_path = save_picture(form.image.data)
+            image_path = save_picture(form.image.data) # Hàm này bạn đã có
             product.image_url = image_path
+
+        # 4. Xử lý Ảnh Phụ (ĐÃ SỬA: Đưa ra ngoài khối if của ảnh chính)
+        new_files = form.additional_images.data
+        # Kiểm tra kỹ: new_files phải tồn tại và file đầu tiên phải có tên (tránh upload rỗng)
+        if new_files and new_files[0].filename:
+            save_additional_images(product, new_files) # Hàm chúng ta vừa viết ở bước trước
 
         db.session.commit()
         flash('Đã cập nhật sản phẩm thành công!', 'success')
         return redirect(url_for('admin.manage_products'))
 
-    # Khi vào trang (GET), điền sẵn dữ liệu cũ vào form
+    # Khi vào trang (GET), điền sẵn dữ liệu cũ
     elif request.method == 'GET':
         form.name.data = product.name
         form.description.data = product.description
         form.price.data = product.price
         form.stock.data = product.stock
         form.category.data = product.category
-        # Không cần điền form.image.data vì đó là file upload
+        # Ảnh không cần điền data
 
     return render_template('admin/edit_product.html',
                            title='Sửa Sản phẩm',
@@ -395,28 +421,74 @@ def edit_product(id):
                            product=product)
 
 
-# === 2. ROUTE XÓA SẢN PHẨM (DELETE) ===
-@admin.route('/product/delete/<int:id>', methods=['POST'])
+@admin.route('/product/add', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def delete_product(id):
+def add_product():
+    form = ProductForm()
+
+    if form.validate_on_submit():
+        # 1. Tạo Slug
+        from slugify import slugify
+        import uuid
+        base_slug = slugify(form.name.data)
+        slug = f"{base_slug}-{uuid.uuid4().hex[:4]}"
+
+        # 2. Xử lý Ảnh Chính
+        image_url = None
+        if form.image.data:
+            image_url = save_picture(form.image.data)
+
+        # 3. Tạo đối tượng Product
+        new_product = Product(
+            name=form.name.data,
+            slug=slug,
+            description=form.description.data,
+            price=form.price.data,
+            stock=form.stock.data,
+            category=form.category.data,
+            image_url=image_url,
+            is_active=True  # Mặc định là đang bán
+        )
+
+        # Lưu Product trước để có ID (cần ID để liên kết ảnh phụ)
+        db.session.add(new_product)
+        db.session.commit()
+
+        # 4. Xử lý Ảnh Phụ (Sau khi đã có new_product)
+        files = form.additional_images.data
+        if files and files[0].filename:
+            save_additional_images(new_product, files)
+
+        flash(f'Đã thêm sản phẩm "{new_product.name}" thành công!', 'success')
+        return redirect(url_for('admin.manage_products'))
+
+    return render_template('admin/add_product.html', title='Thêm Sản phẩm', form=form)
+
+
+
+
+
+# Đổi tên hàm cho đúng ý nghĩa (hoặc giữ nguyên tên route cũ cũng được, nhưng sửa logic)
+@admin.route('/product/toggle/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def toggle_product(id):
+    """Hàm bật/tắt trạng thái sản phẩm (Ẩn/Hiện)."""
     product = Product.query.get_or_404(id)
 
-    # (Tùy chọn: Kiểm tra xem sản phẩm có đang nằm trong đơn hàng nào không
-    #  để tránh lỗi khóa ngoại ForeignKey.
-    #  Tạm thời chúng ta xóa thẳng, nếu có lỗi database sẽ báo)
+    # Logic đảo ngược trạng thái (Toggle)
+    # Nếu đang True -> thành False
+    # Nếu đang False -> thành True
+    product.is_active = not product.is_active
 
-    try:
-        db.session.delete(product)
-        db.session.commit()
-        flash('Đã xóa sản phẩm thành công.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash('Không thể xóa sản phẩm này (có thể do đang có đơn hàng liên quan).', 'danger')
-        print(e)
+    db.session.commit()
+
+    # Thông báo tùy theo trạng thái mới
+    status_msg = "được hiển thị trở lại" if product.is_active else "bị ẩn đi"
+    flash(f'Sản phẩm "{product.name}" đã {status_msg}.', 'success')
 
     return redirect(url_for('admin.manage_products'))
-
 
 # === QUẢN LÝ COUPON ===
 @admin.route('/coupons', methods=['GET', 'POST'])

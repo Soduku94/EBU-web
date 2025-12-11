@@ -1,64 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }} - Tin tức & Kiến thức{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 class="mb-4">Blog - Tin tức</h1>
-    <hr>
-
-    {% for post in posts %}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="card-title">{{ post.title }}</h2>
-            <p class="card-subtitle mb-2 text-muted">
-                Đăng bởi <strong>{{ post.author.username }}</strong> vào {{ post.timestamp.strftime('%d-%m-%Y') }}
+    <!-- HERO SECTION -->
+    <div class="blog-hero text-center mb-5">
+        <div class="blog-hero-content">
+            <h1 class="display-4 fw-bold mb-3">Kiến Thức & Tin Tức</h1>
+            <p class="lead text-muted mb-0 mx-auto" style="max-width: 600px;">
+                Cập nhật những xu hướng tập luyện mới nhất, bí quyết dinh dưỡng và câu chuyện cảm hứng từ cộng đồng Home
+                Fit Pro.
             </p>
-
-            <p class="card-text">
-                {{ post.body | striptags | truncate(200) }}
-            </p>
-
-            <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="btn btn-primary">Đọc tiếp &rarr;</a>
         </div>
     </div>
-    {% endfor %}
+
+    <!-- POSTS GRID -->
+    <div class="row g-4 mb-5">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4">
+            <div class="blog-card h-100">
+                <!-- Using a placeholder pattern as dynamic images aren't in the model yet -->
+                <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="blog-card-img-wrapper d-block">
+                    <!-- If you have post.image later, insert here. For now css ::after handles placeholder -->
+                </a>
+
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <i class="bi bi-calendar3 me-1"></i> {{ post.timestamp.strftime('%d-%m-%Y') }}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-person me-1"></i> {{ post.author.username }}
+                    </div>
+
+                    <h5 class="blog-card-title">
+                        <a href="{{ url_for('main.blog_post', post_id=post.id) }}"
+                            class="text-decoration-none text-dark stretched-link">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+
+                    <p class="blog-card-text">
+                        {{ post.body | striptags | truncate(120) }}
+                    </p>
+
+                    <div class="mt-auto pt-3 border-top w-100 d-flex justify-content-between align-items-center">
+                        <span class="text-primary fw-bold text-decoration-none" style="font-size: 0.9rem;">
+                            Đọc tiếp <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINATION -->
     {% if pagination.pages > 1 %}
-    <nav aria-label="Phân trang Blog" class="mt-5">
+    <nav aria-label="Phân trang Blog" class="mb-5">
         <ul class="pagination justify-content-center">
 
             <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
-                <a class="page-link" href="{{ url_for('main.blog_index', page=pagination.prev_num) }}">
-                    &laquo;
+                <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;"
+                    href="{{ url_for('main.blog_index', page=pagination.prev_num) }}">
+                    <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
 
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                {% if page_num %}
-                    {% if page_num == pagination.page %}
-                        <li class="page-item active" aria-current="page">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('main.blog_index', page=page_num) }}">
-                                {{ page_num }}
-                            </a>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                {% endif %}
+            {% if page_num %}
+            {% if page_num == pagination.page %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;">{{ page_num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;" href="{{ url_for('main.blog_index', page=page_num) }}">
+                    {{ page_num }}
+                </a>
+            </li>
+            {% endif %}
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link border-0">...</span>
+            </li>
+            {% endif %}
             {% endfor %}
 
             <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
-                <a class="page-link" href="{{ url_for('main.blog_index', page=pagination.next_num) }}">
-                    &raquo;
+                <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;"
+                    href="{{ url_for('main.blog_index', page=pagination.next_num) }}">
+                    <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
 
         </ul>
     </nav>
     {% endif %}
-    </div>
+
+</div>
 {% endblock %}
