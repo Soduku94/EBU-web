@@ -4,42 +4,55 @@
 
 {% block content %}
 <div class="container">
-    <!-- HERO SECTION -->
-    <div class="blog-hero text-center mb-5">
-        <div class="blog-hero-content">
+    <div class="blog-hero text-center mb-5 section-gradient-2 text-white py-5 rounded-4 shadow-sm"
+         style="background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);">
+        <div class="blog-hero-content py-3">
             <h1 class="display-4 fw-bold mb-3">Kiến Thức & Tin Tức</h1>
-            <p class="lead text-muted mb-0 mx-auto" style="max-width: 600px;">
-                Cập nhật những xu hướng tập luyện mới nhất, bí quyết dinh dưỡng và câu chuyện cảm hứng từ cộng đồng Home
-                Fit Pro.
+            <p class="lead mb-0 mx-auto opacity-75" style="max-width: 600px;">
+                Cập nhật những xu hướng tập luyện mới nhất, bí quyết dinh dưỡng và câu chuyện cảm hứng từ cộng đồng Home Fit Pro.
             </p>
         </div>
     </div>
 
-    <!-- POSTS GRID -->
     <div class="row g-4 mb-5">
+
+        {# --- TẠO DANH SÁCH ẢNH GYM --- #}
+        {% set blog_images = [
+            'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',
+            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80',
+            'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=80',
+            'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&q=80',
+            'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&q=80',
+            'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80',
+            'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=600&q=80',
+            'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&q=80'
+        ] %}
+
         {% for post in posts %}
         <div class="col-md-6 col-lg-4">
-            <div class="blog-card h-100">
-                <!-- Using a placeholder pattern as dynamic images aren't in the model yet -->
-                <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="blog-card-img-wrapper d-block">
-                    <!-- If you have post.image later, insert here. For now css ::after handles placeholder -->
+            <div class="blog-card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+
+                {% set img_url = blog_images[loop.index0 % blog_images|length] %}
+
+                <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="blog-card-img-wrapper d-block" style="height: 220px; overflow: hidden;">
+                    <img src="{{ img_url }}" alt="{{ post.title }}" class="w-100 h-100 object-fit-cover transition-transform">
                 </a>
 
-                <div class="blog-card-body">
-                    <div class="blog-card-meta">
+                <div class="blog-card-body p-4 d-flex flex-column h-100">
+                    <div class="blog-card-meta text-muted small mb-2">
                         <i class="bi bi-calendar3 me-1"></i> {{ post.timestamp.strftime('%d-%m-%Y') }}
                         <span class="mx-2">•</span>
                         <i class="bi bi-person me-1"></i> {{ post.author.username }}
                     </div>
 
-                    <h5 class="blog-card-title">
+                    <h5 class="blog-card-title fw-bold mb-3">
                         <a href="{{ url_for('main.blog_post', post_id=post.id) }}"
-                            class="text-decoration-none text-dark stretched-link">
+                            class="text-decoration-none text-dark stretched-link title-hover">
                             {{ post.title }}
                         </a>
                     </h5>
 
-                    <p class="blog-card-text">
+                    <p class="blog-card-text text-secondary mb-4 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                         {{ post.body | striptags | truncate(120) }}
                     </p>
 
@@ -54,14 +67,13 @@
         {% endfor %}
     </div>
 
-    <!-- PAGINATION -->
     {% if pagination.pages > 1 %}
     <nav aria-label="Phân trang Blog" class="mb-5">
         <ul class="pagination justify-content-center">
 
             <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
                 <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
-                    style="width: 40px; height: 40px;"
+                    style="width: 40px; height: 40px; color: var(--primary-color);"
                     href="{{ url_for('main.blog_index', page=pagination.prev_num) }}">
                     <i class="bi bi-chevron-left"></i>
                 </a>
@@ -71,13 +83,13 @@
             {% if page_num %}
             {% if page_num == pagination.page %}
             <li class="page-item active" aria-current="page">
-                <span class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
+                <span class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center bg-primary border-primary"
                     style="width: 40px; height: 40px;">{{ page_num }}</span>
             </li>
             {% else %}
             <li class="page-item">
                 <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
-                    style="width: 40px; height: 40px;" href="{{ url_for('main.blog_index', page=page_num) }}">
+                    style="width: 40px; height: 40px; color: var(--text-dark);" href="{{ url_for('main.blog_index', page=page_num) }}">
                     {{ page_num }}
                 </a>
             </li>
@@ -91,7 +103,7 @@
 
             <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
                 <a class="page-link rounded-circle mx-1 d-flex align-items-center justify-content-center"
-                    style="width: 40px; height: 40px;"
+                    style="width: 40px; height: 40px; color: var(--primary-color);"
                     href="{{ url_for('main.blog_index', page=pagination.next_num) }}">
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -102,4 +114,25 @@
     {% endif %}
 
 </div>
+
+<style>
+    /* CSS bổ sung để ảnh hover đẹp hơn */
+    .blog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease;
+    }
+
+    .transition-transform {
+        transition: transform 0.5s ease;
+    }
+
+    .blog-card:hover .transition-transform {
+        transform: scale(1.05);
+    }
+
+    .title-hover:hover {
+        color: var(--primary-color) !important;
+    }
+</style>
 {% endblock %}

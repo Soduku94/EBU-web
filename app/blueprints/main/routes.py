@@ -1,8 +1,14 @@
 # Standard library
 from datetime import datetime
 
+
+
 # Third-party
 import google.generativeai as genai
+
+import os
+import secrets
+from flask import current_app
 
 # Flask
 from flask import (
@@ -13,7 +19,7 @@ from flask import (
     flash,
     request,
     current_app,
-    jsonify
+
 )
 from flask_login import current_user, login_required
 
@@ -28,8 +34,8 @@ from .forms import (
     ReviewForm,
     TrackOrderForm,
     ContactForm,
-    UpdateProfileForm,
-    ChangePasswordForm, NeedsAssessmentForm
+    UpdateAccountForm,
+    ChangePasswordForm, NeedsAssessmentForm,
 )
 
 # Project - Models
@@ -56,34 +62,41 @@ from datetime import datetime
 from .forms import ParqForm
 from app.models import HealthScreening
 
+from flask import jsonify
 
+from sqlalchemy.sql import func
 @main.route('/')
 @main.route('/index')
 def index():
-    # 1. Lấy sản phẩm nổi bật (CHỈ LẤY SẢN PHẨM ĐANG ACTIVE)
-    featured_products = Product.query.filter(Product.is_active == True) \
-        .order_by(Product.id.desc()) \
-        .limit(8).all()
-
+    # 1. Các query cũ giữ nguyên
+    global func
+    featured_products = Product.query.filter(Product.is_active == True).order_by(Product.id.desc()).limit(8).all()
     categories = Category.query.all()
     latest_posts = Post.query.order_by(Post.timestamp.desc()).limit(2).all()
 
-    # 2. Lấy 3 đánh giá 5 SAO mới nhất
-    latest_reviews = Review.query.options(
-        db.joinedload(Review.author),
-        db.joinedload(Review.product)
-    ) \
-        .join(Product) \
-        .filter(Review.rating == 5) \
-        .filter(Product.is_active == True) \
-        .order_by(Review.timestamp.desc()) \
-        .limit(3).all()
-    # (Lưu ý: Mình thêm .join(Product) và filter is_active ở review luôn
-    # để tránh hiện review của sản phẩm đã xóa)
+    # Review 5 sao (giữ nguyên code của bạn)
+    latest_reviews = Review.query.options(db.joinedload(Review.author), db.joinedload(Review.product)).join(
+        Product).filter(Review.rating == 5, Product.is_active == True).order_by(Review.timestamp.desc()).limit(3).all()
+
+    # === 2. QUERY HOT DEAL (MỚI) ===
+    # Logic: Lấy Active -> Offset 15 (Bỏ 15 cái đầu) -> Limit 8 (Lấy 8 cái tiếp theo)
+    hot_deal_products = Product.query.filter(Product.is_active == True) \
+        .offset(15) \
+        .limit(8).all()
+
+    # Nếu database ít hơn 15 sản phẩm, list này sẽ rỗng.
+    # Fallback: Nếu rỗng thì lấy random 8 cái bất kỳ để không bị trống trang web
+    if not hot_deal_products:
+        from sqlalchemy.sql.expression import func
+        hot_deal_products = Product.query.filter(Product.is_active == True).order_by(func.random()).limit(8).all()
+
+    best_sellers = Product.query.filter(Product.is_active == True).order_by(func.random()).limit(4).all()
 
     return render_template('index.html',
                            products=featured_products,
+                           hot_deal_products=hot_deal_products,
                            categories=categories,
+                           best_sellers=best_sellers,
                            latest_posts=latest_posts,
                            latest_reviews=latest_reviews)
 
@@ -141,6 +154,7 @@ def add_to_cart(product_id):
     flash(msg, 'success')
     return redirect(request.referrer or url_for('main.index'))
 
+
 # === 3. XEM GIỎ HÀNG ===
 @main.route('/cart')
 def view_cart():
@@ -150,8 +164,6 @@ def view_cart():
         session.pop('is_buy_now', None)
     if 'buy_now_cart' in session:
         session.pop('buy_now_cart', None)
-
-
 
     cart = session.get('cart', {})
     if not cart:
@@ -423,6 +435,7 @@ def checkout():
                            items=items_for_display,
                            total_price=total_price)
 
+
 # === 5. TRANG HOÀN TẤT ĐƠN HÀNG ===
 @main.route('/order-complete/<int:order_id>')
 def order_complete(order_id):
@@ -435,7 +448,6 @@ def order_complete(order_id):
     ).filter_by(order_id=order.id).all()
 
     return render_template('order_complete.html', order=order, items=order_items)
-
 
 
 # Đổi <int:product_id> thành <string:slug>
@@ -543,6 +555,7 @@ def search():
                            current_category=category_filter,
                            current_price=price_range)
 
+
 @main.route('/category/<int:category_id>')
 def category_products(category_id):
     # 1. Lấy danh mục
@@ -550,9 +563,9 @@ def category_products(category_id):
 
     # 2. Lấy tất cả sản phẩm thuộc danh mục (CHỈ LẤY ACTIVE)
     # Lưu ý: category.products là query object (do lazy='dynamic')
-    products = category.products.filter(Product.is_active == True)\
-                                .order_by(Product.name.asc())\
-                                .all()
+    products = category.products.filter(Product.is_active == True) \
+        .order_by(Product.name.asc()) \
+        .all()
 
     return render_template('category_products.html',
                            category=category,
@@ -573,7 +586,8 @@ def blog_index():
     return render_template('blog_list.html',
                            title='Blog',
                            posts=posts,
-                           pagination=pagination) # <-- Gửi pagination
+                           pagination=pagination)  # <-- Gửi pagination
+
 
 @main.route('/blog/<int:post_id>')
 def blog_post(post_id):
@@ -585,22 +599,52 @@ def blog_post(post_id):
 main.route('/account')
 
 
-@main.route('/account')
-@login_required  # Chỉ người đã đăng nhập mới vào được
+@main.route("/account", methods=['GET', 'POST'])
+@login_required
 def account():
-    """Trang xem lịch sử đơn hàng của user."""
-    # Lấy tất cả đơn hàng của user hiện tại, sắp xếp mới nhất lên đầu
-    orders = Order.query.filter_by(customer=current_user) \
-        .order_by(Order.order_date.desc()) \
-        .all()
+    form = UpdateAccountForm()
 
-    return render_template('account.html',
-                           title='Tài khoản của tôi',
+    if form.validate_on_submit():
+        # 1. Xử lý ảnh Avatar nếu có upload
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            # Lưu ý: Bạn cần đảm bảo model User có cột avatar (hoặc image_file)
+            # Nếu model bạn tên là image_file thì sửa dòng dưới thành: current_user.image_file = picture_file
+            current_user.avatar = picture_file
+
+            # 2. Cập nhật thông tin cá nhân
+        current_user.full_name = form.full_name.data
+        current_user.phone = form.phone.data
+        current_user.address = form.address.data
+
+        db.session.commit()
+        flash('Tài khoản của bạn đã được cập nhật!', 'success')
+        return redirect(url_for('main.account'))
+
+    elif request.method == 'GET':
+        # 3. Điền sẵn dữ liệu cũ vào form khi mới mở trang
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.full_name.data = current_user.full_name
+        form.phone.data = current_user.phone
+        form.address.data = current_user.address
+
+    # 4. Lấy danh sách đơn hàng của user (Mới nhất lên đầu)
+    # Nếu chưa có model Order thì tạm thời để orders = []
+    try:
+        orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.date_ordered.desc()).all()
+    except:
+        orders = []
+
+    # QUAN TRỌNG: Phải truyền biến form=form sang template
+    return render_template('account.html', title='Tài khoản',
+                           form=form,
                            orders=orders)
+
 @main.route('/account/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    form_profile = UpdateProfileForm()
+    form_profile = UpdateAccountForm()
     form_pass = ChangePasswordForm()
 
     # --- XỬ LÝ FORM CẬP NHẬT THÔNG TIN ---
@@ -636,7 +680,8 @@ def profile():
                            form_profile=form_profile,
                            form_pass=form_pass)
 
-@main.route('/contact', methods=['GET', 'POST']) # <-- Thêm 'methods'
+
+@main.route('/contact', methods=['GET', 'POST'])  # <-- Thêm 'methods'
 def contact():
     """Trang Liên hệ (đã nâng cấp có Form)."""
     form = ContactForm()
@@ -660,6 +705,7 @@ def contact():
 
     # Nếu là GET request hoặc form có lỗi, chỉ hiển thị trang
     return render_template('contact.html', title='Liên hệ', form=form)
+
 
 @main.route('/terms')
 def terms():
@@ -883,7 +929,7 @@ def vnpay_ipn():
         # 6. XỬ LÝ THANH TOÁN
         if vnp_response_code == '00':
             # Thanh toán THÀNH CÔNG
-            order.status = 'Confirmed' # Hoặc 'Processing'
+            order.status = 'Confirmed'  # Hoặc 'Processing'
             order.is_paid = True
 
             # === TIẾN HÀNH TRỪ KHO (CHỈ KHI IPN THÀNH CÔNG) ===
@@ -918,13 +964,11 @@ def about_us():
     """Trang Về chúng tôi."""
     return render_template('about.html', title='Về Home Fit Pro')
 
+
 @main.route('/return-policy')
 def return_policy():
     """Trang Chính sách đổi trả."""
     return render_template('return_policy.html', title='Chính sách Đổi trả')
-
-
-
 
 
 @admin.route('/message/<int:message_id>')
@@ -1022,7 +1066,6 @@ def health_screening():
             form.q5.data, form.q6.data, form.q7.data
         ]
 
-
         # Nếu 'yes' xuất hiện trong danh sách -> Có rủi ro
         has_risk = 'yes' in answers
 
@@ -1072,29 +1115,80 @@ def health_result(result_id):
 
 
 @main.route('/consultation/needs', methods=['GET', 'POST'])
-@login_required
 def needs_assessment():
-    # Kiểm tra xem user đã làm PAR-Q chưa? (Tùy chọn, nhưng nên làm)
-    # last_screening = HealthScreening.query.filter_by(user_id=current_user.id).order_by(HealthScreening.timestamp.desc()).first()
-    # if not last_screening or last_screening.risk_detected:
-    #     flash('Vui lòng hoàn thành sàng lọc sức khỏe trước.', 'warning')
-    #     return redirect(url_for('main.health_screening'))
-
     form = NeedsAssessmentForm()
 
-    if form.validate_on_submit():
-        # Chuyển hướng sang trang kết quả kèm theo các tham số
-        return redirect(url_for('main.recommendation',
-                                goal=form.goal.data,
-                                space=form.space.data,
-                                budget=form.budget.data))
+    # Xử lý khi có Request POST (AJAX gửi lên)
+    if request.method == 'POST' and form.validate_on_submit():
+        # 1. Lấy dữ liệu từ form
+        goal = form.goal.data
+        space = form.space.data
+        budget = form.budget.data
+        experience = form.experience.data
+
+        # 2. Logic lọc sản phẩm (Copy từ hàm recommendation cũ sang)
+        query = Product.query.join(Product.category).filter(Product.is_active == True)
+
+        # --- Logic Goal ---
+        if goal == 'lose_weight' or goal == 'health':
+            query = query.filter(db.or_(Category.name.ilike('%máy%'), Category.name.ilike('%xe đạp%'),
+                                        Category.name.ilike('%dây nhảy%')))
+        elif goal == 'gain_muscle':
+            query = query.filter(
+                db.or_(Category.name.ilike('%tạ%'), Category.name.ilike('%giàn%'), Category.name.ilike('%ghế%')))
+        elif goal == 'recovery':
+            query = query.filter(
+                db.or_(Category.name.ilike('%thảm%'), Category.name.ilike('%yoga%'), Category.name.ilike('%roller%')))
+
+        # --- Logic Space ---
+        if space == 'small':
+            query = query.filter(~Category.name.ilike('%giàn tạ%'), ~Category.name.ilike('%máy chạy%'))
+
+        # --- Logic Experience ---
+        if experience == 'newbie':
+            # Ví dụ logic cho newbie
+            pass
+
+            # --- Logic Budget ---
+        if budget == 'low':
+            query = query.filter(Product.price < 1000000)
+        elif budget == 'medium':
+            query = query.filter(Product.price.between(1000000, 5000000))
+        elif budget == 'high':
+            query = query.filter(Product.price > 5000000)
+
+        # Lấy kết quả
+        products = query.limit(6).all()
+
+        # Fallback: Nếu không tìm thấy, lấy 4 sản phẩm ngẫu nhiên
+        if not products:
+            products = Product.query.filter(Product.is_active == True).limit(4).all()
+
+        # 3. Chuyển đổi dữ liệu thành JSON để gửi về cho Javascript
+        products_data = []
+        for p in products:
+            # Xử lý ảnh (để JS hiển thị đúng)
+            img_src = p.image_url
+            if not img_src.startswith('http'):
+                img_src = url_for('static', filename=img_src)
+
+            products_data.append({
+                'id': p.id,
+                'name': p.name,
+                'price': p.price,
+                'image': img_src,
+                'slug': p.slug,
+                'category': p.category.name if p.category else ''
+            })
+
+        return jsonify({'status': 'success', 'products': products_data})
 
     return render_template('consultation/needs.html', title='Đánh giá Nhu cầu', form=form)
 
 
 # === BƯỚC 3: TRANG GỢI Ý SẢN PHẨM ===
 @main.route('/consultation/recommendation')
-@login_required
+# @login_required
 def recommendation():
     goal = request.args.get('goal')
     space = request.args.get('space')
@@ -1173,3 +1267,18 @@ def force_fix_db():
     except Exception as e:
         db.session.rollback()
         return f"Lỗi: {str(e)}"
+
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+
+    # Lưu vào thư mục static/profile_pics
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+
+    # Tạo thư mục nếu chưa có
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+
+    form_picture.save(picture_path)
+    return picture_fn

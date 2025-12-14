@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, RadioField, IntegerField, PasswordField
+from flask_wtf.file import FileAllowed
+from wtforms import StringField, TextAreaField, SubmitField, RadioField, IntegerField, PasswordField, FileField
 from wtforms.validators import DataRequired, Email, Length, InputRequired, EqualTo, Optional
 from wtforms import RadioField
 
@@ -78,14 +79,18 @@ class ContactForm(FlaskForm):
     message = TextAreaField('Nội dung tin nhắn', validators=[DataRequired(message="Vui lòng nhập nội dung.")])
     submit = SubmitField('Gửi tin nhắn')
 
-class UpdateProfileForm(FlaskForm):
-        """Form cập nhật thông tin cá nhân."""
-        full_name = StringField('Họ và Tên', validators=[DataRequired()])
-        email = StringField('Email', validators=[DataRequired(), Email()],
-                            render_kw={'readonly': True})  # Email thường không cho đổi để tránh rắc rối
-        phone = StringField('Số điện thoại', validators=[DataRequired(), Length(min=9, max=11)])
-        address = TextAreaField('Địa chỉ mặc định', validators=[DataRequired()])
-        submit_profile = SubmitField('Cập nhật Thông tin')
+
+class UpdateAccountForm(FlaskForm):
+    username = StringField('Tên đăng nhập', render_kw={'readonly': True})
+    email = StringField('Email', render_kw={'readonly': True})
+
+    full_name = StringField('Họ và tên', validators=[DataRequired(), Length(min=2, max=50)])
+    phone = StringField('Số điện thoại', validators=[Length(max=15)])
+    address = StringField('Địa chỉ giao hàng', validators=[Length(max=200)])
+
+    picture = FileField('Cập nhật Avatar', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
+
+    submit = SubmitField('Lưu thay đổi')
 
 class ChangePasswordForm(FlaskForm):
         """Form đổi mật khẩu (yêu cầu mật khẩu cũ)."""

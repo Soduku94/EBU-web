@@ -5,17 +5,21 @@
 {% block content %}
 <div class="container product-detail-section">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4 fade-in">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" class="text-decoration-none">Trang chủ</a>
+    <nav aria-label="breadcrumb" class="mb-3 mb-md-4 fade-in">
+        <ol class="breadcrumb breadcrumb-scroll">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('main.index') }}" class="text-decoration-none text-muted">
+                    <i class="bi bi-house-door-fill"></i> </a>
             </li>
             <li class="breadcrumb-item">
                 <a href="{{ url_for('main.category_products', category_id=product.category.id) }}"
-                    class="text-decoration-none">
+                   class="text-decoration-none text-muted">
                     {{ product.category.name }}
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+            <li class="breadcrumb-item active active-item" aria-current="page" title="{{ product.name }}">
+                {{ product.name }}
+            </li>
         </ol>
     </nav>
 
@@ -38,8 +42,8 @@
 
             {# --- BƯỚC 2: HIỂN THỊ CAROUSEL (SLIDER) --- #}
             <div id="productCarousel"
-                class="carousel slide product-detail-image-wrapper shadow-sm rounded overflow-hidden"
-                data-bs-ride="false">
+                 class="carousel slide product-detail-image-wrapper shadow-sm rounded overflow-hidden"
+                 data-bs-ride="false">
 
                 <div class="carousel-inner h-100">
                     {% if all_images %}
@@ -49,26 +53,26 @@
                         <img src="{{ img_url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
                         {% else %}
                         <img src="{{ url_for('static', filename=img_url) }}"
-                            class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
+                             class="d-block w-100 h-100 object-fit-cover" alt="{{ product.name }}">
                         {% endif %}
                     </div>
                     {% endfor %}
                     {% else %}
                     <div class="carousel-item active h-100">
                         <img src="https://via.placeholder.com/800x600.png?text=No+Image"
-                            class="d-block w-100 h-100 object-fit-cover">
+                             class="d-block w-100 h-100 object-fit-cover">
                     </div>
                     {% endif %}
                 </div>
 
                 {% if all_images|length > 1 %}
                 <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel"
-                    data-bs-slide="prev">
+                        data-bs-slide="prev">
                     <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
                     <span class="visually-hidden">Previous</span>
                 </button>
                 <button class="carousel-control-next" type="button" data-bs-target="#productCarousel"
-                    data-bs-slide="next">
+                        data-bs-slide="next">
                     <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
@@ -81,12 +85,12 @@
                 {% for img_url in all_images %}
                 <div class="col-3 col-md-2">
                     <div class="thumbnail-wrapper rounded border cursor-pointer {{ 'border-primary border-2' if loop.first else '' }}"
-                        onclick="switchSlide({{ loop.index0 }}, this)">
+                         onclick="switchSlide({{ loop.index0 }}, this)">
                         {% if img_url.startswith('http') %}
                         <img src="{{ img_url }}" class="w-100 h-100 object-fit-cover rounded">
                         {% else %}
                         <img src="{{ url_for('static', filename=img_url) }}"
-                            class="w-100 h-100 object-fit-cover rounded">
+                             class="w-100 h-100 object-fit-cover rounded">
                         {% endif %}
                     </div>
                 </div>
@@ -98,7 +102,7 @@
         <div class="col-lg-6">
             <div class="product-info fade-in" style="animation-delay: 0.2s;">
                 <a href="{{ url_for('main.category_products', category_id=product.category.id) }}"
-                    class="product-category-badge">
+                   class="product-category-badge">
                     {{ product.category.name }}
                 </a>
 
@@ -133,7 +137,7 @@
 
                 {% if product.stock > 0 %}
                 <form action="{{ url_for('main.add_to_cart', product_id=product.id) }}" method="POST"
-                    class="ajax-add-cart">
+                      class="ajax-add-cart">
                     <div class="mb-4">
                         <label class="form-label fw-bold mb-2">Số lượng:</label>
                         <div class="quantity-selector-modern">
@@ -141,7 +145,7 @@
                                 <i class="bi bi-dash"></i>
                             </button>
                             <input type="number" class="quantity-input-modern" value="1" min="1"
-                                max="{{ product.stock }}" name="quantity" id="quantity-input" readonly>
+                                   max="{{ product.stock }}" name="quantity" id="quantity-input" readonly>
                             <button class="btn-quantity" type="button" id="button-increase">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -156,22 +160,22 @@
 
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.toggle_wishlist', product_id=product.id) }}"
-                                class="btn-wishlist-modern {{ 'active' if product in current_user.liked_products else '' }}"
-                                title="{{ 'Bỏ thích' if product in current_user.liked_products else 'Yêu thích' }}"
-                                style="flex: 0 0 55px; width: 55px; height: 55px;">
+                               class="btn-wishlist-modern {{ 'active' if product in current_user.liked_products else '' }}"
+                               title="{{ 'Bỏ thích' if product in current_user.liked_products else 'Yêu thích' }}"
+                               style="flex: 0 0 55px; width: 55px; height: 55px;">
                                 <i
-                                    class="bi {{ 'bi-heart-fill' if product in current_user.liked_products else 'bi-heart' }}"></i>
+                                        class="bi {{ 'bi-heart-fill' if product in current_user.liked_products else 'bi-heart' }}"></i>
                             </a>
                             {% else %}
                             <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-wishlist-modern"
-                                title="Đăng nhập để lưu tin" style="flex: 0 0 55px; width: 55px; height: 55px;">
+                               title="Đăng nhập để lưu tin" style="flex: 0 0 55px; width: 55px; height: 55px;">
                                 <i class="bi bi-heart"></i>
                             </a>
                             {% endif %}
                         </div>
 
                         <button type="submit" class="btn-buy-now-modern w-100"
-                            formaction="{{ url_for('main.buy_now', product_id=product.id) }}">
+                                formaction="{{ url_for('main.buy_now', product_id=product.id) }}">
                             <i class="bi bi-lightning-charge-fill"></i> Mua Ngay
                         </button>
                     </div>
@@ -207,95 +211,142 @@
         </div>
     </div>
 
-    <!-- Reviews Section -->
-    <div class="reviews-section-modern fade-in" style="animation-delay: 0.4s;">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <h3 class="fw-bold mb-4">Đánh giá sản phẩm</h3>
-                <div class="card border-0 shadow-sm p-4 text-center">
-                    <div class="display-1 fw-bold text-primary">4.5</div>
-                    <div class="text-warning fs-4 mb-2">
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-half"></i>
-                    </div>
-                    <p class="text-muted">{{ reviews|length }} lượt đánh giá</p>
-                    <hr>
+    <div class="reviews-section-modern fade-in mt-5" style="animation-delay: 0.2s;">
+        <div class="container">
+            <h3 class="fw-bold mb-4 border-start border-4 border-primary ps-3">Đánh giá từ khách hàng</h3>
 
-                    {% if current_user.is_authenticated %}
-                    <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#reviewForm">
-                        Viết đánh giá
-                    </button>
-                    {% else %}
-                    <a href="{{ url_for('auth.login', next=request.url) }}" class="btn btn-outline-primary w-100">
-                        Đăng nhập để đánh giá
-                    </a>
-                    {% endif %}
+            <div class="row g-4">
+                <div class="col-lg-4">
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                        <div class="card-body p-4 text-center">
+                            <div class="display-3 fw-bold text-dark mb-0">4.5</div>
+                            <div class="text-warning fs-4 mb-2">
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-half"></i>
+                            </div>
+                            <p class="text-muted small mb-3">Dựa trên {{ reviews|length }} lượt đánh giá</p>
+
+                            <div class="d-grid">
+                                {% if current_user.is_authenticated %}
+                                <button class="btn btn-primary rounded-pill fw-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#reviewForm">
+                                    <i class="bi bi-pencil-square me-2"></i>Viết đánh giá
+                                </button>
+                                {% else %}
+                                <a href="{{ url_for('auth.login', next=request.url) }}"
+                                   class="btn btn-outline-primary rounded-pill fw-bold">
+                                    Đăng nhập để đánh giá
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapse" id="reviewForm">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-light">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-3">Gửi nhận xét của bạn</h5>
+                                <form method="POST">
+                                    {{ form.hidden_tag() }}
+
+                                    <div class="mb-3">
+                                        <label class="form-label small text-muted fw-bold text-uppercase">Chọn số
+                                            sao</label>
+                                        <div class="star-rating-input">
+                                            {# WTForms thường render radio ngược chiều để dùng CSS trick, ta đảo thứ tự
+                                            trong CSS #}
+                                            {% for subfield in form.rating|reverse %}
+                                            {{ subfield }}
+                                            {{ subfield.label }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small text-muted fw-bold text-uppercase">Nội
+                                            dung</label>
+                                        {{ form.comment(class="form-control border-0 shadow-none p-3", rows=4,
+                                        placeholder="Sản phẩm dùng thế nào? Chất lượng ra sao?", style="border-radius:
+                                        12px;") }}
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-dark rounded-pill fw-bold">Gửi ngay
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Review Form -->
-                <div class="collapse mt-3" id="reviewForm">
-                    <div class="card card-body border-0 shadow-sm">
-                        <form method="POST">
-                            {{ form.hidden_tag() }}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Đánh giá của bạn</label>
-                                <div class="rating-stars">
-                                    {% for subfield in form.rating %}
-                                    <div class="form-check form-check-inline">
-                                        {{ subfield(class="form-check-input") }}
-                                        {{ subfield.label(class="form-check-label") }}
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0">Bình luận mới nhất ({{ reviews|length }})</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-pill px-3 dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                Mới nhất
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if reviews %}
+                    <div class="review-list d-flex flex-column gap-3">
+                        {% for review in reviews %}
+                        <div class="card border-0 shadow-sm rounded-4 review-card">
+                            <div class="card-body p-3 p-md-4">
+                                <div class="d-flex gap-3">
+                                    <div class="flex-shrink-0">
+                                        {% if review.author.avatar %}
+                                        <img src="{{ url_for('static', filename='profile_pics/' + review.author.avatar) }}"
+                                             class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                        {% else %}
+                                        <div class="avatar-placeholder rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-5"
+                                             style="width: 50px; height: 50px;">
+                                            {{ review.author.username[0]|upper }}
+                                        </div>
+                                        {% endif %}
                                     </div>
-                                    {% endfor %}
+
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-1">
+                                            <h6 class="fw-bold mb-0">{{ review.author.full_name or
+                                                review.author.username }}</h6>
+                                            <small class="text-muted" style="font-size: 0.8rem;">{{
+                                                review.timestamp.strftime('%d/%m/%Y') }}</small>
+                                        </div>
+
+                                        <div class="mb-2 text-warning" style="font-size: 0.9rem;">
+                                            {% for _ in range(review.rating) %}<i class="bi bi-star-fill"></i>{% endfor
+                                            %}
+                                            {% for _ in range(5 - review.rating) %}<i
+                                                class="bi bi-star text-muted opacity-25"></i>{% endfor %}
+                                        </div>
+
+                                        <p class="text-dark mb-0" style="line-height: 1.6;">{{ review.comment }}</p>
+
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                {{ form.comment(class="form-control", rows=3, placeholder="Chia sẻ cảm nhận của bạn...")
-                                }}
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm">Gửi đánh giá</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-8">
-                <h4 class="fw-bold mb-4">Bình luận mới nhất</h4>
-                {% if reviews %}
-                {% for review in reviews %}
-                <div class="review-card-modern">
-                    <div class="review-header">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="avatar-circle bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 40px; height: 40px;">
-                                <i class="bi bi-person-fill text-muted"></i>
-                            </div>
-                            <div>
-                                <div class="review-author">{{ review.author.username }}</div>
-                                <div class="review-date">{{ review.timestamp.strftime('%d/%m/%Y') }}</div>
-                            </div>
                         </div>
-                        <div class="review-rating">
-                            {% for _ in range(review.rating) %}<i class="bi bi-star-fill"></i>{% endfor %}
-                            {% for _ in range(5 - review.rating) %}<i class="bi bi-star"></i>{% endfor %}
-                        </div>
+                        {% endfor %}
                     </div>
-                    <p class="review-text text-secondary mb-0">{{ review.comment }}</p>
+                    {% else %}
+                    <div class="text-center py-5 bg-light rounded-4 border border-dashed">
+                        <i class="bi bi-chat-heart text-muted" style="font-size: 3rem; opacity: 0.5;"></i>
+                        <h5 class="fw-bold mt-3 text-muted">Chưa có đánh giá nào</h5>
+                        <p class="text-muted small">Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này!</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endfor %}
-                {% else %}
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-chat-square-text fs-1 mb-3 d-block"></i>
-                    Chưa có đánh giá nào. Hãy là người đầu tiên!
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
-
     <!-- Related Products -->
     {% if related_products %}
     <div class="related-products-header fade-in" style="animation-delay: 0.6s;">
@@ -311,10 +362,10 @@
                 <div class="product-badge">Hot</div>
                 <div class="product-image-wrapper">
                     <img src="{{ rel_prod.image_url or 'https://via.placeholder.com/300x200.png?text=Home+Fit+Pro' }}"
-                        alt="{{ rel_prod.name }}">
+                         alt="{{ rel_prod.name }}">
                     <div class="product-image-overlay">
                         <a href="{{ url_for('main.product_detail', slug=rel_prod.slug) }}" class="quick-action-btn"
-                            title="Xem chi tiết">
+                           title="Xem chi tiết">
                             <i class="bi bi-eye"></i>
                         </a>
                     </div>
@@ -325,7 +376,7 @@
                 </div>
                 <div class="product-card-footer">
                     <a href="{{ url_for('main.product_detail', slug=rel_prod.slug) }}"
-                        class="btn-product-primary w-100">
+                       class="btn-product-primary w-100">
                         Xem chi tiết
                     </a>
                 </div>
@@ -348,7 +399,7 @@
                     entry.target.classList.add('visible');
                 }
             });
-        }, { threshold: 0.1 });
+        }, {threshold: 0.1});
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
@@ -376,7 +427,6 @@
             });
         }
     });
-
 
 
     // Hàm chuyển slide khi nhấn vào thumbnail
@@ -465,7 +515,7 @@
             margin-bottom: 1rem;
         }
 
-        .breadcrumb-item+.breadcrumb-item::before {
+        .breadcrumb-item + .breadcrumb-item::before {
             padding: 0 0.25rem;
         }
 
@@ -496,7 +546,7 @@
             /* Chrome/Safari */
         }
 
-        .row.mt-2.g-2>.col-3 {
+        .row.mt-2.g-2 > .col-3 {
             flex: 0 0 auto;
             width: 80px;
         }
@@ -697,7 +747,7 @@
             height: 60px;
         }
 
-        .row.mt-2.g-2>.col-3 {
+        .row.mt-2.g-2 > .col-3 {
             width: 70px;
         }
 
@@ -725,7 +775,7 @@
         }
 
         /* Related Products - 2 columns */
-        .row.g-4>div[class*="col-"] {
+        .row.g-4 > div[class*="col-"] {
             flex: 0 0 50%;
             max-width: 50%;
         }
@@ -823,7 +873,7 @@
             /* Chrome/Safari */
         }
 
-        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4>.col {
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4 > .col {
             flex: 0 0 auto;
             width: 250px;
             scroll-snap-align: start;
@@ -836,7 +886,7 @@
     }
 
     @media (max-width: 576px) {
-        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4>.col {
+        .row.row-cols-1.row-cols-md-2.row-cols-lg-4.g-4 > .col {
             width: 200px;
         }
     }

@@ -8,9 +8,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -117,542 +117,585 @@
 </head>
 
 <body>
-    <!-- MODERN NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top"
-        style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}"
-                style="font-size: 1.5rem; background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                Home Fit Pro
-            </a>
+<!-- MODERN NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top"
+     style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}"
+           style="font-size: 1.5rem; background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            Home Fit Pro
+        </a>
 
-            <!-- Spacer to push cart and hamburger to the right on mobile -->
-            <div class="ms-auto d-lg-none"></div>
+        <!-- Spacer to push cart and hamburger to the right on mobile -->
+        <div class="ms-auto d-lg-none"></div>
 
-            <!-- Mobile Cart Icon (Always Visible, right before hamburger) -->
-            <a class="nav-link cart-link-modern d-lg-none" href="{{ url_for('main.view_cart') }}"
-                style="position: relative; padding: 0.5rem;">
-                <i class="bi bi-cart3" style="font-size: 1.5rem;"></i>
-                <span id="cart-badge-mobile" class="cart-badge-modern"
-                    style="{{ 'display: none;' if cart_count == 0 else '' }}">
+        <!-- Mobile Cart Icon (Always Visible, right before hamburger) -->
+        <a class="nav-link cart-link-modern d-lg-none" href="{{ url_for('main.view_cart') }}"
+           style="position: relative; padding: 0.5rem;">
+            <i class="bi bi-cart3" style="font-size: 1.5rem;"></i>
+            <span id="cart-badge-mobile" class="cart-badge-modern"
+                  style="{{ 'display: none;' if cart_count == 0 else '' }}">
                     {{ cart_count if cart_count > 0 else '' }}
                 </span>
-            </a>
+        </a>
 
-            <!-- Bootstrap Default Toggler -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        <!-- Bootstrap Default Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
 
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-modern" href="{{ url_for('main.index') }}">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-modern" href="{{ url_for('main.blog_index') }}">Blog</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-modern" href="{{ url_for('main.health_screening') }}">Tư vấn</a>
-                    </li>
-                </ul>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link nav-link-modern" href="{{ url_for('main.index') }}">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-modern" href="{{ url_for('main.blog_index') }}">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-modern" href="{{ url_for('main.health_screening') }}">Tư vấn</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-modern" href="{{ url_for('main.needs_assessment') }}">Mục tiêu và nhu
+                        cầu </a>
+                </li>
+            </ul>
 
-                <form action="{{ url_for('main.search') }}" method="GET" class="search-form-modern me-3">
-                    <input type="text" class="form-control" placeholder="Tìm sản phẩm..." name="q"
-                        value="{{ request.args.get('q', '') }}">
-                    <button type="submit" class="btn">Tìm</button>
-                </form>
+            <form action="{{ url_for('main.search') }}" method="GET" class="search-form-modern me-3">
+                <input type="text" class="form-control" placeholder="Tìm sản phẩm..." name="q"
+                       value="{{ request.args.get('q', '') }}">
+                <button type="submit" class="btn">Tìm</button>
+            </form>
 
-                <ul class="navbar-nav">
-                    <!-- Desktop Cart Icon (Hidden on Mobile) -->
-                    <li class="nav-item d-none d-lg-block">
-                        <a class="nav-link nav-link-modern cart-link-modern" href="{{ url_for('main.view_cart') }}">
-                            <i class="bi bi-cart3"></i> Giỏ hàng
-                            <span id="cart-badge" class="cart-badge-modern"
-                                style="{{ 'display: none;' if cart_count == 0 else '' }}">
+            <ul class="navbar-nav">
+                <!-- Desktop Cart Icon (Hidden on Mobile) -->
+                <li class="nav-item d-none d-lg-block">
+                    <a class="nav-link nav-link-modern cart-link-modern" href="{{ url_for('main.view_cart') }}">
+                        <i class="bi bi-cart3"></i> Giỏ hàng
+                        <span id="cart-badge" class="cart-badge-modern"
+                              style="{{ 'display: none;' if cart_count == 0 else '' }}">
                                 {{ cart_count if cart_count > 0 else '' }}
                             </span>
-                        </a>
-                    </li>
+                    </a>
+                </li>
 
-                    <!-- LOGGED IN USER -->
-                    {% if current_user.is_authenticated %}
+                <!-- LOGGED IN USER -->
+                {% if current_user.is_authenticated %}
 
-                    <!-- Wishlist (Keep separate as requested 'normal') -->
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-modern" href="{{ url_for('main.view_wishlist') }}"
-                            title="Danh sách yêu thích">
-                            <i class="bi bi-heart-fill wishlist-icon"></i>
-                        </a>
-                    </li>
+                <!-- Wishlist (Keep separate as requested 'normal') -->
+                <li class="nav-item">
+                    <a class="nav-link nav-link-modern" href="{{ url_for('main.view_wishlist') }}"
+                       title="Danh sách yêu thích">
+                        <i class="bi bi-heart-fill wishlist-icon"></i>
+                    </a>
+                </li>
 
-                    <!-- User Account Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link nav-link-modern " href="#" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('main.account') }}">
-                                    <i class="bi bi-person flex-shrink-0 me-2"></i> Hồ sơ cá nhân
-                                </a>
-                            </li>
-                            {% if current_user.role.name == 'Admin' %}
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('admin.index') }}">
-                                    <i class="bi bi-shield-check flex-shrink-0 me-2"></i> Trang Admin
-                                </a>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#logoutModal"><i
-                                        class="bi bi-box-arrow-right flex-shrink-0 ms-2"></i>
-                                    Đăng xuất
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                <!-- User Account Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-link-modern " href="#" id="userDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('main.account') }}">
+                                <i class="bi bi-person flex-shrink-0 me-2"></i> Hồ sơ cá nhân
+                            </a>
+                        </li>
+                        {% if current_user.role.name == 'Admin' %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('admin.index') }}">
+                                <i class="bi bi-shield-check flex-shrink-0 me-2"></i> Trang Admin
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
+                               data-bs-target="#logoutModal"><i
+                                    class="bi bi-box-arrow-right flex-shrink-0 ms-2"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                    <!-- GUEST USER -->
-                    {% else %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link nav-link-modern dropdown-toggle" href="#" id="guestDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> Tài khoản
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="guestDropdown">
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('auth.login') }}">
-                                    <i class="bi bi-box-arrow-in-right flex-shrink-0 me-2"></i> Đăng nhập
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('auth.register') }}">
-                                    <i class="bi bi-person-plus flex-shrink-0 me-2"></i> Đăng ký
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
+                <!-- GUEST USER -->
+                {% else %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-link-modern dropdown-toggle" href="#" id="guestDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> Tài khoản
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="guestDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('auth.login') }}">
+                                <i class="bi bi-box-arrow-in-right flex-shrink-0 me-2"></i> Đăng nhập
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('auth.register') }}">
+                                <i class="bi bi-person-plus flex-shrink-0 me-2"></i> Đăng ký
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
     </div>
+</nav>
 
-    <!-- MODERN FOOTER -->
-    <footer class="footer-modern">
-        <div class="container">
-            <div class="row">
-                <!-- Brand Section -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="footer-brand-modern">Home Fit Pro</div>
-                    <p class="footer-description">
-                        Chuyên cung cấp các thiết bị tập luyện tại nhà chất lượng cao,
-                        giúp bạn đạt được mục tiêu sức khỏe và fitness của mình.
-                    </p>
-                    <div class="social-links">
-                        <a href="https://www.facebook.com/dung.vu.935071/" class="social-link" target="_blank">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="https://www.instagram.com/dvu69906/" class="social-link" target="_blank">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="https://www.youtube.com/@dungsinh3779" class="social-link" target="_blank">
-                            <i class="bi bi-youtube"></i>
-                        </a>
-                        <a href="{{ url_for('main.contact') }}" class="social-link">
-                            <i class="bi bi-envelope"></i>
-                        </a>
-                    </div>
+<div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<!-- MODERN FOOTER -->
+<footer class="footer-modern">
+    <div class="container">
+        <div class="row">
+            <!-- Brand Section -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="footer-brand-modern">Home Fit Pro</div>
+                <p class="footer-description">
+                    Chuyên cung cấp các thiết bị tập luyện tại nhà chất lượng cao,
+                    giúp bạn đạt được mục tiêu sức khỏe và fitness của mình.
+                </p>
+
+                <div class="social-links mb-3">
+                    <a href="https://www.facebook.com/dung.vu.935071/" class="social-link" target="_blank"
+                       title="Facebook">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/dvu69906/" class="social-link" target="_blank" title="Instagram">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@dungsinh3779" class="social-link" target="_blank" title="Youtube">
+                        <i class="bi bi-youtube"></i>
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="social-link" title="Email">
+                        <i class="bi bi-envelope"></i>
+                    </a>
                 </div>
 
-                <!-- Support Links -->
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5 class="footer-heading">Hỗ trợ</h5>
-                    <a href="{{ url_for('main.advice') }}" class="footer-link">Tư vấn & FAQs</a>
-                    <a href="{{ url_for('main.terms') }}" class="footer-link">Điều khoản</a>
-                    <a href="{{ url_for('main.return_policy') }}" class="footer-link">Chính sách đổi trả</a>
-                    <a href="{{ url_for('main.about_us') }}" class="footer-link">Về chúng tôi</a>
-                </div>
+                <div class="social-links">
+                    <a href="#" class="social-link" target="_blank" title="Ghé thăm Shopee">
+                        <img src="https://e7.pngegg.com/pngimages/631/197/png-clipart-logo-shopee-indonesia-online-shopping-brand-shopee-platform-text-trademark-thumbnail.png"
+                             alt="Shopee"
+                             style="width: 20px; height: 20px; object-fit: contain;">
+                    </a>
 
-                <!-- Quick Links -->
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5 class="footer-heading">Liên kết</h5>
-                    <a href="{{ url_for('main.index') }}" class="footer-link">Trang chủ</a>
-                    <a href="{{ url_for('main.blog_index') }}" class="footer-link">Blog</a>
-                    <a href="{{ url_for('main.health_screening') }}" class="footer-link">Tư vấn</a>
-                    <a href="{{ url_for('main.contact') }}" class="footer-link">Liên hệ</a>
-                </div>
+                    <a href="#" class="social-link" target="_blank" title="Ghé thăm Lazada">
+                        <img src="https://classic.vn/wp-content/uploads/2022/04/logo-lazada.png"
+                             alt="Lazada"
+                             style="width: 24px; height: 24px; object-fit: contain;">
+                    </a>
 
-                <!-- Map -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="footer-heading">Vị trí</h5>
-                    <div class="footer-map">
-                        <iframe
+                    <a href="#" class="social-link" target="_blank" title="Ghé thăm TikTok Shop">
+                        <i class="bi bi-tiktok"></i>
+                    </a>
+
+                    <a href="#" class="social-link" target="_blank" title="Ghé thăm Tiki">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYCQ5JVmYLvEXcaRltrNNapCu2Qeld8H5nBg&s"
+                             alt="Tiki"
+                             style="width: 22px; height: 22px; object-fit: contain;">
+                    </a>
+                </div>
+            </div>
+
+            <!-- Support Links -->
+            <div class="col-6 col-lg-2 col-md-6 mb-4">
+                <h5 class="footer-heading">Hỗ trợ</h5>
+                <a href="{{ url_for('main.advice') }}" class="footer-link">Tư vấn & FAQs</a>
+                <a href="{{ url_for('main.terms') }}" class="footer-link">Điều khoản</a>
+                <a href="{{ url_for('main.return_policy') }}" class="footer-link">Chính sách đổi trả</a>
+                <a href="{{ url_for('main.about_us') }}" class="footer-link">Về chúng tôi</a>
+            </div>
+            <!--Quick links-->
+            <div class="col-6 col-lg-2 col-md-6 mb-4">
+                <h5 class="footer-heading">Liên kết</h5>
+                <a href="{{ url_for('main.index') }}" class="footer-link">Trang chủ</a>
+                <a href="{{ url_for('main.blog_index') }}" class="footer-link">Blog</a>
+                <a href="{{ url_for('main.health_screening') }}" class="footer-link">Tư vấn</a>
+                <a href="{{ url_for('main.contact') }}" class="footer-link">Liên hệ</a>
+            </div>
+
+            <!-- Map -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <h5 class="footer-heading">Vị trí</h5>
+                <div class="footer-map">
+                    <iframe
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5258.692088143287!2d105.79199239159904!3d20.987949997900824!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135adb29ed54487%3A0xbe22035eae87b5d7!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBIw6AgTuG7mWk!5e1!3m2!1svi!2s!4v1763227791704!5m2!1svi!2s"
                             allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
                 </div>
             </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 Home Fit Pro. Tất cả quyền được bảo lưu. Made with <i class="bi bi-heart-fill"
-                        style="color: #FF6B35;"></i> in Vietnam</p>
-            </div>
         </div>
-    </footer>
-    <!-- Custom Scripts -->
-    {% block scripts %}
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 Home Fit Pro. Tất cả quyền được bảo lưu. Made with <i class="bi bi-heart-fill"
+                                                                                 style="color: #FF6B35;"></i> in Vietnam
+            </p>
+        </div>
+    </div>
+</footer>
+<!-- Custom Scripts -->
+{% block scripts %}
 
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
 
-            // 1. Tìm tất cả các form có class 'ajax-add-cart'
-            // (Chúng ta sẽ thêm class này vào các form ở bước 4)
-            const ajaxForms = document.querySelectorAll('.ajax-add-cart');
+        // 1. Tìm tất cả các form có class 'ajax-add-cart'
+        // (Chúng ta sẽ thêm class này vào các form ở bước 4)
+        const ajaxForms = document.querySelectorAll('.ajax-add-cart');
 
-            // Khởi tạo Toast của Bootstrap
-            const toastEl = document.getElementById('liveToast');
-            const toastBody = document.getElementById('toast-message');
-            // Kiểm tra xem thư viện Bootstrap có sẵn sàng không
-            let bsToast = null;
-            if (typeof bootstrap !== 'undefined' && toastEl) {
-                bsToast = new bootstrap.Toast(toastEl);
-            }
+        // Khởi tạo Toast của Bootstrap
+        const toastEl = document.getElementById('liveToast');
+        const toastBody = document.getElementById('toast-message');
+        // Kiểm tra xem thư viện Bootstrap có sẵn sàng không
+        let bsToast = null;
+        if (typeof bootstrap !== 'undefined' && toastEl) {
+            bsToast = new bootstrap.Toast(toastEl);
+        }
 
-            ajaxForms.forEach(form => {
-                form.addEventListener('submit', function (e) {
+        ajaxForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
 
-                    if (e.submitter && e.submitter.innerText.includes('Mua Ngay')) {
-                        // Nếu là nút "Mua Ngay", KHÔNG chặn, để nó chạy bình thường
-                        return;
-                    }
-                    e.preventDefault(); // CHẶN tải lại trang!
-
-                    const url = form.action;
-                    const formData = new FormData(form);
-
-                    // Gửi request ngầm (Fetch API)
-                    fetch(url, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            // Header này báo cho server biết đây là AJAX
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                // 1. Cập nhật số lượng trên Badge
-                                const badge = document.getElementById('cart-badge');
-                                if (badge) {
-                                    badge.textContent = data.cart_count; // Điền số mới
-                                    badge.style.display = 'inline-block'; // Hiện badge lên (nếu đang ẩn)
-                                }
-
-                                // 2. Hiện Toast thông báo thành công
-                                if (bsToast) {
-                                    toastEl.classList.remove('bg-danger');
-                                    toastEl.classList.add('bg-success');
-                                    toastBody.textContent = data.message;
-                                    bsToast.show();
-                                }
-                            } else if (data.status === 'error') {
-                                // Hiện Toast lỗi
-                                if (bsToast) {
-                                    toastEl.classList.remove('bg-success');
-                                    toastEl.classList.add('bg-danger');
-                                    toastBody.textContent = data.message;
-                                    bsToast.show();
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                });
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // === SPEED DIAL & SCROLL LOGIC ===
-            const toggleBtn = document.getElementById('floating-toggle');
-            const widgetContainer = document.getElementById('floating-widget');
-            const scrollBtn = document.getElementById('scroll-top-btn');
-
-            // Toggle Menu
-            if (toggleBtn && widgetContainer) {
-                toggleBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    widgetContainer.classList.toggle('open');
-                    toggleBtn.classList.toggle('active');
-
-                    // Toggle Icon
-                    const icon = toggleBtn.querySelector('i');
-                    if (toggleBtn.classList.contains('active')) {
-                        icon.classList.remove('bi-chat-fill');
-                        icon.classList.add('bi-x-lg');
-                    } else {
-                        icon.classList.remove('bi-x-lg');
-                        icon.classList.add('bi-chat-fill');
-                    }
-                });
-
-                // Close when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!widgetContainer.contains(e.target) && widgetContainer.classList.contains('open')) {
-                        widgetContainer.classList.remove('open');
-                        toggleBtn.classList.remove('active');
-                        const icon = toggleBtn.querySelector('i');
-                        icon.classList.remove('bi-x-lg');
-                        icon.classList.add('bi-chat-fill');
-                    }
-                });
-            }
-
-            // Scroll Top Visibility
-            window.addEventListener('scroll', function () {
-                if (window.scrollY > 300) {
-                    scrollBtn.style.display = 'flex';
-                    setTimeout(() => scrollBtn.style.opacity = '1', 10);
-                } else {
-                    scrollBtn.style.opacity = '0';
-                    setTimeout(() => {
-                        if (window.scrollY <= 300) scrollBtn.style.display = 'none';
-                    }, 300);
+                if (e.submitter && e.submitter.innerText.includes('Mua Ngay')) {
+                    // Nếu là nút "Mua Ngay", KHÔNG chặn, để nó chạy bình thường
+                    return;
                 }
-            });
+                e.preventDefault(); // CHẶN tải lại trang!
 
-            scrollBtn.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+                const url = form.action;
+                const formData = new FormData(form);
 
-            // === AI CHAT LOGIC ===
-            // 1. Mở/Đóng cửa sổ chat
-            const bubble = document.getElementById('chat-bubble');
-            const chatWindow = document.getElementById('chat-window');
-            const closeChatBtn = document.getElementById('close-chat-btn');
-            const input = document.getElementById('chat-input');
-            const messagesDiv = document.getElementById('chat-messages');
-
-            if (bubble) {
-                bubble.addEventListener('click', function () {
-                    // If integrated in Speed Dial, close menu when opening chat
-                    if (widgetContainer) {
-                        widgetContainer.classList.remove('open');
-                        toggleBtn.classList.remove('active');
-                        toggleBtn.querySelector('i').classList.remove('bi-x-lg');
-                        toggleBtn.querySelector('i').classList.add('bi-chat-fill');
-                    }
-
-                    const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === '';
-                    chatWindow.style.display = isHidden ? 'flex' : 'none';
-                });
-            }
-
-            if (closeChatBtn) {
-                closeChatBtn.addEventListener('click', function () {
-                    chatWindow.style.display = 'none';
-                });
-            }
-
-            // 2. Gửi tin nhắn
-            const sendBtn = document.getElementById('chat-send');
-            if (sendBtn) {
-                sendBtn.addEventListener('click', sendMessage);
-                input.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-            }
-
-            function sendMessage() {
-                const question = input.value.trim();
-                if (question === '') return;
-
-                // Hiển thị câu hỏi của user
-                addMessage(question, 'user-message');
-                input.value = '';
-
-                // Hiển thị "Bot đang gõ..."
-                addMessage('...', 'bot-message', true); // 'true' để đánh dấu là 'typing'
-
-                // 3. Gọi API back-end (/ask-ai)
-                fetch("{{ url_for('main.ask_ai') }}", {
+                // Gửi request ngầm (Fetch API)
+                fetch(url, {
                     method: 'POST',
+                    body: formData,
                     headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ question: question })
+                        // Header này báo cho server biết đây là AJAX
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // Xóa "Bot đang gõ..." và thay bằng câu trả lời thật
-                        updateTypingMessage(data.answer || data.error);
+                        if (data.status === 'success') {
+                            // 1. Cập nhật số lượng trên Badge
+                            const badge = document.getElementById('cart-badge');
+                            if (badge) {
+                                badge.textContent = data.cart_count; // Điền số mới
+                                badge.style.display = 'inline-block'; // Hiện badge lên (nếu đang ẩn)
+                            }
+
+                            // 2. Hiện Toast thông báo thành công
+                            // 2. Hiện Toast Thông báo (Code mới gọn hơn)
+                            if (bsToast) {
+                                // Gán nội dung thông báo
+                                toastBody.textContent = data.message;
+
+                                // Reset thanh progress (hack nhỏ để animation chạy lại)
+                                const progressBar = document.querySelector('.toast-progress');
+                                if (progressBar) {
+                                    progressBar.style.animation = 'none';
+                                    progressBar.offsetHeight; /* trigger reflow */
+                                    progressBar.style.animation = null;
+                                }
+
+                                bsToast.show();
+                            }
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        updateTypingMessage('Xin lỗi, tôi gặp lỗi kết nối.');
                     });
-            }
+            });
+        });
+    });
+</script>
 
-            // Hàm thêm tin nhắn vào cửa sổ
-            function addMessage(text, className, isTyping = false) {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'chat-message ' + className;
-                msgDiv.textContent = text;
-                if (isTyping) {
-                    msgDiv.id = 'bot-typing';
-                }
-                messagesDiv.appendChild(msgDiv);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight; // Cuộn xuống cuối
-            }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // === SPEED DIAL & SCROLL LOGIC ===
+        const toggleBtn = document.getElementById('floating-toggle');
+        const widgetContainer = document.getElementById('floating-widget');
+        const scrollBtn = document.getElementById('scroll-top-btn');
 
-            // Hàm cập nhật tin nhắn "Bot đang gõ..."
-            function updateTypingMessage(newText) {
-                const typingMsg = document.getElementById('bot-typing');
-                if (typingMsg) {
-                    typingMsg.textContent = newText;
-                    typingMsg.id = ''; // Xóa ID để không bị chọn lại
+        // Toggle Menu
+        if (toggleBtn && widgetContainer) {
+            toggleBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                widgetContainer.classList.toggle('open');
+                toggleBtn.classList.toggle('active');
+
+                // Toggle Icon
+                const icon = toggleBtn.querySelector('i');
+                if (toggleBtn.classList.contains('active')) {
+                    icon.classList.remove('bi-chat-fill');
+                    icon.classList.add('bi-x-lg');
+                } else {
+                    icon.classList.remove('bi-x-lg');
+                    icon.classList.add('bi-chat-fill');
                 }
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!widgetContainer.contains(e.target) && widgetContainer.classList.contains('open')) {
+                    widgetContainer.classList.remove('open');
+                    toggleBtn.classList.remove('active');
+                    const icon = toggleBtn.querySelector('i');
+                    icon.classList.remove('bi-x-lg');
+                    icon.classList.add('bi-chat-fill');
+                }
+            });
+        }
+
+        // Scroll Top Visibility
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                scrollBtn.style.display = 'flex';
+                setTimeout(() => scrollBtn.style.opacity = '1', 10);
+            } else {
+                scrollBtn.style.opacity = '0';
+                setTimeout(() => {
+                    if (window.scrollY <= 300) scrollBtn.style.display = 'none';
+                }, 300);
             }
         });
-    </script>
-    {% endblock %}
+
+        scrollBtn.addEventListener('click', function () {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        // === AI CHAT LOGIC ===
+        // 1. Mở/Đóng cửa sổ chat
+        const bubble = document.getElementById('chat-bubble');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChatBtn = document.getElementById('close-chat-btn');
+        const input = document.getElementById('chat-input');
+        const messagesDiv = document.getElementById('chat-messages');
+
+        if (bubble) {
+            bubble.addEventListener('click', function () {
+                // If integrated in Speed Dial, close menu when opening chat
+                if (widgetContainer) {
+                    widgetContainer.classList.remove('open');
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.querySelector('i').classList.remove('bi-x-lg');
+                    toggleBtn.querySelector('i').classList.add('bi-chat-fill');
+                }
+
+                const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === '';
+                chatWindow.style.display = isHidden ? 'flex' : 'none';
+            });
+        }
+
+        if (closeChatBtn) {
+            closeChatBtn.addEventListener('click', function () {
+                chatWindow.style.display = 'none';
+            });
+        }
+
+        // 2. Gửi tin nhắn
+        const sendBtn = document.getElementById('chat-send');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', sendMessage);
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        function sendMessage() {
+            const question = input.value.trim();
+            if (question === '') return;
+
+            // Hiển thị câu hỏi của user
+            addMessage(question, 'user-message');
+            input.value = '';
+
+            // Hiển thị "Bot đang gõ..."
+            addMessage('...', 'bot-message', true); // 'true' để đánh dấu là 'typing'
+
+            // 3. Gọi API back-end (/ask-ai)
+            fetch("{{ url_for('main.ask_ai') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({question: question})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Xóa "Bot đang gõ..." và thay bằng câu trả lời thật
+                    updateTypingMessage(data.answer || data.error);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    updateTypingMessage('Xin lỗi, tôi gặp lỗi kết nối.');
+                });
+        }
+
+        // Hàm thêm tin nhắn vào cửa sổ
+        function addMessage(text, className, isTyping = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message ' + className;
+            msgDiv.textContent = text;
+            if (isTyping) {
+                msgDiv.id = 'bot-typing';
+            }
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Cuộn xuống cuối
+        }
+
+        // Hàm cập nhật tin nhắn "Bot đang gõ..."
+        function updateTypingMessage(newText) {
+            const typingMsg = document.getElementById('bot-typing');
+            if (typingMsg) {
+                typingMsg.textContent = newText;
+                typingMsg.id = ''; // Xóa ID để không bị chọn lại
+            }
+        }
+    });
+</script>
+{% endblock %}
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
-    <!-- UNIFIED FLOATING WIDGET (CONTACT CARD) -->
-    <div class="floating-widget-container" id="floating-widget">
+<!-- UNIFIED FLOATING WIDGET (CONTACT CARD) -->
+<div class="floating-widget-container" id="floating-widget">
 
-        <!-- Main Toggle Button -->
-        <button class="floating-toggle-btn" id="floating-toggle" title="Hỗ trợ">
-            <i class="bi bi-chat-fill"></i>
-        </button>
-
-        <!-- Popover Card (Replaces Menu Items) -->
-        <div class="floating-contact-card">
-            <div class="contact-card-header">
-                Chat với Home Fit Pro để được tư vấn hiệu quả và giá tốt
-            </div>
-
-            <div class="contact-card-list">
-
-                <!-- Messenger -->
-                <a href="https://m.me/yourpageid" target="_blank" class="contact-card-item">
-                    <div class="contact-icon-circle messenger">
-                        <i class="bi bi-messenger"></i>
-                    </div>
-                    <span class="contact-item-text">Chat Messenger</span>
-                </a>
-
-                <!-- Zalo -->
-                <a href="https://zalo.me/0987654321" target="_blank" class="contact-card-item">
-                    <div class="contact-icon-circle zalo">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1200px-Icon_of_Zalo.svg.png"
-                            alt="Zalo">
-                    </div>
-                    <span class="contact-item-text">Chat trên Zalo</span>
-                </a>
-
-                <!-- AI Chat -->
-                <div id="chat-bubble" class="contact-card-item" style="cursor: pointer;">
-                    <div class="contact-icon-circle ai-chat">
-                        <i class="bi bi-robot"></i>
-                    </div>
-
-                </div>
-
-                <!-- Hotline -->
-                <a href="tel:0919013030" class="contact-card-item">
-                    <div class="contact-icon-circle phone">
-                        <i class="bi bi-telephone-fill"></i>
-                    </div>
-                    <span class="contact-item-text">091 901 3030</span>
-                </a>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Scroll Top Button (Separate for UX, sits above widget) -->
-    <button id="scroll-top-btn" class="scroll-top-btn" title="Lên đầu trang">
-        <i class="bi bi-arrow-up"></i>
+    <!-- Main Toggle Button -->
+    <button class="floating-toggle-btn" id="floating-toggle" title="Hỗ trợ">
+        <i class="bi bi-chat-fill"></i>
     </button>
 
-    <div id="chat-window">
-        <!-- Chat Header with Close Button -->
-        <div id="chat-header" class="d-flex justify-content-between align-items-center">
-            <span>Home Fit Pro AI</span>
-            <i id="close-chat-btn" class="bi bi-x-lg" style="cursor: pointer; font-size: 1rem;" title="Đóng chat"></i>
+    <!-- Popover Card (Replaces Menu Items) -->
+    <div class="floating-contact-card">
+        <div class="contact-card-header">
+            Chat với Home Fit Pro để được tư vấn hiệu quả và giá tốt
         </div>
 
-        <div id="chat-messages">
-            <div class="chat-message bot-message">Xin chào! Tôi có thể giúp gì cho bạn về fitness?</div>
-        </div>
-        <div id="chat-input-container">
-            <input type="text" id="chat-input" placeholder="Hỏi tôi về fitness...">
-            <button id="chat-send" class="btn btn-primary btn-sm">Gửi</button>
-        </div>
-    </div>
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="toast-message">
+        <div class="contact-card-list">
+
+            <!-- Messenger -->
+            <a href="https://www.facebook.com/dung.vu.935071/" target="_blank" class="contact-card-item">
+                <div class="contact-icon-circle messenger">
+                    <i class="bi bi-messenger"></i>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+                <span class="contact-item-text">Chat Messenger</span>
+            </a>
+
+            <!-- Zalo -->
+            <a href="https://zalo.me/0987654321" target="_blank" class="contact-card-item">
+                <div class="contact-icon-circle zalo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1200px-Icon_of_Zalo.svg.png"
+                         alt="Zalo">
+                </div>
+                <span class="contact-item-text">Chat trên Zalo</span>
+            </a>
+
+            <!-- AI Chat -->
+            <div id="chat-bubble" class="contact-card-item" style="cursor: pointer;">
+                <div class="contact-icon-circle ai-chat">
+                    <i class="bi bi-robot"></i>
+                </div>
+
             </div>
+
+            <!-- Hotline -->
+            <a href="tel:0919013030" class="contact-card-item">
+                <div class="contact-icon-circle phone">
+                    <i class="bi bi-telephone-fill"></i>
+                </div>
+                <span class="contact-item-text">0986 101 855</span>
+            </a>
+
         </div>
     </div>
-    <div id="loading-overlay"
-        class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-        style="background: rgba(255, 255, 255, 0.8); z-index: 9999;">
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <h4 class="mt-3 text-primary fw-bold">Đang xử lý, vui lòng chờ...</h4>
-            <p class="text-muted">Vui lòng không tắt trình duyệt.</p>
-        </div>
+
+</div>
+
+<!-- Scroll Top Button (Separate for UX, sits above widget) -->
+<button id="scroll-top-btn" class="scroll-top-btn" title="Lên đầu trang">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<div id="chat-window">
+    <!-- Chat Header with Close Button -->
+    <div id="chat-header" class="d-flex justify-content-between align-items-center">
+        <span>Home Fit Pro AI</span>
+        <i id="close-chat-btn" class="bi bi-x-lg" style="cursor: pointer; font-size: 1rem;" title="Đóng chat"></i>
     </div>
-    <script>
-        // Hàm hiển thị Loading (Dùng chung cho toàn web)
-        function showLoading() {
-            document.getElementById('loading-overlay').classList.remove('d-none');
-        }
-    </script>
+
+    <div id="chat-messages">
+        <div class="chat-message bot-message">Xin chào! Tôi có thể giúp gì cho bạn về fitness?</div>
+    </div>
+    <div id="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Hỏi tôi về fitness...">
+        <button id="chat-send" class="btn btn-primary btn-sm">Gửi</button>
+    </div>
+</div>
+<!--thông báo đã thêm giỏ hàng thành công -->
+<div class="toast-container position-fixed" style="z-index: 1100;">
+    <div id="liveToast" class="toast toast-modern hide" role="alert" aria-live="assertive" aria-atomic="true"
+         onclick="window.location.href='{{ url_for('main.view_cart') }}'"
+         style="cursor: pointer;">
+
+        <div class="toast-body d-flex align-items-center">
+            <div class="toast-icon-wrapper">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="ps-3 flex-grow-1">
+                <strong class="d-block text-dark">Thêm vào giỏ thành công!</strong>
+                <span id="toast-message" class="text-muted small"></span>
+            </div>
+            <div class="toast-arrow ms-2 text-primary">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </div>
+        <div class="toast-progress"></div>
+    </div>
+</div>
+
+
+<div id="loading-overlay"
+     class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+     style="background: rgba(255, 255, 255, 0.8); z-index: 9999;">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="mt-3 text-primary fw-bold">Đang xử lý, vui lòng chờ...</h4>
+        <p class="text-muted">Vui lòng không tắt trình duyệt.</p>
+    </div>
+</div>
+<script>
+    // Hàm hiển thị Loading (Dùng chung cho toàn web)
+    function showLoading() {
+        document.getElementById('loading-overlay').classList.remove('d-none');
+    }
+</script>
 
 
 </body>

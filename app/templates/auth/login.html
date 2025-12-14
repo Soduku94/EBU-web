@@ -1,38 +1,53 @@
 {% extends "base.html" %}
-{# Chúng ta sẽ dùng thư viện flask-bootstrap sau để render form đẹp hơn #}
-
+{% block title %}Đăng nhập - Home Fit Pro{% endblock %}
 {% block content %}
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <h2>{{ title }}</h2>
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }} <div class="mb-3">
-                    {{ form.email.label(class="form-label") }}
-                    {{ form.email(class="form-control", size=32) }}
-                    {% for error in form.email.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header text-center py-4 text-white" style="background: linear-gradient(135deg, #FF6B35, #1E3A8A);">
+                    <h3 class="fw-bold mb-0">Đăng Nhập</h3>
                 </div>
-                
-                <div class="mb-3">
-                    {{ form.password.label(class="form-label") }}
-                    {{ form.password(class="form-control", size=32) }}
-                    {% for error in form.password.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                    <small><a href="{{ url_for('auth.reset_password_request') }}">Quên mật khẩu?</a></small>
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid", placeholder="Nhập email của bạn") }}
+                                <div class="invalid-feedback">{{ form.email.errors[0] }}</div>
+                            {% else %}
+                                {{ form.email(class="form-control", placeholder="Nhập email của bạn") }}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label fw-bold") }}
+                            {% if form.password.errors %}
+                                {{ form.password(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">{{ form.password.errors[0] }}</div>
+                            {% else %}
+                                {{ form.password(class="form-control") }}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            {{ form.remember(class="form-check-input") }}
+                            {{ form.remember.label(class="form-check-label") }}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg fw-bold") }}
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-1"><a href="#">Quên mật khẩu?</a></p>
+                        <p>Chưa có tài khoản? <a href="{{ url_for('auth.register') }}">Đăng ký ngay</a></p>
+                    </div>
                 </div>
-                
-                <div class="mb-3 form-check">
-                    {{ form.remember_me(class="form-check-input") }}
-                    {{ form.remember_me.label(class="form-check-label") }}
-                </div>
-                
-                <div class="mb-3">
-                    {{ form.submit(class="btn btn-primary") }}
-                </div>
-            </form>
-            <p>Chưa có tài khoản? <a href="{{ url_for('auth.register') }}">Đăng ký ngay!</a></p>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

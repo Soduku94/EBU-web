@@ -41,7 +41,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
 # db mới
     # === THÊM CÁC TRƯỜNG MỚI CHO USER (để auto-fill khi checkout) ===
-    full_name = db.Column(db.String(128))
+    full_name = db.Column(db.String(100), nullable=True)
     phone = db.Column(db.String(20))
     address = db.Column(db.String(256))
 # quên mâtj khẩu

@@ -290,7 +290,7 @@
     font-family: var(--font-heading, 'Outfit', sans-serif);
     font-size: 1.75rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #1E3A8A 0%, #60A5FA 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

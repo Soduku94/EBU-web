@@ -1,43 +1,433 @@
 {% extends "base.html" %}
-{% block title %}{{ title }}{% endblock %}
+
+{% block title %}Tư vấn chọn thiết bị - Home Fit Pro{% endblock %}
 
 {% block content %}
-<div class="container" style="min-height: 70vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="text-center mb-5">
-                <h2 class="text-primary fw-bold">Thấu hiểu Nhu cầu của Bạn</h2>
-                <p class="lead">Hãy cho chúng tôi biết thêm một chút để tìm ra dụng cụ hoàn hảo nhất.</p>
+<div class="consultation-wrapper section-gradient-2" style="padding: 4rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="text-center mb-5 fade-in">
+                    <div class="icon-header mb-3">
+                        <i class="bi bi-magic" style="font-size: 3rem; color: var(--primary-color);"></i>
+                    </div>
+                    <h1 class="fw-bold mb-3">Tìm thiết bị tập luyện hoàn hảo cho BẠN</h1>
+                    <p class="text-muted fs-5">
+                        Chỉ cần trả lời 4 câu hỏi đơn giản, AI của chúng tôi sẽ gợi ý những sản phẩm phù hợp nhất với
+                        mục tiêu và ngân sách của bạn.
+                    </p>
+                </div>
+
+                <div class="card border-0 shadow-lg rounded-4 fade-in">
+                    <div class="card-body p-4 p-md-5">
+
+                        <form method="POST" action="{{ url_for('main.needs_assessment') }}" id="needs-form">
+                            {{ form.hidden_tag() }}
+
+                            <div class="question-section mb-5">
+                                <h4 class="question-title mb-4">
+                                    <span class="step-badge">1</span> Mục tiêu tập luyện chính của bạn là gì?
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="goal" id="goal_lose_weight"
+                                               value="lose_weight" checked>
+                                        <label class="option-card" for="goal_lose_weight">
+                                            <div class="option-icon"><i class="bi bi-fire"></i></div>
+                                            <div class="option-label">Giảm cân</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="goal" id="goal_gain_muscle"
+                                               value="gain_muscle">
+                                        <label class="option-card" for="goal_gain_muscle">
+                                            <div class="option-icon">
+                                                <i class="fa-solid fa-person-running"></i>
+                                            </div>
+
+                                            <div class="option-label">Tăng cơ</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="goal" id="goal_health"
+                                               value="health">
+                                        <label class="option-card" for="goal_health">
+                                            <div class="option-icon"><i class="bi bi-heart-pulse"></i></div>
+                                            <div class="option-label">Sức khỏe</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="goal" id="goal_recovery"
+                                               value="recovery">
+                                        <label class="option-card" for="goal_recovery">
+                                            <div class="option-icon"><i class="bi bi-bandaid"></i></div>
+                                            <div class="option-label">Phục hồi</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question-section mb-5">
+                                <h4 class="question-title mb-4">
+                                    <span class="step-badge">2</span> Diện tích phòng tập của bạn thế nào?
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="space" id="space_small"
+                                               value="small" checked>
+                                        <label class="option-card" for="space_small">
+                                            <div class="option-icon"><i class="bi bi-box"></i></div>
+                                            <div class="option-label">Nhỏ hẹp</div>
+                                            <div class="option-sub">&lt; 10m²</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="space" id="space_medium"
+                                               value="medium">
+                                        <label class="option-card" for="space_medium">
+                                            <div class="option-icon"><i class="bi bi-door-open"></i></div>
+                                            <div class="option-label">Vừa phải</div>
+                                            <div class="option-sub">10 - 20m²</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="space" id="space_large"
+                                               value="large">
+                                        <label class="option-card" for="space_large">
+                                            <div class="option-icon"><i class="bi bi-house-door"></i></div>
+                                            <div class="option-label">Rộng rãi</div>
+                                            <div class="option-sub">&gt; 20m²</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question-section mb-5">
+                                <h4 class="question-title mb-4">
+                                    <span class="step-badge">3</span> Kinh nghiệm tập luyện của bạn?
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="experience" id="exp_newbie"
+                                               value="newbie" checked>
+                                        <label class="option-card" for="exp_newbie">
+                                            <div class="option-icon"><i class="bi bi-egg"></i></div>
+                                            <div class="option-label">Người mới</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="experience" id="exp_intermediate"
+                                               value="intermediate">
+                                        <label class="option-card" for="exp_intermediate">
+                                            <div class="option-icon"><i class="bi bi-bicycle"></i></div>
+                                            <div class="option-label">Đã tập qua</div>
+                                        </label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="experience" id="exp_pro"
+                                               value="expert">
+                                        <label class="option-card" for="exp_pro">
+                                            <div class="option-icon"><i class="bi bi-trophy"></i></div>
+                                            <div class="option-label">Chuyên nghiệp</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question-section mb-5">
+                                <h4 class="question-title mb-4">
+                                    <span class="step-badge">4</span> Ngân sách dự kiến của bạn?
+                                </h4>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="budget" id="budget_low" value="low"
+                                               checked>
+                                        <label class="option-card horizontal" for="budget_low">
+                                            <div class="option-icon"><i class="bi bi-piggy-bank"></i></div>
+                                            <div class="text-start ms-3">
+                                                <div class="option-label">Tiết kiệm</div>
+                                                <div class="option-sub">Dưới 1 triệu</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="budget" id="budget_medium"
+                                               value="medium">
+                                        <label class="option-card horizontal" for="budget_medium">
+                                            <div class="option-icon"><i class="bi bi-wallet2"></i></div>
+                                            <div class="text-start ms-3">
+                                                <div class="option-label">Phổ thông</div>
+                                                <div class="option-sub">1 - 5 triệu</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="budget" id="budget_high"
+                                               value="high">
+                                        <label class="option-card horizontal" for="budget_high">
+                                            <div class="option-icon"><i class="bi bi-gem"></i></div>
+                                            <div class="text-start ms-3">
+                                                <div class="option-label">Cao cấp</div>
+                                                <div class="option-sub">Trên 5 triệu</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-5">
+                                <button type="submit" id="submit-btn"
+                                        class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg submit-btn-pulse">
+                                    <i class="bi bi-stars me-2"></i> Xem Gợi Ý Của AI
+                                </button>
+                                <p class="text-muted mt-3 small">Hệ thống sẽ phân tích và đưa ra kết quả ngay lập
+                                    tức.</p>
+                            </div>
+
+                        </form>
+
+                        <div id="results-section" class="mt-5 d-none fade-in">
+                            <hr class="my-5">
+                            <div class="text-center mb-4">
+                                <h3 class="fw-bold text-primary">🎉 Gợi ý dành riêng cho bạn</h3>
+                                <p class="text-muted">Dựa trên phân tích, đây là những thiết bị phù hợp nhất:</p>
+                            </div>
+
+                            <div class="row g-3" id="results-container">
+                                </div>
+
+                            <div class="text-center mt-4">
+                                <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary rounded-pill">
+                                    Xem tất cả sản phẩm
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            
-            <form method="POST" class="card p-5 shadow-lg border-0">
-                {{ form.hidden_tag() }}
-                
-                <div class="mb-4">
-                    <label class="form-label fw-bold h5"><i class="bi bi-bullseye text-danger"></i> {{ form.goal.label.text }}</label>
-                    {{ form.goal(class="form-select form-select-lg") }}
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold h5"><i class="bi bi-graph-up text-success"></i> {{ form.experience.label.text }}</label>
-                    {{ form.experience(class="form-select form-select-lg") }}
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold h5"><i class="bi bi-house-door text-info"></i> {{ form.space.label.text }}</label>
-                    {{ form.space(class="form-select form-select-lg") }}
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold h5"><i class="bi bi-wallet2 text-warning"></i> {{ form.budget.label.text }}</label>
-                    {{ form.budget(class="form-select form-select-lg") }}
-                </div>
-
-                <div class="d-grid mt-4">
-                    {{ form.submit(class="btn btn-primary btn-lg rounded-pill") }}
-                </div>
-            </form>
         </div>
     </div>
 </div>
+
+<style>
+    /* Styling riêng cho trang này */
+    .fade-in {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
+    .step-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        font-size: 1rem;
+        margin-right: 10px;
+    }
+
+    .question-title {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    /* Option Card Styles */
+    .option-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 1.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        height: 100%;
+        text-align: center;
+    }
+
+    .option-card:hover {
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .option-icon {
+        font-size: 2.5rem;
+        color: #adb5bd;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .option-label {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    .option-sub {
+        font-size: 0.8rem;
+        color: #adb5bd;
+    }
+
+    /* Khi được chọn */
+    .btn-check:checked + .option-card {
+        background: rgba(255, 107, 53, 0.05);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+    }
+
+    .btn-check:checked + .option-card .option-icon {
+        color: var(--primary-color);
+        animation: popIn 0.4s ease;
+    }
+
+    .btn-check:checked + .option-card .option-label {
+        color: var(--text-dark);
+        font-weight: 700;
+    }
+
+    .btn-check:checked + .option-card .option-sub {
+        color: var(--primary-color);
+    }
+
+    /* Style cho Card Ngang */
+    .option-card.horizontal {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1rem 1.5rem;
+        text-align: left;
+    }
+
+    .option-card.horizontal .option-icon {
+        margin-bottom: 0;
+        margin-right: 0;
+        font-size: 2rem;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0.8); opacity: 0.7; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .submit-btn-pulse {
+        animation: pulseOrange 2s infinite;
+    }
+
+    @keyframes pulseOrange {
+        0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 107, 53, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+    }
+
+    /* Mobile Responsive adjustments */
+    @media (max-width: 768px) {
+        .question-title { font-size: 1.1rem; }
+        .option-icon { font-size: 2rem; }
+        .option-label { font-size: 0.9rem; }
+        .option-card { padding: 1rem 0.5rem; }
+    }
+</style>
+
+{% endblock %} {% block scripts %}
+{{ super() }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Needs Assessment Script Loaded!");
+
+    // SỬA LỖI 4: Chọn đúng ID form đã thêm ở trên
+    const form = document.getElementById('needs-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultsSection = document.getElementById('results-section');
+    const resultsContainer = document.getElementById('results-container');
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // CHẶN CHUYỂN TRANG
+            console.log("AJAX Start...");
+
+            // Hiệu ứng Loading
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang phân tích...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+
+            fetch("{{ url_for('main.needs_assessment') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+
+                if (data.status === 'success') {
+                    resultsContainer.innerHTML = '';
+
+                    if(data.products.length === 0) {
+                         alert('Không tìm thấy sản phẩm phù hợp.');
+                         return;
+                    }
+
+                    data.products.forEach(product => {
+                        const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+
+                        const productHTML = `
+                            <div class="col-6 col-md-4 fade-in">
+                                <div class="product-card-modern h-100 border shadow-sm" style="background: white; border-radius: 12px; overflow: hidden;">
+                                    <div class="product-image-wrapper position-relative" style="height: 180px; overflow: hidden;">
+                                        <a href="/product/${product.slug}">
+                                            <img src="${product.image}" alt="${product.name}" class="w-100 h-100" style="object-fit: cover;">
+                                        </a>
+                                    </div>
+                                    <div class="product-card-body p-3 d-flex flex-column">
+                                        <div class="small text-muted mb-1">${product.category}</div>
+                                        <h6 class="fw-bold mb-2" style="font-size: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            <a href="/product/${product.slug}" class="text-dark text-decoration-none">${product.name}</a>
+                                        </h6>
+                                        <div class="text-primary fw-bold mb-3">${priceFormatted}</div>
+
+                                        <div class="mt-auto d-grid gap-2">
+                                            <a href="/product/${product.slug}" class="btn btn-outline-primary btn-sm rounded-pill">Chi tiết</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.insertAdjacentHTML('beforeend', productHTML);
+                    });
+
+                    resultsSection.classList.remove('d-none');
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    alert('Lỗi: ' + (data.message || 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            });
+        });
+    } else {
+        console.error("Lỗi: Không tìm thấy form có id='needs-form'");
+    }
+});
+</script>
 {% endblock %}

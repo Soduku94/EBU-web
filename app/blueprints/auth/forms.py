@@ -1,35 +1,33 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from app.models import User
 
 class LoginForm(FlaskForm):
-    """Form cho trang Đăng nhập."""
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Mật khẩu', validators=[DataRequired()])
-    remember_me = BooleanField('Ghi nhớ đăng nhập')
+    remember = BooleanField('Ghi nhớ đăng nhập')
     submit = SubmitField('Đăng nhập')
 
 class RegistrationForm(FlaskForm):
-    """Form cho trang Đăng ký."""
-    username = StringField('Tên đăng nhập', validators=[DataRequired()])
+    full_name = StringField('Họ và tên', validators=[DataRequired(), Length(min=2, max=50)])
+
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Mật khẩu', validators=[DataRequired()])
-    password2 = PasswordField(
-        'Nhập lại mật khẩu', validators=[DataRequired(), EqualTo('password', message='Mật khẩu phải trùng khớp.')])
+
+    password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6)])
+
+    confirm_password = PasswordField('Nhập lại mật khẩu', validators=[
+        DataRequired(),
+        EqualTo('password', message='Mật khẩu không khớp.')
+    ])
+
     submit = SubmitField('Đăng ký')
 
-    # Hàm validate_... tự động được WTForms gọi
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('Tên đăng nhập này đã được sử dụng.')
-
+    # Chỉ cần kiểm tra trùng Email
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError('Email này đã được sử dụng.')
-
+        if user:
+            raise ValidationError('Email này đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập.')
 
 class ResetPasswordRequestForm(FlaskForm):
     """Form nhập email để yêu cầu reset."""
