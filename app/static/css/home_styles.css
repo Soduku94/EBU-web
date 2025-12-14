@@ -31,7 +31,23 @@
     --spacing-xxl: 4rem;
 
     /* Typography */
-    --font-heading: 'Outfit', 'Poppins', sans-serif;
+   :root {
+    /* 1. Ưu tiên số 1: Be Vietnam Pro -> Font chuẩn tiếng Việt nhất hiện nay */
+    --font-heading: 'Be Vietnam Pro', sans-serif;
+
+    /* Body giữ nguyên Inter là rất đẹp rồi */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Đảm bảo áp dụng font cho các thẻ Heading */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em; /* Mẹo nhỏ: Thu hẹp khoảng cách chữ xíu nhìn sẽ sang hơn */
+}
+
+body {
+    font-family: var(--font-body);
+}
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
     /* Shadows */
